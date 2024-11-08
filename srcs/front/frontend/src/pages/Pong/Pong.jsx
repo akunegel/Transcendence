@@ -191,7 +191,7 @@ function Pong() {
 		let paddleY = (side == 1 ? RPaddle.current.y : LPaddle.current.y);
 
 		// When at a paddle's x value, checks if the ball y value is inside the paddel's range to allow rebound
-		if (y > paddleY + 60 || y < paddleY - 60)
+		if (y > paddleY + 65 || y < paddleY - 65)
 			return (false);
 		return (true);
 	}
@@ -248,8 +248,13 @@ function Pong() {
 		}
 		else // Or rebound didn't need any specific verification
 		{
+			console.log("no specific");
 			if (newX >= 750 || newX <= 50) {
-				newX = (newX >= 750 ? 750 : 50);
+				// if (pos.current.x >= 750 || pos.current.x <= 50)
+				if (pos.current.x > 750 || pos.current.x < 50)
+					newX = (newX >= 750 ? 791.1 : 9);
+				else
+					newX = (newX >= 750 ? 750 : 50);
 				newY = dir.current * (newX - pos.current.x) * vec.current + pos.current.y;
 				dir.current *= -1;
 			}
