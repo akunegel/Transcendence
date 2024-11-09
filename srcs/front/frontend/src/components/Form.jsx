@@ -41,7 +41,7 @@ function From({route, method}) {
         <input className="form-imput" type="text" value={username} onChange={(f) => setUsername(f.target.value)} placeholder="Username"></input>
         <input className="form-imput" type="password" value={password} onChange={(f) => setPassword(f.target.value)} placeholder="Password"></input>
         {loading && <LoadingIndicator/>}
-        <button className="form-button" type="subimt">{name}</button>
+        <button className="form-button" type="submit">{name}</button>
     </form>
 
 }

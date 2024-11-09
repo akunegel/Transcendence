@@ -1,8 +1,10 @@
 //import { useState, useEffect } from "react"
 //import api from "../api";
+import React, {useEffect} from 'react'
 import "../styles/Home.css"
-import {useNavigate} from "react-router-dom"
+import {useNavigate, useLocation} from "react-router-dom"
 import api from "../api";
+
 function Home() {
     const navigate = useNavigate();
 
@@ -15,16 +17,16 @@ function Home() {
         navigate("/profil")
     }
 
-        return (
-            <div>
-                <div>
-                    <h2>Home Page</h2>
-                </div>
-                <h2>Transcendence</h2>
-                <button className="logout-button" onClick={() => handleLogout()}>Logout</button>
-                <br/>
-                <button onClick={() => handleProfil()}>Profil</button>
-            </div>
+	return (
+		<div>
+			<div>
+				<h2>Home Page</h2>
+			</div>
+			<h2>Transcendence</h2>
+			<button className="logout-button" onClick={() => handleLogout()}>Logout</button>
+			<br/>
+			<button onClick={() => handleProfil()}>Profil</button>
+		</div>
     );
 }
 

@@ -11,10 +11,10 @@ function Login() {
     }
 
     return (
-        <div>
+        <div style={{padding:'8%'}}>
             {localStorage.clear()}
-            <button className="go-to-register-button" onClick={() => handleGoToRegisterButton()}>Create an account</button>
             <Form route="/api/user/token/" method="login"/>
+            <button className="go-to-register-button" onClick={() => handleGoToRegisterButton()}>Create an account</button>
         </div>
     );
 }
