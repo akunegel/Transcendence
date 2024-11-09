@@ -1,4 +1,5 @@
 import Form from "../components/Form"
+import axios from "axios";
 import {useNavigate} from "react-router-dom"
 
 function Login() {
@@ -12,8 +13,8 @@ function Login() {
     return (
         <div>
             {localStorage.clear()}
-            <button className="go-to-register-button" onClick={() => handleGoToRegisterButton()}>Register</button>
-            <Form route="/api/token/" method="login" />
+            <button className="go-to-register-button" onClick={() => handleGoToRegisterButton()}>Create an account</button>
+            <Form route="/api/user/token/" method="login"/>
         </div>
     );
 }

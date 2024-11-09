@@ -55,9 +55,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
     'rest_framework',
     'corsheaders',
+
+    'api',
+	'user',
     'pong'
 ]
 
@@ -158,7 +160,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'api.User'
+AUTH_USER_MODEL = 'user.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
 #pour des raison de securite, a l'avenir, penser a chager ce qu'il y a en bas la
@@ -185,6 +187,11 @@ LOGGING = {
             'propagate': False,
         },
         'api': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+		'user': {
             'handlers': ['console'],
             'level': 'INFO',
             'propagate': True,
