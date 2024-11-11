@@ -13,11 +13,11 @@ function MicroPong() {
 
 	const drawGame = (ctx, x, y) => {
 
-		// Fill background in black
+		// // Fill background in black
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		ctx.fillStyle = 'black';
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
+		// ctx.fillStyle = 'rgb(75, 0, 130, 0.1)';
+		// ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		
 		// Drawing the ball at the given position
 		ctx.beginPath();
 		ctx.arc(x, y, 10, 0, 2 * Math.PI);

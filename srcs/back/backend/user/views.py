@@ -51,6 +51,3 @@ def getUser(request):
     logger.info("myUserFinal ---> %s", myUserFinal)
 
     return JsonResponse(myUserFinal, safe=False)
-
-
-        

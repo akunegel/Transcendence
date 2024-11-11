@@ -34,7 +34,6 @@
 	min-width: 300px;
 	border-radius: 10px;
 }
-
 .centered_container button{
 	min-width: 250px;
 	max-width: 250px;
@@ -48,7 +47,6 @@
 	box-shadow: 0 0 10px rgba(75, 0, 130, 1);
 	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
 }
-
 .centered_container button:hover{
 	background-color: rgb(255, 102, 102);
 	outline: 10px double whitesmoke;
