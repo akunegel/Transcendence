@@ -1,3 +1,7 @@
+body {
+	background-image: url("../assets/background_pong.png");
+}
+
 * {
 	margin: 0;
 	padding: 0;

@@ -248,7 +248,6 @@ function Pong() {
 		}
 		else // Or rebound didn't need any specific verification
 		{
-			console.log("no specific");
 			if (newX >= 750 || newX <= 50) {
 				// if (pos.current.x >= 750 || pos.current.x <= 50)
 				if (pos.current.x > 750 || pos.current.x < 50)
@@ -308,22 +307,27 @@ function Pong() {
         return () => cancelAnimationFrame(animate);
     }, []);
 
-    return (
-        <div className={styles.MovingBall}>
-            <canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
-			<h2>{score.left}:{score.right}</h2>
-            <p>Speed: {speed.current}</p>
-            <div>
-                <button onClick={handleSlower}>Slower</button>
-                <button onClick={startGame}>Start</button>
-                <button onClick={handleFaster}>Faster</button>
-            </div>
-			<div>
+	return (
+		<div className={styles.centered_container}>
+
+			<div className={styles.centered_container} style={{marginTop:"80px"}}>
+				<h2>{score.left}:{score.right}</h2>
+			</div>
+
+			<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+
+			<div className={styles.button_container}>
+				<button onClick={startGame}>Start</button>
 				<button onClick={restartGame}>Restart</button>
 			</div>
-            <p>Since start: {count} sec</p>
-        </div>
-    );
+
+			<div className={styles.centered_container}>
+				<p>Speed: {speed.current}</p>
+				<p>Since start: {count} sec</p>
+			</div>
+
+		</div>
+	);
 }
 
 export default Pong;

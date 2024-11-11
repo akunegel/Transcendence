@@ -1,19 +1,20 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+// When on root url '/', client will be automatically redirected to '/home'
 function RedirectHome() {
-  const location = useLocation(); // Moved outside useEffect
-  const navigate = useNavigate(); // Moved outside useEffect
+	const location = useLocation();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(location.pathname);
+	useEffect(() => {
 
-    if (location.pathname === "/") {
-      navigate("/home");
-    }
-  }, [location, navigate]); // Adding location and navigate as dependencies
+		if (location.pathname === "/") {
+			navigate("/home");
+		}
 
-  return <></>;
-}
+	}, [location, navigate]);
+
+	return (<></>);
+	}
 
 export default RedirectHome;
