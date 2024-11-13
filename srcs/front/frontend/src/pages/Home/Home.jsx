@@ -7,6 +7,7 @@ import logo from "../../assets/logo_shadowed.png"
 import sublogo from "../../assets/logo_under.png"
 import {useNavigate, useLocation} from "react-router-dom"
 import CutePong from "../MicroPong/MicroPong.jsx"
+import ChatRoom from "../Chat/ChatRoom.jsx"
 import api from "../../api";
 
 function Home() {
@@ -49,7 +50,7 @@ function Home() {
 				</div>
 
 				<div className={styles.centered_container} style={{border: "10px double whitesmoke"}}>
-					{/* add a chat here or profil statistics */}
+					<ChatRoom/>
 				</div>
 
 			</div>

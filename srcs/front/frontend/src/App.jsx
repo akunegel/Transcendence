@@ -21,17 +21,17 @@ function App() {
 	};
 
 	return (
-    <BrowserRouter>
-      <Routes>
-	  <Route path="/" element={<ProtectedRoute> <RedirectHome/> </ProtectedRoute>}/>
-	  <Route path="/home" element={<ProtectedRoute> <Home/> </ProtectedRoute>}/>
-        <Route path="/login" element={<Login/>}></Route>
-        <Route path="/profil" element={<ProtectedRoute> <Profil/> </ProtectedRoute>}/>
-        <Route path="/register" element={<Register/>}></Route>
-        <Route path="*" element={<NotFound/>}></Route>
-        <Route path="/pong" element={<ProtectedRoute> <Pong/> </ProtectedRoute>}/>
-      </Routes>
-    </BrowserRouter>
+	<BrowserRouter>
+	<Routes>
+	<Route path="/" element={<ProtectedRoute> <RedirectHome/> </ProtectedRoute>}/>
+	<Route path="/home" element={<ProtectedRoute> <Home/> </ProtectedRoute>}/>
+		<Route path="/login" element={<Login/>}></Route>
+		<Route path="/profil" element={<ProtectedRoute> <Profil/> </ProtectedRoute>}/>
+		<Route path="/register" element={<Register/>}></Route>
+		<Route path="*" element={<NotFound/>}></Route>
+		<Route path="/pong" element={<ProtectedRoute> <Pong/> </ProtectedRoute>}/>
+	</Routes>
+	</BrowserRouter>
 	)
 }
 
