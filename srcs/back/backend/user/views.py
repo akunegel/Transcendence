@@ -1,5 +1,8 @@
 from django.shortcuts import render
 from .models import User
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.permissions import AllowAny
+from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.views import APIView
 from .serializers import UserSerializer, CreatUserSerializer
@@ -10,44 +13,39 @@ logger = logging.getLogger(__name__)
 # Create your views here.
 
 class CreatUserView(generics.CreateAPIView):
-    queryset = User.objects.all()#pour regarder tout les objets de ma classe pour ne pas cree un user qui existe deja
-    serializer_class = CreatUserSerializer#dire a la "view" quel genre de donne on a besooin pour faire un nouveau user
-    permission_classes = [AllowAny]#determine qui a le droit d'avoir accee a cette "view"
+	queryset = User.objects.all()#pour regarder tout les objets de ma classe pour ne pas cree un user qui existe deja
+	serializer_class = CreatUserSerializer#dire a la "view" quel genre de donne on a besooin pour faire un nouveau user
+	permission_classes = [AllowAny]#determine qui a le droit d'avoir accee a cette "view"
 
-    # def post(self, request, *args, **kwargs):
-    #     logger.info(request.data)
-    #     myData = request.data
+	# def post(self, request, *args, **kwargs):
+	#     logger.info(request.data)
+	#     myData = request.data
 
-    #     myUsername = myData.get("username")
-    #     myPassword = myData.get("password")
+	#     myUsername = myData.get("username")
+	#     myPassword = myData.get("password")
 
-    #     myUserData = {
-    #         "username": myUsername,
-    #         "password": myPassword
-    #     }
+	#     myUserData = {
+	#         "username": myUsername,
+	#         "password": myPassword
+	#     }
 
-    #     myUserToSave = UserSerializer(data=myUserData)
+	#     myUserToSave = UserSerializer(data=myUserData)
 
-    #     if myUserToSave.is_valid():
-    #         myUserToSave.save()
-        
-    #     logger.info("LE USER EST CREEE")
-    #     return JsonResponse({"mabite": "0"}, safe=False)
+	#     if myUserToSave.is_valid():
+	#         myUserToSave.save()
+		
+	#     logger.info("LE USER EST CREEE")
+	#     return JsonResponse({"mabite": "0"}, safe=False)
 
 def getUser(request):
-    myPath = request.build_absolute_uri()
-    myUsername = myPath.split("?")[1]
+	myPath = request.build_absolute_uri()
 
-    myUser = User.objects.get(username=myUsername)
+	token_string = myPath.split("?")[1]
+	token = AccessToken(token_string)
 
-    logger.info("OBJET DB myUser ---> %s", myUser)
+	user_id = token['user_id']
+	myUser = User.objects.get(id=user_id)
+	myUserSer = UserSerializer(myUser)
+	myUserFinal = myUserSer.data
 
-    myUserSer = UserSerializer(myUser)
-
-    logger.info("myUserSer ---> %s", myUserSer)
-
-    myUserFinal = myUserSer.data
-
-    logger.info("myUserFinal ---> %s", myUserFinal)
-
-    return JsonResponse(myUserFinal, safe=False)
+	return JsonResponse(myUserFinal, safe=False)
