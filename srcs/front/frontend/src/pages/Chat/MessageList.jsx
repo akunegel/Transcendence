@@ -1,18 +1,18 @@
 import React, { useEffect, useRef } from 'react';
-import './index.css'
+import styles from './Chat.module.css'
 
-const MessageList = ({ messages }) => {
+const MessageList = ({ messagesList }) => {
 	const messagesEndRef = useRef(null);
 
 	// Défile automatiquement vers le bas lorsque les messages changent
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, [messages]);
+	}, [messagesList]);
 
 	return (
-		<div className="message-list">
-			{messages.map((msg, index) => (
-				<p key={index} className="message-bubble">{msg.content}</p>
+		<div className={styles.message_list}>
+			{messagesList.map((msg, index) => (
+				<p key={index}>{msg.content}</p>
 			))}
 			{/* Référence utilisée pour le scroll */}
 			<div ref={messagesEndRef} />
