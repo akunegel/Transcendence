@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from .models import User
-from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework.permissions import AllowAny
-from django.http import JsonResponse
-from rest_framework import generics
-from rest_framework.views import APIView
 from .serializers import UserSerializer, CreatUserSerializer
+from rest_framework import generics
+from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import JsonResponse
 import logging
@@ -18,34 +18,37 @@ class CreatUserView(generics.CreateAPIView):
 	permission_classes = [AllowAny]#determine qui a le droit d'avoir accee a cette "view"
 
 	# def post(self, request, *args, **kwargs):
-	#     logger.info(request.data)
-	#     myData = request.data
+	# 	logger.info(request.data)
+	# 	myData = request.data
 
-	#     myUsername = myData.get("username")
-	#     myPassword = myData.get("password")
+	# 	myUsername = myData.get("username")
+	# 	myPassword = myData.get("password")
 
-	#     myUserData = {
-	#         "username": myUsername,
-	#         "password": myPassword
-	#     }
+	# 	myUserData = {
+	# 		"username": myUsername,
+	# 		"password": myPassword
+	# 	}
 
-	#     myUserToSave = UserSerializer(data=myUserData)
+	# 	myUserToSave = UserSerializer(data=myUserData)
 
-	#     if myUserToSave.is_valid():
-	#         myUserToSave.save()
+	# 	if myUserToSave.is_valid():
+	# 		myUserToSave.save()
 		
-	#     logger.info("LE USER EST CREEE")
-	#     return JsonResponse({"mabite": "0"}, safe=False)
+	# 	logger.info("LE USER EST CREEE")
+	# 	return JsonResponse({"mabite": "0"}, safe=False)
 
 def getUser(request):
 	myPath = request.build_absolute_uri()
-
 	token_string = myPath.split("?")[1]
-	token = AccessToken(token_string)
 
-	user_id = token['user_id']
-	myUser = User.objects.get(id=user_id)
-	myUserSer = UserSerializer(myUser)
-	myUserFinal = myUserSer.data
+	try:
+		token = AccessToken(token_string)
+		token.verify()
+		user_id = token['user_id']
+		myUser = User.objects.get(id=user_id)
+		myUserSer = UserSerializer(myUser)
+		myUserFinal = myUserSer.data
+	except TokenError as e:
+		return JsonResponse({"error": "Invalid or expired token"}, status=401)
 
 	return JsonResponse(myUserFinal, safe=False)

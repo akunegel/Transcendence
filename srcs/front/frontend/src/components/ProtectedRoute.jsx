@@ -14,7 +14,7 @@ function ProtectedRoute({children}) {
     const refreshToken = async () => {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN);
         try {//essayer d'envoyer une requete au path "api/token/refresh/", pour voir si il nous redonne un nouveau ACCESS_TOKEN
-            const res = await api.post("api/token/refresh/", {refresh : refreshToken});
+            const res = await api.post("api/user/token/refresh/", {refresh : refreshToken});
             if (res.status === 200) {//200 signifie que la reponse est favorable, le "===": comparaison tres tres strictement egal
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 setIsAuthorized(true);
