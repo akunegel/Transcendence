@@ -30,7 +30,7 @@
 
 .userinfo_container {
 	margin-bottom: 2%;
-	border: 10px double whitesmoke;
+	border: 10px solid white;
 	border-radius: 30px;
 	max-width: 70%;
 	min-width: 70%;

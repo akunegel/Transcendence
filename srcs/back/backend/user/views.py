@@ -18,24 +18,30 @@ class CreatUserView(generics.CreateAPIView):
 	permission_classes = [AllowAny]#determine qui a le droit d'avoir accee a cette "view"
 
 	# def post(self, request, *args, **kwargs):
-	# 	logger.info(request.data)
+	# 	logger.info("Received data: %s", request.data)
 	# 	myData = request.data
 
 	# 	myUsername = myData.get("username")
 	# 	myPassword = myData.get("password")
 
-	# 	myUserData = {
-	# 		"username": myUsername,
-	# 		"password": myPassword
-	# 	}
+	# 	# Check if the user already exists
+	# 	if User.objects.filter(username=myUsername).exists():
+	# 		logger.warning("Username already taken: %s", myUsername)
+	# 		return JsonResponse({"error": "Username already exists"}, status=400)
 
-	# 	myUserToSave = UserSerializer(data=myUserData)
+	# 	# Create the new user with hashed password
+	# 	try:
+	# 		user = User(username=myUsername)
+	# 		user.set_password(myPassword)  # Properly hash the password
+	# 		user.save()
 
-	# 	if myUserToSave.is_valid():
-	# 		myUserToSave.save()
+	# 		logger.info("User created successfully: %s", myUsername)
+	# 		return JsonResponse({"message": "User created successfully"}, status=201)
 		
-	# 	logger.info("LE USER EST CREEE")
-	# 	return JsonResponse({"mabite": "0"}, safe=False)
+	# 	except Exception as e:
+	# 		logger.error("Failed to create user: %s", e)
+	# 		return JsonResponse({"error": "Failed to create user"}, status=500)
+
 
 def getUser(request):
 	myPath = request.build_absolute_uri()

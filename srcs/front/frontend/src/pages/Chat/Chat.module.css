@@ -10,9 +10,10 @@
 	max-height: 300px;
 }
 .centered_container button:hover {
-	background-color: rgb(255, 102, 102);
+	background-color: white;
 	outline: none;
-	box-shadow: 0 0 20px rgba(255, 102, 102), 0 0 30px rgba(255, 102, 102);
+	box-shadow: none;
+	color: rgb(255, 102, 102);
 }
 .centered_container img {
 	height: auto;
@@ -39,17 +40,22 @@
 	z-index: 2;
 }
 .message_container p {
-	max-width: 75%;
-	margin-bottom: 8px;
-	padding: 10px 15px;
-	background-color: rgb(255, 102, 102);
-	color: whitesmoke;
-	border-radius: 15px;
+	min-width: 270px;
+	max-width: 270px;
+	margin-left: 14px;
+	padding-bottom: 7px;
+	margin-top: 7px;
+	border-bottom: 1px solid white;
+	background-color: none;
+	color: white;
+	border-radius: 0px;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	word-wrap: break-word;
-	font-size: 1em;
-	font-weight: bold;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-size: 0.8em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+}
+.message_container::-webkit-scrollbar {
+	width: 0px;
 }
 
 .input_container {
@@ -64,28 +70,25 @@
 	top: -85px;
 	z-index: 2;
 }
-
 .input_container input {
-	max-width: 70%;
-	min-width: 70%;
+	max-width: 73%;
+	min-width: 73%;
 	height: 100%;
-	padding-left: 5%;
-	border-top-left-radius: 10px;
-	border-bottom-left-radius: 10px;
+	padding-left: 2%;
+	color: black;
+	font-weight: bold;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 }
-
 .input_container button {
-	min-width: 25%;
-	max-width: 25%;
+	min-width: 26%;
+	max-width: 26%;
 	height: 100%;
 	border-radius: 0px;
-	border-top-right-radius: 10px;
-	border-bottom-right-radius: 10px;
 	font-size: 1em;
 	font-weight: bold;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
-	color: whitesmoke;
-	background-color: rgb(75, 0, 130);
-	box-shadow: 0 0 10px rgba(75, 0, 130, 1);
-	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	color: grey;
+	background-color: white;
+	box-shadow: none;
+	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease, color 0.3s ease;
 }

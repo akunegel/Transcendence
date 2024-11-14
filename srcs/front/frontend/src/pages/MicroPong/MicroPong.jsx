@@ -15,8 +15,8 @@ function MicroPong() {
 
 		// // Fill background in black
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		// ctx.fillStyle = 'rgb(75, 0, 130, 0.1)';
-		// ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		ctx.fillStyle = 'black';
+		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		
 		// Drawing the ball at the given position
 		ctx.beginPath();
@@ -76,7 +76,7 @@ function MicroPong() {
 
 	return (
 		<div className={styles.MicroPong}>
-			<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y} style={{ border: '5px solid white'}}></canvas>
+			<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y} style={{ border: '8px solid white'}}></canvas>
 		</div>
 	)
 }

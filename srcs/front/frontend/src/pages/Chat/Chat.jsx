@@ -2,16 +2,35 @@ import React, { useState, useEffect } from 'react';
 import MessageList from './MessageList.jsx';
 import logo from "../../assets/logo_chat_box.png"
 import styles from "./Chat.module.css"
+import api from "../../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 
 function Chat() {
 
 	const [messagesList, setMessagesList] = useState([]);
 	const [ws, setWs] = useState(null);
 	const [message, setMessage] = useState('');
+	const [user, setUser] = useState([])
+	const userToken = localStorage.getItem(ACCESS_TOKEN);
+
+	const getUser = async () => {
+		const response = await api.get("/api/user/getUser/?" + userToken);
+		return (response.data)
+	}
+	const inituser = async () => {
+		const TMPuser = await getUser()
+		setUser(TMPuser);
+	}
+	
+	useEffect(() => {
+		inituser();
+		console.log("data", user);
+	}, []);
+
 
 	useEffect(() => {
 
-		const socket = new WebSocket('ws://localhost:8000/ws/chat/');
+		const socket = new WebSocket('ws://c1r1p4:8000/ws/chat/');
 		setWs(socket);
 
 		socket.onmessage = (event) => {
@@ -25,7 +44,7 @@ function Chat() {
 	const sendMessage = () => {
 		if (message.trim()) {
 			if (ws && ws.readyState === WebSocket.OPEN) {
-				ws.send(JSON.stringify({ content: message }));
+				ws.send(JSON.stringify({ content: user.username + ": " + message }));
 			}
 		}
 		setMessage('');
@@ -45,7 +64,7 @@ function Chat() {
 				<MessageList messagesList={messagesList}/>
 			</div>
 			<div className={styles.input_container}>
-				<input type="text" value={message} onChange={(e) => setMessage(e.target.value.substring(0, 100))} onKeyDown={handleKeyDown} placeholder="Type your message here" />
+				<input type="text" value={message} onChange={(e) => setMessage(e.target.value.substring(0, 108))} onKeyDown={handleKeyDown} placeholder="Type your message here" />
 				<button onClick={sendMessage}>SEND</button>
 			</div>
 		</div>
