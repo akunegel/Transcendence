@@ -21,25 +21,40 @@ function Chat() {
 		const TMPuser = await getUser()
 		setUser(TMPuser);
 	}
-	
 	useEffect(() => {
 		inituser();
-		console.log("data", user);
 	}, []);
 
 
 	useEffect(() => {
-
-		const socket = new WebSocket('ws://c1r1p4:8000/ws/chat/');
-		setWs(socket);
-
-		socket.onmessage = (event) => {
-			const newMessage = JSON.parse(event.data);
-			setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
+		const connectWebSocket = () => {
+			const socket = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/ws/chat/`);
+			setWs(socket);
+	
+			socket.onopen = () => {
+				console.log("WebSocket connection established");
+			};
+			socket.onmessage = (event) => {
+				const newMessage = JSON.parse(event.data);
+				setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
+			};
+			socket.onclose = () => {
+				console.log("WebSocket connection closed");
+			};
+			socket.onerror = (error) => {
+				console.error("WebSocket error", error);
+			};
 		};
 
-		return () => socket.close();
+		const timer = setTimeout(connectWebSocket, 500); // Delay connection by 500ms
+	
+		return () => {
+			clearTimeout(timer);
+			if (ws)
+				ws.close();
+		};
 	}, []);
+
 
 	const sendMessage = () => {
 		if (message.trim()) {

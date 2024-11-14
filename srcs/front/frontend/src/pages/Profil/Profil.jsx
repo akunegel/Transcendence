@@ -22,7 +22,6 @@ function Profil() {
 	
 	useEffect(() => {
 		inituser();
-		console.log("data", user);
 	}, []);
 
 	const handleReturn = () => {
