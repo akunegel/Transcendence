@@ -42,6 +42,7 @@ function Form({route, method}) {
 		<input className="form-imput" type="password" value={password} onChange={(f) => setPassword(f.target.value)} placeholder="Password"></input>
 		{loading && <LoadingIndicator/>}
 		<button className="form-button" type="submit" onClick={(f) => handleSubmit(f)}>{name}</button>
+		<button className="form-button-2">{method} with 42</button>
 	</form>
 
 }
