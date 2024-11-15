@@ -21,6 +21,11 @@ function Pong() {
     const lastUpdateTimeRef = useRef(0);
     const [count, setCount] = useState(0);
 
+	const navigate = useNavigate();
+	const handleReturn = () => {
+		navigate("/home");
+	}
+
 	// Setting the tab on mount
 	useEffect(() => {
 		document.title = "Pong";
@@ -317,8 +322,9 @@ function Pong() {
 			<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
 
 			<div className={styles.button_container}>
-				<button onClick={startGame}>Start</button>
-				<button onClick={restartGame}>Restart</button>
+				<button onClick={restartGame}>RESTART</button>
+				<button onClick={startGame}>START</button>
+				<button onClick={handleReturn}>RETURN</button>
 			</div>
 
 			<div className={styles.centered_container}>

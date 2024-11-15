@@ -12,18 +12,22 @@ import api from "../../api";
 
 function Home() {
 	const navigate = useNavigate();
-
-	const handleLogout = () => {
-		localStorage.clear();
-		navigate("/login")
+	
+	const handleLocal = () => {
+		navigate("/pong")
 	}
-
+	
 	const handleProfil = () => {
 		navigate("/profil")
 	}
 
-	const handleLocal = () => {
-		navigate("/pong")
+	const handleOnline = () => {
+		navigate("/lobby")
+	}
+
+	const handleLogout = () => {
+		localStorage.clear();
+		navigate("/login")
 	}
 
 	return (
@@ -42,7 +46,7 @@ function Home() {
 				</div>
 
 				<div className={styles.centered_container}>
-					<button>PLAY ONLINE</button>
+					<button onClick={() => handleOnline()}>PLAY ONLINE</button>
 					<button onClick={() => handleProfil()}>PROFIL</button>
 					<button>SETTINGS</button>
 					<button onClick={() => handleLogout()}>LOGOUT</button>
