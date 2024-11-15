@@ -46,7 +46,7 @@ function Chat() {
 			};
 		};
 
-		const timer = setTimeout(connectWebSocket, 500); // Delay connection by 500ms
+		const timer = setTimeout(connectWebSocket, 500);
 	
 		return () => {
 			clearTimeout(timer);
