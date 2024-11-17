@@ -10,21 +10,6 @@ function Chat() {
 	const [messagesList, setMessagesList] = useState([]);
 	const [ws, setWs] = useState(null);
 	const [message, setMessage] = useState('');
-	const [user, setUser] = useState([])
-	const userToken = localStorage.getItem(ACCESS_TOKEN);
-
-	const getUser = async () => {
-		const response = await api.get("/api/user/getUser/?" + userToken);
-		return (response.data)
-	}
-	const inituser = async () => {
-		const TMPuser = await getUser()
-		setUser(TMPuser);
-	}
-	useEffect(() => {
-		inituser();
-	}, []);
-
 
 	useEffect(() => {
 		const connectWebSocket = () => {
@@ -59,7 +44,7 @@ function Chat() {
 	const sendMessage = () => {
 		if (message.trim()) {
 			if (ws && ws.readyState === WebSocket.OPEN) {
-				ws.send(JSON.stringify({ content: user.username + ": " + message }));
+				ws.send(JSON.stringify({ content: message }));
 			}
 		}
 		setMessage('');
