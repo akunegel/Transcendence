@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
+from django.http import JsonResponse
 
-# Create your views here.
+
+def createCustomGame(request):
+	return JsonResponse("hello")

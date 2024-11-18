@@ -183,3 +183,9 @@ CHANNEL_LAYERS = {
 		},
 	},
 }
+
+# CSRF_TRUSTED_ORIGINS = [
+# 	'http://c1r1p1:5173',
+# ]
+
+# MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')

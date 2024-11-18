@@ -4,4 +4,5 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+	path('pong/', include("pong.urls")),
 ]
