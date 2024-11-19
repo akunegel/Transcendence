@@ -6,45 +6,74 @@ import "../styles/Form.css"
 import LoadingIndicator from "./LoadingIndicator";
 
 function Form({route, method}) {
-	const [username, setUsername] = useState("")//"username" = la variable, "setUsename" = la methode pour pouvoir la modifier, "useState" = defini son type en gros
-	const [password, setPassword] = useState("")
-	const [loading, setLoading] = useState(false)
-	const navigate = useNavigate()
+	const [formData, setFormData] = useState({
+		username: "",
+		fname: "",
+		lname: "",
+		email: "",
+		passwd: ""
+	});
+	const [loading, setLoading] = useState(false);
+	const navigate = useNavigate();
 
 	const name = method === "login" ? "Login" : "Register";
 
-	const handleSubmit = async (f) => {//pour qu'une fois le bouton "submit" est press, le formulaire reviens a sa config initial, c'est a dire: VIDE// "async" est une "method" de function qui permet de mieux gerer les cas d'erreur, d'ou de "try/catch"
+	const handleChange = (e) => {
+		setFormData({
+			...formData,
+			[e.target.name]: e.target.value
+		});
+	};
+
+	const handleSubmit = async (e) => {
 		setLoading(true);
-		f.preventDefault();
+		e.preventDefault();
 
 		try {
-			const res = await api.post(route, {username, password})
+			const res = await api.post(route, method === "login" ? {
+				username: formData.username,
+				passwd: formData.passwd
+			} : formData);
+
 			if (method === "login") {
-				localStorage.setItem(ACCESS_TOKEN, res.data.access)
-				localStorage.setItem(REFRESH_TOKEN, res.data.refresh)
-				navigate("/")
+				localStorage.setItem(ACCESS_TOKEN, res.data.access);
+				localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+				navigate("/");
+			} else {
+				navigate("/login");
 			}
-			else {
-				navigate("/login")
-			}
-		} 
-		catch (error) {
-			alert(error)//juste pour montrer l'erreur
-		}
-		finally {
-			setLoading(false)
+		} catch (error) {
+			alert(error.response?.data?.error || "An error occurred");
+		} finally {
+			setLoading(false);
 		}
 	}
 
-	return <form onSubmit={handleSubmit} className="form-container">
-		<h1>{name}</h1>
-		<input className="form-imput" type="text" value={username} onChange={(f) => setUsername(f.target.value)} placeholder="Username"></input>
-		<input className="form-imput" type="password" value={password} onChange={(f) => setPassword(f.target.value)} placeholder="Password"></input>
-		{loading && <LoadingIndicator/>}
-		<button className="form-button" type="submit" onClick={(f) => handleSubmit(f)}>{name}</button>
-		<button className="form-button-2">{method} with 42</button>
-	</form>
+	return (
+		<form onSubmit={handleSubmit} className="form-container">
+			<h1>{name}</h1>
+			<input
+				className="form-input"
+				type="text"
+				name="username"
+				value={formData.username}
+				onChange={handleChange}
+				placeholder="Username"
+			/>
+			<input
+				className="form-input"
+				type="password"
+				name="passwd"
+				value={formData.passwd}
+				onChange={handleChange}
+				placeholder="Password"
+			/>
 
+			{loading && <LoadingIndicator/>}
+			<button className="form-button" type="submit">{name}</button>
+			<button type="button" className="form-button-2">{method} with 42</button>
+		</form>
+	);
 }
 
-export default Form
+export default Form;
