@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import { BrowserRouter, Routes, Route} from "react-router-dom"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
+import Login from "./pages/Login/Login"
+import Register from "./pages/Register/Register"
 import Home from "./pages/Home/Home"
 import Profil from "./pages/Profil/Profil"
 import Lobby from "./pages/Lobby/Lobby"

@@ -7,22 +7,8 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import ProfileTest from '../../assets/images.png'
 
 function Profil() {
-	const [user, setUser] = useState([])
 	const navigate = useNavigate();
 	const userToken = localStorage.getItem(ACCESS_TOKEN);
-
-	const getUser = async () => {
-		const response = await api.get("/api/user/getUser/?" + userToken);
-		return (response.data)
-	}
-	const inituser = async () => {
-		const TMPuser = await getUser()
-		setUser(TMPuser);
-	}
-	
-	useEffect(() => {
-		inituser();
-	}, []);
 
 	const handleReturn = () => {
 		navigate("/home");
