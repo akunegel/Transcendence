@@ -188,4 +188,4 @@ CHANNEL_LAYERS = {
 # 	'http://c1r1p1:5173',
 # ]
 
-# MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')
+MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')

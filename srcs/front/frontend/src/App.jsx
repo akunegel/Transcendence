@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home"
 import Profil from "./pages/Profil/Profil"
 import Lobby from "./pages/Lobby/Lobby"
 import Pong from "./pages/Pong/Pong"
+import OnlinePong from "./pages/OnlinePong/OnlinePong"
 import NotFound from "./pages/NotFound/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import RedirectHome from './pages/RedirectHome';
@@ -32,7 +33,8 @@ function App() {
 		<Route path="*" element={<NotFound/>}></Route>
 		<Route path="/local" element={<ProtectedRoute> <Pong/> </ProtectedRoute>}/>
 		<Route path="/lobby" element={<ProtectedRoute> <Lobby/> </ProtectedRoute>}/>
-		<Route path="/play/:roomId" element={<ProtectedRoute> <Lobby/> </ProtectedRoute>}/>
+		<Route path="/play" element={<ProtectedRoute> <RedirectHome/> </ProtectedRoute>}/>
+		<Route path="/play/:roomId" element={<ProtectedRoute> <OnlinePong/> </ProtectedRoute>}/>
 	</Routes>
 	</BrowserRouter>
 	)
