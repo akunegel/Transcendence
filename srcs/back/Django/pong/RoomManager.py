@@ -15,7 +15,7 @@ class RoomManager:
 
 
 	def create_room(self, room_id):
-		self.rooms[str(room_id)] = {"task": None, "state": {"players": [], "game_started": False}} # Initialize state
+		self.rooms[str(room_id)] = {"task": None, "state": {"players": [], "player1": None, "player2": None, "game_started": False}} # Initialize state
 
 
 	def add_player_to_room(self, room_id, player_channel_name):
@@ -25,8 +25,19 @@ class RoomManager:
 			raise ValueError(f"Room {room_id} may not exist.")
 		if len(room["state"]["players"]) >= 2:
 			raise ValueError(f"Room {room_id} is already full.")
-		# Adding user to the room
+
+		# Adding user to the room, 'saving' their seats as player1 or player2
 		room["state"]["players"].append(player_channel_name)
+		if room["state"]["player1"] == None:
+			room["state"]["player1"] = player_channel_name
+		elif room["state"]["player2"] == None:
+			room["state"]["player2"] = player_channel_name
+
+		# Starting the game when room is full
+		if len(room["state"]["players"]) == 2:
+			if room["state"]["game_started"] == False:
+				room["state"]["game_started"] = True
+				self.start_game_task(room_id)
 
 
 	def remove_player_from_room(self, room_id, player_channel_name):

@@ -30,6 +30,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 	async def disconnect(self, close_code):
 		room_manager.remove_player_from_room(self.room_id, self.channel_name)
+		await self.channel_layer.group_discard(self.room_id, self.channel_name)
 		pass
 
 	async def receive(self, text_data):
@@ -43,3 +44,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 		# Example: Send an acknowledgment or update
 		await self.send(text_data=json.dumps({"status": "received"}))
+
+	async def update_game_state(self, event):
+		# Handle the `update.game_state` message
+		state = event["state"]
+		await self.send(text_data=json.dumps({"type": "game_state", "state": state}))
