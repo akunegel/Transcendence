@@ -1,4 +1,5 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
+from pong.consumers import PongGameConsumer
 import json
 import time
 import asyncio

@@ -26,10 +26,9 @@ function CustomGameForm() {
 		const token = localStorage.getItem(ACCESS_TOKEN);
 		f.preventDefault();
 
-		const res = await api.post("/pong/createCustomGame", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
-		console.log('Room Url:', res.data);
-		const room_url = res.data;
-		navigate(`/play/${room_url}`);
+		const res = await api.post("/pong/createCustomGame/", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
+		const room_id = res.data;
+		navigate(`/play/${room_id}/`);
 	};
 
 	return (

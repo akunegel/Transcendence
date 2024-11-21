@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useParams } from "react-router-dom";
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './OnlinePong.module.css';
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
@@ -18,34 +19,42 @@ function OnlinePong() {
 	const vec = useRef(0.005);
 	const speed = useRef(2);
 	const lastUpdateTimeRef = useRef(0);
+	const { roomId } = useParams(); // Extract roomId from URL
+	const wsRef = useRef(null);
 	
 	const navigate = useNavigate();
 	const handleReturn = () => {
 		navigate("/home");
 	}
 	
+	
 	// Setting the tab on mount
 	useEffect(() => {
 		document.title = "Pong";
+		console.log("Room ID:", roomId);
 	}, []);
 
 	useEffect(() => {
-		const socket = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/room/chat/`);
+		if (!wsRef.current) {
+			const ws = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/ws/room/${roomId}/`);
+			wsRef.current = ws;
+		}
 		
-		socket.onopen = () => {
+		wsRef.current.onopen = () => {
 			console.log("WebSocket connected");
 			
 			// Example: Send paddle movement
-			socket.send(JSON.stringify({ action: "move_up" }));
+			wsRef.current.send(JSON.stringify({ action: "move_up" }));
 		};
 		
-		socket.onmessage = (event) => {
+		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			console.log("Game update:", data);
 		};
 		
-		socket.onclose = () => {
+		wsRef.current.onclose = () => {
 			console.log("WebSocket disconnected");
+			navigate("/lobby");
 		};
 	}, []);
 	
@@ -58,15 +67,15 @@ function OnlinePong() {
 				case 'ArrowUp':
 					keys.current.ru = true;
 					break;
-					case 'ArrowDown':
-						keys.current.rd = true;
-						break;
-						case 'e':
-							keys.current.lu = true;
-							break;
-							case 'd':
-								keys.current.ld = true;
-								break;
+				case 'ArrowDown':
+					keys.current.rd = true;
+					break;
+				case 'e':
+					keys.current.lu = true;
+					break;
+				case 'd':
+					keys.current.ld = true;
+					break;
 			}
 		};
 
