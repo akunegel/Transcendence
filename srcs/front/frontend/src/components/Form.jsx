@@ -30,10 +30,17 @@ function Form({route, method}) {
 		e.preventDefault();
 
 		try {
-			const res = await api.post(route, method === "login" ? {
+			const submitData = {
 				username: formData.username,
 				passwd: formData.passwd
-			} : formData);
+			}
+
+			const res = await api.post(route, submitData);
+
+			if (method === "register" && res.data.success === false) {
+				alert(res.data.errors[0]);
+				return;
+			}
 
 			if (method === "login") {
 				localStorage.setItem(ACCESS_TOKEN, res.data.access);
@@ -43,8 +50,13 @@ function Form({route, method}) {
 				navigate("/login");
 			}
 		} catch (error) {
-			alert(error.response?.data?.error || "An error occurred");
-		} finally {
+			if (error.response) {
+				alert(error.response.data.error || error.response.data.errors?.[0] || "An error occurred");
+			} else if (error.request) {
+				alert("No response received from server");
+			} else {
+				alert("Error setting up the request");
+			}		} finally {
 			setLoading(false);
 		}
 	}
