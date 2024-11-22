@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
+import {useNavigate} from "react-router-dom"
 import api from "../../api";
 import axios from 'axios'
 import styles from "./CustomGameForm.module.css"
 
 function CustomGameForm() {
 
+	const navigate = useNavigate();
 	const [addBonus, setAddBonus] = useState(false);
 	const [isPrivate, setIsPrivate] = useState(true);
 	const [hasTimeLimit, setHasTimeLimit] = useState(false);
@@ -19,13 +21,14 @@ function CustomGameForm() {
 	console.log("maxPoint: ", maxPoint);
 	console.log("maxTime: ", maxTime);
 
+
 	const handleSubmit = async (f) => {
 		const token = localStorage.getItem(ACCESS_TOKEN);
 		f.preventDefault();
 
-
-		const res = await api.post("/pong/createCustomGame", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
-		console.log('Response:', res.data);
+		const res = await api.post("/pong/createCustomGame/", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
+		const room_id = res.data;
+		navigate(`/play/${room_id}/`);
 	};
 
 	return (
