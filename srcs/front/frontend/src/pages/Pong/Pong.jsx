@@ -7,19 +7,19 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 
 function Pong() {
 
-    const canvasRef = useRef(null);
+	const canvasRef = useRef(null);
 	const keys = useRef({ lu: false, ld: false, ru: false, rd: false});
 	const LPaddle = useRef({ x: 50, y: 250});
 	const RPaddle = useRef({ x: 750, y: 250});
 	const [score, setScore] = useState({left: 0, right: 0});
 	const gameStarted = useRef(false);
-    const pos = useRef({ x: 400, y: 250 });
-    const obj = useRef({ x: 400, y: 250 });
-    const dir = useRef(1);
-    const vec = useRef(0.005);
-    const speed = useRef(2);
-    const lastUpdateTimeRef = useRef(0);
-    const [count, setCount] = useState(0);
+	const pos = useRef({ x: 400, y: 250 });
+	const obj = useRef({ x: 400, y: 250 });
+	const dir = useRef(1);
+	const vec = useRef(0.005);
+	const speed = useRef(2);
+	const lastUpdateTimeRef = useRef(0);
+	const [count, setCount] = useState(0);
 
 	const navigate = useNavigate();
 	const handleReturn = () => {
@@ -31,15 +31,15 @@ function Pong() {
 		document.title = "Pong";
 	}, []);
 
-    // Counter effect for seconds since start
-    useEffect(() => {
-        const intervalId = setInterval(() => {
+	// Counter effect for seconds since start
+	useEffect(() => {
+		const intervalId = setInterval(() => {
 			if (gameStarted.current == true)
-	            setCount((prevCount) => prevCount + 1);
-        }, 1000);
+				setCount((prevCount) => prevCount + 1);
+		}, 1000);
 
-        return () => clearInterval(intervalId);
-    }, []);
+		return () => clearInterval(intervalId);
+	}, []);
 
 	useEffect(() => {
 
@@ -103,13 +103,13 @@ function Pong() {
 			RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
 	}
 
-    const handleFaster = () => {
-        speed.current = (speed.current >= 100 ? 100 : speed.current + 1);
-    };
+	const handleFaster = () => {
+		speed.current = (speed.current >= 100 ? 100 : speed.current + 1);
+	};
 
-    const handleSlower = () => {
-        speed.current = (speed.current <= 1 ? 1 : speed.current - 1);
-    };
+	const handleSlower = () => {
+		speed.current = (speed.current <= 1 ? 1 : speed.current - 1);
+	};
 
 	const playAgain = () => {
 
@@ -212,7 +212,7 @@ function Pong() {
 		return (newVec);
 	}
 
-    const nextHit = () => {
+	const nextHit = () => {
 
 		// Setting next hit position
 		let newY = vec.current > 0 ? 491.1 : 9.1;
@@ -268,7 +268,7 @@ function Pong() {
 
 		pos.current = obj.current;
 		obj.current = {x: newX, y: newY};
-    };
+	};
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -309,8 +309,8 @@ function Pong() {
 		};
 		requestAnimationFrame(animate);
 
-        return () => cancelAnimationFrame(animate);
-    }, []);
+		return () => cancelAnimationFrame(animate);
+	}, []);
 
 	return (
 		<div className={styles.centered_container}>

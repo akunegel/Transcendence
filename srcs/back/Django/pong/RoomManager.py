@@ -15,8 +15,20 @@ class RoomManager:
 
 
 	def create_room(self, room_id):
-		self.rooms[str(room_id)] = {"task": None, "state": {"players": [], "player1": None, "player2": None, "game_started": False}} # Initialize state
+		self.rooms[str(room_id)] = {"task": None,
+									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
+									"var": {"game_started": False, "time": 0,								# - Initialize sharable game values
+				 							"objx": 400, "objy": 250, 										# -
+				 							"l_score": 0, "r_score": 0,										# -
+											"l_paddle": 250, "r_paddle": 250},								# -
+									"dyn": {"dir": 1, "vec": 0.005, "speed": 80},							# Initialize local game values (dynamics)
+									}
 
+	def remove_room(self, room_id):
+		room = self.rooms.get(str(room_id))
+		if room:
+			self.stop_game_task(room_id)
+			del self.rooms[str(room_id)]
 
 	def add_player_to_room(self, room_id, player_channel_name):
 		room = self.rooms.get(str(room_id))
@@ -26,7 +38,7 @@ class RoomManager:
 		if len(room["state"]["players"]) >= 2:
 			raise ValueError(f"Room {room_id} is already full.")
 
-		# Adding user to the room, 'saving' their seats as player1 or player2
+		# Adding user to the room, 'saving their seats' as player1 or player2
 		room["state"]["players"].append(player_channel_name)
 		if room["state"]["player1"] == None:
 			room["state"]["player1"] = player_channel_name
@@ -35,8 +47,8 @@ class RoomManager:
 
 		# Starting the game when room is full
 		if len(room["state"]["players"]) == 2:
-			if room["state"]["game_started"] == False:
-				room["state"]["game_started"] = True
+			if room["var"]["game_started"] == False:
+				room["var"]["game_started"] = True
 				self.start_game_task(room_id)
 
 
@@ -44,6 +56,7 @@ class RoomManager:
 		room = self.rooms.get(str(room_id))
 		if room and player_channel_name in room["state"]["players"]:
 			room["state"]["players"].remove(player_channel_name)
+			self.remove_room(room_id)
 
 
 	def start_game_task(self, room_id):
@@ -60,6 +73,5 @@ class RoomManager:
 			task = self.rooms[str(room_id)]["task"]
 			if task:
 				task.cancel()
-				del self.rooms[str(room_id)]
 
 room_manager = RoomManager()

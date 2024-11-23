@@ -9,14 +9,13 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 function OnlinePong() {
 	
 	const canvasRef = useRef(null);
-	const keys = useRef({ lu: false, ld: false, ru: false, rd: false});
+	const keys = useRef({ up: false, down: false});
 	const LPaddle = useRef({ x: 50, y: 250});
 	const RPaddle = useRef({ x: 750, y: 250});
 	const [score, setScore] = useState({left: 0, right: 0});
 	const gameStarted = useRef(false);
 	const pos = useRef({ x: 400, y: 250 });
 	const obj = useRef({ x: 400, y: 250 });
-	const vec = useRef(0.005);
 	const speed = useRef(2);
 	const lastUpdateTimeRef = useRef(0);
 	const { roomId } = useParams(); // Extract roomId from URL
@@ -42,14 +41,19 @@ function OnlinePong() {
 		
 		wsRef.current.onopen = () => {
 			console.log("WebSocket connected");
-			
-			// Example: Send paddle movement
-			wsRef.current.send(JSON.stringify({ action: "move_up" }));
 		};
 		
 		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			console.log("Game update:", data);
+
+			gameStarted.current = data.state.game_started;
+			// pos.current.x = obj.current.x;
+			// pos.current.y = obj.current.y;
+			obj.current.x = data.state.objx;
+			obj.current.y = data.state.objy;
+			LPaddle.current.y = data.state.l_paddle;
+			RPaddle.current.y = data.state.r_paddle;
 		};
 		
 		wsRef.current.onclose = () => {
@@ -65,16 +69,10 @@ function OnlinePong() {
 			switch (event.key)
 			{
 				case 'ArrowUp':
-					keys.current.ru = true;
+					keys.current.up = true;
 					break;
 				case 'ArrowDown':
-					keys.current.rd = true;
-					break;
-				case 'e':
-					keys.current.lu = true;
-					break;
-				case 'd':
-					keys.current.ld = true;
+					keys.current.down = true;
 					break;
 			}
 		};
@@ -84,16 +82,10 @@ function OnlinePong() {
 			switch (event.key)
 			{
 				case 'ArrowUp':
-					keys.current.ru = false;
+					keys.current.up = false;
 					break;
 				case 'ArrowDown':
-					keys.current.rd = false;
-					break;
-				case 'e':
-					keys.current.lu = false;
-					break;
-				case 'd':
-					keys.current.ld = false;
+					keys.current.down = false;
 					break;
 			}
 		};
@@ -110,14 +102,11 @@ function OnlinePong() {
 	{
 		// Moves the paddles in the corresponding direction depending on pressed keys
 		// See handleKeyUp() and handleKeyDown() above
-		if (keys.current.lu)
-			LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
-		if (keys.current.ld)
-			LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
-		if (keys.current.ru)
-			RPaddle.current.y += (RPaddle.current.y <= 60 ? 0 : -5);
-		if (keys.current.rd)
-			RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
+		if (keys.current.up)
+			wsRef.current.send(JSON.stringify({ action: "move_up" }));
+			
+		if (keys.current.down)
+			wsRef.current.send(JSON.stringify({ action: "move_down" }));
 	}
 
 	const drawBall = (ctx, x, y) => {
@@ -162,7 +151,7 @@ function OnlinePong() {
 
 		const animate = (time) =>
 		{
-			if (time - lastUpdateTimeRef.current > 1000 / 61) {
+			if (gameStarted.current && time - lastUpdateTimeRef.current > 1000 / 61) {
 				// Calculating the distance from the current position to the target position
 				const dx = obj.current.x - pos.current.x;
 				const dy = obj.current.y - pos.current.y;
