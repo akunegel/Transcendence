@@ -2,13 +2,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from datetime import datetime, timedelta
 import json
-import logging
 import asyncio
-import uuid
 from pong.RoomManager import room_manager
 
-logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
-logger = logging.getLogger(__name__)     # Créer un logger avec un nom unique
 
 class PongGameConsumer(AsyncWebsocketConsumer):
 
@@ -34,7 +30,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 			except ValueError as e:
 				logger.warning(f"Attempt failed: {str(e)}")
 				await asyncio.sleep(0.2)  # Wait before retrying
-
 		# If no room is found, reject the connection
 		await self.close()
 
@@ -46,32 +41,35 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 
 	async def receive(self, text_data):
-		# Handle incoming messages (e.g., paddle movement)
+		# Handle incoming messages (paddle movement)
 		message = json.loads(text_data)
-		state = room_manager.get_room(self.room_id)["state"]
-		var = room_manager.get_room(self.room_id)["var"]
+		room = room_manager.get_room(self.room_id)
+		if room is None:
+			return
+		state = room["state"]
+		var = room["var"]
+		dyn = room["dyn"]
 
 		if "action" in message and var["game_started"] == True:
 			paddle = "l_paddle" if self.channel_name == state["player1"] else "r_paddle" # which side's paddle we are operating on
 
-			if message["action"] == "move_up":  # moving the paddle up
-				var[paddle] += 0 if var[paddle] <= 60 else -5
-			elif message["action"] == "move_down":  # moving the paddle down
-				var[paddle] += 0 if var[paddle] >= 440 else 5
+			if message["action"] == "arrow_up_pressed": # player is currently pressing up
+				dyn[paddle]["going_up"] = True
+			elif message["action"] == "arrow_up_unpressed": # player stopped pressing up
+				dyn[paddle]["going_up"] = False
+			
+			if message["action"] == "arrow_down_pressed":  # player is currently pressing down
+				dyn[paddle]["going_down"] = True
+			elif message["action"] == "arrow_down_unpressed":  # player stopped pressing down
+				dyn[paddle]["going_down"] = False
 
-			if self._is_sleeping == False:
-				self._is_sleeping = True
-				# Calculate remaining time to wait before next frame is sent
-				elapsed_time = datetime.now() - self._last_update_time
-				remaining_time = (self._fps - elapsed_time).total_seconds()
-				if (remaining_time > 0):
-					await asyncio.sleep(remaining_time)
-				await self.send(text_data=json.dumps({"state": var}))
-				self._last_update_time = datetime.now()
-				self._is_sleeping = False
 
+	async def disconnect_message(self, event):
+		# Close the WebSocket connection when receiving a disconnect message
+		await self.close()
 
 	async def update_game_state(self, event):
 		# Handle the `update.game_state` message from game_logic
 		state = event["state"]
-		await self.send(text_data=json.dumps({"type": "game_state", "state": state}))
+		case = event["case"]
+		await self.send(text_data=json.dumps({"state": state, "case": case}))

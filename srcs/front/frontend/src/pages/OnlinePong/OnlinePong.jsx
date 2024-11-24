@@ -10,6 +10,8 @@ function OnlinePong() {
 	
 	const canvasRef = useRef(null);
 	const keys = useRef({ up: false, down: false});
+	const timeBeforeHit = useRef(0);
+	const messageTime = useRef(0);
 	const LPaddle = useRef({ x: 50, y: 250});
 	const RPaddle = useRef({ x: 750, y: 250});
 	const [score, setScore] = useState({left: 0, right: 0});
@@ -30,7 +32,6 @@ function OnlinePong() {
 	// Setting the tab on mount
 	useEffect(() => {
 		document.title = "Pong";
-		console.log("Room ID:", roomId);
 	}, []);
 
 	useEffect(() => {
@@ -45,15 +46,21 @@ function OnlinePong() {
 		
 		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			console.log("Game update:", data);
-
 			gameStarted.current = data.state.game_started;
-			// pos.current.x = obj.current.x;
-			// pos.current.y = obj.current.y;
-			obj.current.x = data.state.objx;
-			obj.current.y = data.state.objy;
-			LPaddle.current.y = data.state.l_paddle;
-			RPaddle.current.y = data.state.r_paddle;
+			console.log("got message:", data.case);
+			if (data.case == "ball_update" || data.case == "global_update") {
+				messageTime.current = new Date();
+				pos.current.x = obj.current.x;
+				pos.current.y = obj.current.y;
+				obj.current.x = data.state.objx;
+				obj.current.y = data.state.objy;
+				timeBeforeHit.current = data.state.time;
+				setScore({left: data.state.l_score, right: data.state.r_score});
+			}
+			if (data.case == "paddle_update" || data.case == "global_update") {
+				LPaddle.current.y = data.state.l_paddle;
+				RPaddle.current.y = data.state.r_paddle;
+			}
 		};
 		
 		wsRef.current.onclose = () => {
@@ -64,50 +71,43 @@ function OnlinePong() {
 	
 	useEffect(() => {
 		
-		// Listens for KeyDown event
+		// Listens for KeyDown event, checking if websocket is still open
 		const handleKeyDown = (event) => {
-			switch (event.key)
-			{
-				case 'ArrowUp':
-					keys.current.up = true;
-					break;
-				case 'ArrowDown':
-					keys.current.down = true;
-					break;
+			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				switch (event.key)
+				{
+					case 'ArrowUp':
+						wsRef.current.send(JSON.stringify({ action: "arrow_up_pressed" }));
+						break;
+					case 'ArrowDown':
+						wsRef.current.send(JSON.stringify({ action: "arrow_down_pressed" }));
+						break;
+				}
 			}
 		};
 
-		// Listens for KeyUp event
+		// Listens for KeyUp event, checking if websocket is still open
 		const handleKeyUp = (event) => {
-			switch (event.key)
-			{
-				case 'ArrowUp':
-					keys.current.up = false;
-					break;
-				case 'ArrowDown':
-					keys.current.down = false;
-					break;
+			if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+				switch (event.key)
+				{
+					case 'ArrowUp':
+						wsRef.current.send(JSON.stringify({ action: "arrow_up_unpressed" }));
+						break;
+					case 'ArrowDown':
+						wsRef.current.send(JSON.stringify({ action: "arrow_down_unpressed" }));
+						break;
+				}
 			}
 		};
+
 		window.addEventListener('keydown', handleKeyDown);
 		window.addEventListener('keyup', handleKeyUp);
-
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
-			window.addEventListener('keyup', handleKeyUp);
+			window.removeEventListener('keyup', handleKeyUp);
 		};
 	}, []);
-
-	const handlePaddlesMovement = () =>
-	{
-		// Moves the paddles in the corresponding direction depending on pressed keys
-		// See handleKeyUp() and handleKeyDown() above
-		if (keys.current.up)
-			wsRef.current.send(JSON.stringify({ action: "move_up" }));
-			
-		if (keys.current.down)
-			wsRef.current.send(JSON.stringify({ action: "move_down" }));
-	}
 
 	const drawBall = (ctx, x, y) => {
 		// Drawing the ball at the given position
@@ -125,7 +125,7 @@ function OnlinePong() {
 		ctx.fill();
 	}
 
-	const drawGame = (ctx) =>
+	const drawGame = (ctx, ball_x, ball_y) =>
 	{
 		// Fill background in black
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -142,7 +142,7 @@ function OnlinePong() {
 		// Drawing non-static game elements
 		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y);
 		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y);
-		drawBall(ctx, pos.current.x, pos.current.y);
+		drawBall(ctx, ball_x, ball_y);
 	}
 
 	useEffect(() => {
@@ -155,24 +155,19 @@ function OnlinePong() {
 				// Calculating the distance from the current position to the target position
 				const dx = obj.current.x - pos.current.x;
 				const dy = obj.current.y - pos.current.y;
-				const distance = Math.sqrt(dx * dx + dy * dy);
 
-				// The game is more fun when you can move the paddles
-				handlePaddlesMovement();
+				
+				// What percentage of the 'timeBeforeHit' has passed ?
+				const timeSinceLastMessage = (new Date() - messageTime.current) / 1000; // Time since last obj update in seconds
+				let timeDifRatio = timeSinceLastMessage / timeBeforeHit.current; // Getting the ratio of time passed until nextHit
+				timeDifRatio = Math.min(Math.max(timeDifRatio, 0), 1); // Clamping the ratio between 0 and 1
 
-				if (distance <= speed.current) { // Snap to target if close enough, not going further than target
-					pos.current.x = obj.current.x;
-					pos.current.y = obj.current.y;
-					drawGame(context);
-				}
-				else { // Determine the step's length towards the target, depending on speed
-					const angle = Math.atan2(dy, dx);
-					const newX = pos.current.x + Math.cos(angle) * speed.current;
-					const newY = pos.current.y + Math.sin(angle) * speed.current;
-					drawGame(context);
-					pos.current = {x: newX, y: newY};
-					lastUpdateTimeRef.current = time;
-				}	
+				// The approximated position of the ball depending on the ratio of time passed since the new objective was set
+				const ball_x = pos.current.x + (dx * timeDifRatio);
+				const ball_y = pos.current.y + (dy * timeDifRatio);
+
+				drawGame(context, ball_x, ball_y);
+				lastUpdateTimeRef.current = time;
 			}
 			requestAnimationFrame(animate);
 
