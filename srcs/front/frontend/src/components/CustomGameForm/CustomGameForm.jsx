@@ -14,13 +14,6 @@ function CustomGameForm() {
 	const [maxTime, setMaxTime] = useState(5);
 	const [maxPoint, setMaxPoint] = useState(5);
 
-	console.log("----------------------");
-	console.log("addBonus: ", addBonus);
-	console.log("isPrivate: ", isPrivate);
-	console.log("hasTimeLimit: ", hasTimeLimit);
-	console.log("maxPoint: ", maxPoint);
-	console.log("maxTime: ", maxTime);
-
 
 	const handleSubmit = async (f) => {
 		const token = localStorage.getItem(ACCESS_TOKEN);
