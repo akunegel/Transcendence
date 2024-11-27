@@ -15,6 +15,7 @@ function OnlinePong() {
 	const LPaddle = useRef({ x: 50, y: 250});
 	const RPaddle = useRef({ x: 750, y: 250});
 	const [score, setScore] = useState({left: 0, right: 0});
+	const [rules, setRules] = useState(null);
 	const gameStarted = useRef(false);
 	const pos = useRef({ x: 400, y: 250 });
 	const obj = useRef({ x: 400, y: 250 });
@@ -24,14 +25,20 @@ function OnlinePong() {
 	const wsRef = useRef(null);
 	
 	const navigate = useNavigate();
+
 	const handleReturn = () => {
 		navigate("/home");
 	}
 	
-	
-	// Setting the tab on mount
+	// Setting the tab on mount, retrieving room's info
 	useEffect(() => {
 		document.title = "Pong";
+		const fetchRoomInfo = async () => {
+			const res = await api.get(`/pong/retrieveRoomInfo/${roomId}`);
+			console.log(res.data);
+			return (res.data);
+		}
+		setRules(fetchRoomInfo());
 	}, []);
 
 	useEffect(() => {
@@ -127,10 +134,8 @@ function OnlinePong() {
 
 	const drawGame = (ctx, ball_x, ball_y) =>
 	{
-		// Fill background in black
+		// Clearing out last frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		ctx.fillStyle = 'black';
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		// Drawing center lines for esthetics (looks nice, right ?)
 		ctx.beginPath();
@@ -184,7 +189,9 @@ function OnlinePong() {
 				<h2>{score.left}:{score.right}</h2>
 			</div>
 
-			<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+			<div className={styles.canvas_container}>
+				<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+			</div>
 
 			<div className={styles.centered_container}>
 				<p>Speed: {speed.current}</p>
