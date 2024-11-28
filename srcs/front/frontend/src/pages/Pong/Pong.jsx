@@ -173,10 +173,8 @@ function Pong() {
 
 	const drawGame = (ctx) =>
 	{
-		// Fill background in black
+		// Clearing out last frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		ctx.fillStyle = 'black';
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 		// Drawing center lines for esthetics (looks nice, right ?)
 		ctx.beginPath();
@@ -319,7 +317,9 @@ function Pong() {
 				<h2>{score.left}:{score.right}</h2>
 			</div>
 
-			<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+			<div className={styles.canvas_container}>
+				<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+			</div>
 
 			<div className={styles.button_container}>
 				<button onClick={restartGame}>RESTART</button>
