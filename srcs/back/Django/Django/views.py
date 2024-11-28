@@ -8,20 +8,17 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import Player
 
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def forty_two_oauth(request):
     code = request.GET.get('code')
 
     if not code:
-        logger.error("No authorization code provided")
         return Response({'error': 'No authorization code provided'}, status=status.HTTP_400_BAD_REQUEST)
     client_id = os.getenv('FORTYTWO_CLIENT_ID')
     client_secret = os.getenv('FORTYTWO_CLIENT_SECRET')
 
     if not client_id or not client_secret:
-        logger.error("Missing OAuth credentials")
         return Response({'error': 'OAuth configuration error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     token_url = 'https://api.intra.42.fr/oauth/token'
@@ -36,7 +33,6 @@ def forty_two_oauth(request):
     try:
 
         token_response = requests.post(token_url, data=token_data)
-
 
         if token_response.status_code != 200:
             return Response({
@@ -57,14 +53,14 @@ def forty_two_oauth(request):
         user_response.raise_for_status()
 
         user_data = user_response.json()
-
         player, created = Player.objects.get_or_create(
             username=user_data['login'],
             defaults={
                 'fname': user_data.get('first_name', ''),
                 'lname': user_data.get('last_name', ''),
                 'email': user_data.get('email', ''),
-                'passwd': secrets.token_urlsafe(16)
+                'passwd': secrets.token_urlsafe(16),
+                'picture': user_data.get('image', {}).get('link', '')
             }
         )
 

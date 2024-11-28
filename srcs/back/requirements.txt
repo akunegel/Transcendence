@@ -12,3 +12,4 @@ pytz
 python-dotenv
 channels_redis
 requests
+Pillow

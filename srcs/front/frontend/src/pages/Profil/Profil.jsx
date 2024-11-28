@@ -45,7 +45,7 @@ function Profil() {
 		<div className={styles.centered_container}>
 			<img
 				src="../../assets/logo_profil.png"
-				alt="Logo officiel"
+				alt="Logo"
 				className="logo"
 			/>
 			<div className={styles.userinfo_container}>
