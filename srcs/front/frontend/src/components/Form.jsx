@@ -61,6 +61,10 @@ function Form({route, method}) {
 		}
 	}
 
+	const handleRegister42Button = () => {
+		window.location.href = "https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-7d9b3db113309f1f8f8e8d51caa7921dbf75d8c0089d720e05afe67fd37d19dc&redirect_uri=https%3A%2F%2Flocalhost%3A9443%2F42connect&response_type=code";
+	}
+
 	return (
 		<form onSubmit={handleSubmit} className="form-container">
 			<h1>{name}</h1>
@@ -83,7 +87,7 @@ function Form({route, method}) {
 
 			{loading && <LoadingIndicator/>}
 			<button className="form-button" type="submit">{name}</button>
-			<button type="button" className="form-button-2">{method} with 42</button>
+			<button type="button" className="form-button-2" onClick={handleRegister42Button}>{method} with 42</button>
 		</form>
 	);
 }

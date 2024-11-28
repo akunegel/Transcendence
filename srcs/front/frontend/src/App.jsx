@@ -10,8 +10,7 @@ import OnlinePong from "./pages/OnlinePong/OnlinePong"
 import NotFound from "./pages/NotFound/NotFound"
 import ProtectedRoute from "./components/ProtectedRoute"
 import RedirectHome from './pages/RedirectHome';
-
-
+import Handle42Callback from './components/Handle42Callback.jsx'
 
 function App() {
 	// var ws = useMemo(() => {return new WebSocket("ws://localhost:8000/ws/global")}, [ws]);
@@ -35,6 +34,7 @@ function App() {
 		<Route path="/lobby" element={<ProtectedRoute> <Lobby/> </ProtectedRoute>}/>
 		<Route path="/play" element={<ProtectedRoute> <RedirectHome/> </ProtectedRoute>}/>
 		<Route path="/play/:roomId" element={<ProtectedRoute> <OnlinePong/> </ProtectedRoute>}/>
+		<Route path="/42connect" element={<Handle42Callback />}/>
 	</Routes>
 	</BrowserRouter>
 	)
