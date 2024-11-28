@@ -20,7 +20,7 @@ function CustomGameForm() {
 		f.preventDefault();
 
 		const res = await api.post("/pong/createCustomGame/", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
-		const room_id = res.data;
+		const room_id = res.data.room_id;
 		navigate(`/play/${room_id}/`);
 	};
 

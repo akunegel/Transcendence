@@ -2,9 +2,13 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from datetime import datetime, timedelta
 import json
+import logging
 import asyncio
 from pong.RoomManager import room_manager
 
+
+logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
+logger = logging.getLogger("__PongGameLog__")
 
 class PongGameConsumer(AsyncWebsocketConsumer):
 

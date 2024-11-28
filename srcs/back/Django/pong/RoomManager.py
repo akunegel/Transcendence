@@ -13,15 +13,18 @@ class RoomManager:
 		self.rooms = {}
 
 	def create_room(self, room_id):
-		self.rooms[str(room_id)] = {"game_task": None,
-							  		"paddle_task": None,
+		self.rooms[str(room_id)] = {"game_task": None,														# Storage for game_task id
+							  		"paddle_task": None,													# Storage for paddle_task id
+									"id": room_id,															# Storing it's own id
+									"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
+												"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
 									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
-									"var": {"game_started": False, "time": 0.0,								# Initialize 'sendable' game values
+									"var": {"game_started": False, "time": 0.0,								# Initialize 'sendable' game variables
 											"objx": 400, "objy": 250, 										# -
 											"l_score": 0, "r_score": 0,										# -
 											"l_paddle": 250,												# -
 											"r_paddle": 250},												# -
-									"dyn": {"dir": 1, "vec": 0.005, "speed": 60,							# Initialize local game values (dynamics)
+									"dyn": {"dir": 1, "vec": 0.005, "speed": 60,							# Initialize local game variables (dynamics)
 											"l_paddle": {"going_up": False, "going_down": False},			# -
 											"r_paddle": {"going_up": False, "going_down": False}},			# -
 									}
