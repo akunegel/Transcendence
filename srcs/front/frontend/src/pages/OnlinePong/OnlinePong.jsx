@@ -9,17 +9,16 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 function OnlinePong() {
 	
 	const canvasRef = useRef(null);
-	const keys = useRef({ up: false, down: false});
 	const timeBeforeHit = useRef(0);
 	const messageTime = useRef(0);
 	const LPaddle = useRef({ x: 50, y: 250});
 	const RPaddle = useRef({ x: 750, y: 250});
 	const [score, setScore] = useState({left: 0, right: 0});
 	const [rules, setRules] = useState(null);
+	const [statusTitle, setStatusTitle] = useState("");
 	const gameStarted = useRef(false);
 	const pos = useRef({ x: 400, y: 250 });
 	const obj = useRef({ x: 400, y: 250 });
-	const speed = useRef(2);
 	const lastUpdateTimeRef = useRef(0);
 	const { roomId } = useParams(); // Extract roomId from URL
 	const wsRef = useRef(null);
@@ -27,21 +26,25 @@ function OnlinePong() {
 	const navigate = useNavigate();
 
 	const handleReturn = () => {
-		navigate("/home");
+		navigate("/lobby");
 	}
-	
-	// Setting the tab on mount, retrieving room's info
+
+	// Setting the tab's title on mount, retrieving room's specific info
 	useEffect(() => {
+
 		document.title = "Pong";
 		const fetchRoomInfo = async () => {
 			const res = await api.get(`/pong/retrieveRoomInfo/${roomId}`);
-			console.log(res.data);
 			return (res.data);
 		}
-		setRules(fetchRoomInfo());
+		fetchRoomInfo()
+			.then((data) => {setRules(data);
+							setStatusTitle("- First to " + data.max_point + " wins -");})
+			.catch((err) => console.error("Failed to fetch room info:", err));
 	}, []);
 
 	useEffect(() => {
+		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
 			const ws = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/ws/room/${roomId}/`);
 			wsRef.current = ws;
@@ -51,10 +54,12 @@ function OnlinePong() {
 			console.log("WebSocket connected");
 		};
 		
+		// Parsing received game status updates from the room
 		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			gameStarted.current = data.state.game_started;
-			console.log("got message:", data.case);
+
+			// Receiving the next position of the ball
 			if (data.case == "ball_update" || data.case == "global_update") {
 				messageTime.current = new Date();
 				pos.current.x = obj.current.x;
@@ -64,12 +69,21 @@ function OnlinePong() {
 				timeBeforeHit.current = data.state.time;
 				setScore({left: data.state.l_score, right: data.state.r_score});
 			}
+			// Receiving the paddles' new position
 			if (data.case == "paddle_update" || data.case == "global_update") {
 				LPaddle.current.y = data.state.l_paddle;
 				RPaddle.current.y = data.state.r_paddle;
 			}
+			// Receiving the winner of the game and stopping the animation display
+			if (data.case == "end_game") {
+				LPaddle.current.y, RPaddle.current.y = 250;
+				timeBeforeHit.current = 0
+				setStatusTitle("- " + data.state.winner + " is the winner -");
+				drawGame(canvasRef.current.getContext('2d'), 400, 250);
+			}
 		};
-		
+
+		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
 			console.log("WebSocket disconnected");
 			navigate("/lobby");
@@ -186,15 +200,30 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2>{score.left}:{score.right}</h2>
+				<h2 style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : 0}{score.left}:{score.right > 9 ? "" : 0}{score.right} </h2>
+				<p style={{borderTop: "5px solid white"}}>{statusTitle}</p>
 			</div>
 
-			<div className={styles.canvas_container}>
-				<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+			<div className={styles.game_container}>
+
+				<div className={styles.points_container} style={{borderLeft: "5px solid white"}}>
+					{Array.from({ length: (rules != null ? rules.max_point - score.left : 0)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
+					{Array.from({ length: score.left}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
+				</div>
+
+				<div className={styles.canvas_container}>
+					<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+				</div>
+
+				<div className={styles.points_container} style={{borderRight: "5px solid white"}}>
+				{Array.from({ length: (rules != null ? rules.max_point - score.right : 0)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
+					{Array.from({ length: score.right}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
+				</div>
+
 			</div>
 
-			<div className={styles.centered_container}>
-				<p>Speed: {speed.current}</p>
+			<div className={styles.centered_container} style={{borderBottom: "5px solid white"}}>
+				<p>Room is: {rules != null && rules.is_private == true ? "Private" : "Public"}</p>
 			</div>
 
 		</div>

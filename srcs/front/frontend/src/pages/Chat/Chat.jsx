@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MessageList from './MessageList.jsx';
-import logo from "../../assets/logo_chat_box.png"
+import logo from "../../assets/images/logo_chat_box.png"
 import styles from "./Chat.module.css"
 import api from "../../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";

@@ -5,6 +5,10 @@ from .paddle_logic import paddle_logic
 from .game_logic import game_logic
 from django.db import models
 import asyncio
+import logging
+
+logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
+logger = logging.getLogger("__RoomManagerLog__")
 
 
 class RoomManager:
@@ -22,8 +26,7 @@ class RoomManager:
 									"var": {"game_started": False, "time": 0.0,								# Initialize 'sendable' game variables
 											"objx": 400, "objy": 250, 										# -
 											"l_score": 0, "r_score": 0,										# -
-											"l_paddle": 250,												# -
-											"r_paddle": 250},												# -
+											"l_paddle": 250, "r_paddle": 250},								# -
 									"dyn": {"dir": 1, "vec": 0.005, "speed": 60,							# Initialize local game variables (dynamics)
 											"l_paddle": {"going_up": False, "going_down": False},			# -
 											"r_paddle": {"going_up": False, "going_down": False}},			# -
@@ -61,12 +64,12 @@ class RoomManager:
 		room = self.rooms.get(str(room_id))
 		if room and player_channel_name in room["state"]["players"]:
 			room["state"]["players"].remove(player_channel_name)
-			self.remove_room(room_id)
+			room["var"]["game_started"] = False
+
 
 	def start_game_task(self, room_id):
 		self.rooms[str(room_id)]["game_task"] = asyncio.create_task(game_logic(str(room_id)))
 		self.rooms[str(room_id)]["paddle_task"] = asyncio.create_task(paddle_logic(str(room_id)))
-
 
 
 	def get_room(self, room_id):
@@ -81,5 +84,6 @@ class RoomManager:
 			task = self.rooms[str(room_id)]["paddle_task"]
 			if task:
 				task.cancel()
+
 
 room_manager = RoomManager()

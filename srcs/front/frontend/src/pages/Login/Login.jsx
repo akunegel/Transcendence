@@ -2,8 +2,8 @@ import Form from "../../components/Form"
 import axios from "axios";
 import {useNavigate} from "react-router-dom"
 import styles from "../Register/Register.module.css";
-import logo from "../../assets/logo_shadowed.png";
-import sublogo from "../../assets/logo_under.png";
+import logo from "../../assets/images/logo_shadowed.png";
+import sublogo from "../../assets/images/logo_under.png";
 import React from "react";
 
 function Login() {

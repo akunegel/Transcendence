@@ -48,6 +48,6 @@ def quickJoinGame(request):
 def retrieveRoomInfo(request, room_id=""):
 	room = room_manager.get_room(room_id)
 	if room:
-		return JsonResponse({"data": room["rules"]}, status=200)
+		return JsonResponse(room["rules"], status=200)
 	else:
 		return JsonResponse({"error": "Cannot find room"}, status=400)

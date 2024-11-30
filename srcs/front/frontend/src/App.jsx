@@ -17,7 +17,7 @@ function App() {
 
 	const appStyle = {
 		body: {
-			backgroundImage: "url(./assets/background_pong.png);",
+			backgroundImage: "url(./assets/images/background_pong.png);",
 		},
 	};
 

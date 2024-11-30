@@ -1,8 +1,41 @@
+.game_container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.points_container{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: black;
+	border-top: 5px solid white;
+	border-bottom: 5px solid white;
+	padding-top: 4.8px;
+	padding-bottom: 4.8px;
+}
+
 .canvas_container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	background-color: black;
+}
+
+.a_point {
+	width: 15px;
+	height: 15px;
+	border: 5px solid white;
+	background-color: white;
+	margin: 4.8px;
+}
+
+.not_point {
+	width: 15px;
+	height: 15px;
+	border: 5px solid white;
+	background-color: black;
+	margin: 4.8px;
 }
 
 .centered_container {
@@ -15,15 +48,20 @@
 	font-size: 3.5em;
 	font-weight: bold;
 	color: whitesmoke;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	background-color: black;
+	border-left: 5px solid white;
+	border-right: 5px solid white;
 }
 
 .centered_container p {
 	font-size: 1.25em;
 	font-weight: bold;
 	color: whitesmoke;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
-}
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	background-color: black;
+	border-left: 5px solid white;
+	border-right: 5px solid white;}
 
 .pong_game {
 	display: flex;
