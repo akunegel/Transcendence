@@ -13,10 +13,8 @@ function MicroPong() {
 
 	const drawGame = (ctx, x, y) => {
 
-		// // Fill background in black
+		// Clear last frame
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-		ctx.fillStyle = 'black';
-		ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		
 		// Drawing the ball at the given position
 		ctx.beginPath();
@@ -75,8 +73,10 @@ function MicroPong() {
     }, []);
 
 	return (
-		<div className={styles.MicroPong}>
-			<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y} style={{ border: '8px solid white'}}></canvas>
+		<div className={styles.micro_pong}>
+			<div className={styles.canvas_container}>
+				<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y} style={{ border: '8px solid white'}}></canvas>
+			</div>
 		</div>
 	)
 }

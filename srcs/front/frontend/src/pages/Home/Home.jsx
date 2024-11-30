@@ -1,10 +1,8 @@
-//import { useState, useEffect } from "react"
-//import api from "../api";
 import React, {useEffect} from 'react'
 import "../../styles/Home.css"
 import styles from "./Home.module.css"
-import logo from "../../assets/logo_shadowed.png"
-import sublogo from "../../assets/logo_under.png"
+import logo from "../../assets/images/logo_shadowed.png"
+import sublogo from "../../assets/images/logo_under.png"
 import {useNavigate, useLocation} from "react-router-dom"
 import CutePong from "../MicroPong/MicroPong.jsx"
 import Chat from "../Chat/Chat.jsx"

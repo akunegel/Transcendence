@@ -1,12 +1,26 @@
 from channels.layers import get_channel_layer
 import asyncio
 import math
+import logging
 
+
+logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
+logger = logging.getLogger("__gameLogic__")
 
 ROOM_WIDTH = 800
 ROOM_HEIGHT = 500
 
-async def update_game(channel_layer, room_id, var, time_before_hit, case):
+async def disconnectPlayers(channel_layer, room_id):
+
+	if channel_layer:
+		await channel_layer.group_send(
+			room_id,  # Group name (room_id)
+			{
+				"type": "update.disconnect",  # Sending disconnect message to room's users
+			}
+		)
+
+async def updateGame(channel_layer, room_id, var, time_before_hit, case):
 
 	var["time"] = time_before_hit
 
@@ -118,7 +132,21 @@ async def playAgain(channel_layer, room_id, room, x):
 	var["objy"] = 250
 	var["l_paddle"] = 250
 	var["r_paddle"] = 250
-	await update_game(channel_layer, room_id, var, 0.0, "global_update")
+	await updateGame(channel_layer, room_id, var, 0.0, "global_update")
+
+
+async def isGameOver(channel_layer, room, room_id):
+	max_point = room["rules"]["max_point"]
+	l_score = room["var"]["l_score"]
+	r_score = room["var"]["r_score"]
+
+	if (l_score >= max_point):
+		await updateGame(channel_layer, room_id, {"winner": "player1", "game_started": False}, 0.0, "end_game")
+	elif (r_score >= max_point):
+		await updateGame(channel_layer, room_id, {"winner": "player2", "game_started": False}, 0.0, "end_game")
+	else:
+		return False
+	return True
 
 
 async def game_logic(room_id):
@@ -126,15 +154,15 @@ async def game_logic(room_id):
 	channel_layer = get_channel_layer()  # Get the channel layer
 	room = room_manager.get_room(room_id) # getting the associated room
 	time_before_hit = 3 # 3 seconds before games start
-	game_started = True
+	room["var"]["game_started"] = True
 
-	while game_started:
+	while room["var"]["game_started"]:
 
 		var = room["var"] # get the room's game variables
 		pos = {"x": var["objx"], "y": var["objy"]} # old objective becomes current position
 		obj = {"x": 400, "y": 250}
 
-		await update_game(channel_layer, room_id, var, time_before_hit, "ball_update")
+		await updateGame(channel_layer, room_id, var, time_before_hit, "ball_update")
 		await asyncio.sleep(time_before_hit) # waiting until the ball gets to it's objective
 
 		if (pos["x"] == 791.1 or pos["x"] == 9):
@@ -144,5 +172,12 @@ async def game_logic(room_id):
 			obj = await nextHit(var["l_paddle"], var["r_paddle"], pos["x"], pos["y"], room) # determine the coordinates of the next 'rebound'
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
 
+		if (await isGameOver(channel_layer, room, room_id) == True):
+			room["var"]["game_started"] = False
+
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
+
+	await asyncio.sleep(5)
+	await disconnectPlayers(channel_layer, room_id)
+	room_manager.remove_room(room_id)

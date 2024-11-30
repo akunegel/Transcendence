@@ -24,7 +24,7 @@ async def paddle_logic(room_id):
 	channel_layer = get_channel_layer()
 	await asyncio.sleep(3)
 
-	while True:
+	while room["var"]["game_started"]:
 		var = room["var"] # getting the room's game variables
 		dyn = room["dyn"] #
 

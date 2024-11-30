@@ -1,5 +1,5 @@
 import styles from "./Profil.module.css"
-import logo from "../../assets/logo_profil.png"
+import logo from "../../assets/images/logo_profil.png"
 import React, { useState, useEffect } from 'react';
 import {useNavigate} from "react-router-dom";
 

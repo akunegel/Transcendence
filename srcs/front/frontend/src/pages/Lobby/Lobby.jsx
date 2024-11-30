@@ -3,7 +3,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import {useNavigate} from "react-router-dom"
 import CustomGameForm from "../../components/CustomGameForm/CustomGameForm.jsx"
 import api from "../../api";
-import logo from "../../assets/logo_lobby.png"
+import logo from "../../assets/images/logo_lobby.png"
 import styles from "./Lobby.module.css"
 
 

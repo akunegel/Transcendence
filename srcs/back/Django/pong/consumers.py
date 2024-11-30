@@ -21,8 +21,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 
 	async def connect(self):
-		self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
-
+		self.room_id = str(self.scope["url_route"]["kwargs"]["room_id"])
 		# Retry checking the room if room is not yet initialized
 		# Retry connecting up to 5 times with 0.2 second delay
 		for _ in range(5):
@@ -57,20 +56,20 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 		if "action" in message and var["game_started"] == True:
 			paddle = "l_paddle" if self.channel_name == state["player1"] else "r_paddle" # which side's paddle we are operating on
 
-			if message["action"] == "arrow_up_pressed": # player is currently pressing up
+			if message["action"] == "arrow_up_pressed": # player is now pressing up
 				dyn[paddle]["going_up"] = True
 			elif message["action"] == "arrow_up_unpressed": # player stopped pressing up
 				dyn[paddle]["going_up"] = False
 			
-			if message["action"] == "arrow_down_pressed":  # player is currently pressing down
+			if message["action"] == "arrow_down_pressed":  # player is now pressing down
 				dyn[paddle]["going_down"] = True
 			elif message["action"] == "arrow_down_unpressed":  # player stopped pressing down
 				dyn[paddle]["going_down"] = False
 
 
-	async def disconnect_message(self, event):
-		# Close the WebSocket connection when receiving a disconnect message
-		await self.close()
+	async def update_disconnect(self, event):
+		# Handle the `update.disconnect` message from game_logic, closing the WebSocket
+		await self.disconnect()
 
 	async def update_game_state(self, event):
 		# Handle the `update.game_state` message from game_logic

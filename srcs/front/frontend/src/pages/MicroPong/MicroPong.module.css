@@ -1,3 +1,7 @@
-.MicroPong {
+.micro_pong {
 	margin: 16px;
+}
+
+.canvas_container {
+	background-color: black;
 }
