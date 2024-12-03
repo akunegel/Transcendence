@@ -212,7 +212,7 @@ function OnlinePong() {
 				</div>
 
 				<div className={styles.canvas_container}>
-					<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
+					<canvas ref={canvasRef} width={800} height={500}/>
 				</div>
 
 				<div className={styles.points_container} style={{borderRight: "5px solid white"}}>

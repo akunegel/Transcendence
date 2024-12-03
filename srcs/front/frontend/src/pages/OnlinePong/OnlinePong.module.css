@@ -20,6 +20,7 @@
 	flex-direction: column;
 	align-items: center;
 	background-color: black;
+	border: 5px solid white;
 }
 
 .a_point {
@@ -61,7 +62,8 @@
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 	background-color: black;
 	border-left: 5px solid white;
-	border-right: 5px solid white;}
+	border-right: 5px solid white;
+}
 
 .pong_game {
 	display: flex;
