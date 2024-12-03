@@ -1,44 +1,33 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './Pong.module.css';
-import api from "../../api";
-import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 
 
-function Pong() {
+function Pong({ param }) {
 
-	const canvasRef = useRef(null);
-	const keys = useRef({ lu: false, ld: false, ru: false, rd: false});
-	const LPaddle = useRef({ x: 50, y: 250});
-	const RPaddle = useRef({ x: 750, y: 250});
-	const [score, setScore] = useState({left: 0, right: 0});
-	const gameStarted = useRef(false);
-	const pos = useRef({ x: 400, y: 250 });
-	const obj = useRef({ x: 400, y: 250 });
-	const dir = useRef(1);
-	const vec = useRef(0.005);
-	const speed = useRef(2);
-	const lastUpdateTimeRef = useRef(0);
-	const [count, setCount] = useState(0);
+	const	canvasRef = useRef(null);
+	const	keys = useRef({ lu: false, ld: false, ru: false, rd: false});
+	const	LPaddle = useRef({ x: 50, y: 250});
+	const	RPaddle = useRef({ x: 750, y: 250});
+	const	score = useRef({left: 0, right: 0});
+	const	[displayScore, setDisplayScore] = useState({left: 0, right: 0});
+	const	[statusTitle, setStatusTitle] = useState("- Game starting in 3 -");
+	const	gameLoop = useRef(false);
+	const	pos = useRef({ x: 400, y: 250 });
+	const	obj = useRef({ x: 400, y: 250 });
+	const	dir = useRef(1);
+	const	vec = useRef(0.005);
+	const	speed = useRef(2);
+	const	lastUpdateTimeRef = useRef(0);
 
-	const navigate = useNavigate();
-	const handleReturn = () => {
-		navigate("/home");
-	}
+	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-	// Setting the tab on mount
 	useEffect(() => {
+		// Drawing the game on mount for display
+		drawGame(canvasRef.current.getContext('2d'));
+		// Setting the tab title on mount
 		document.title = "Pong";
-	}, []);
-
-	// Counter effect for seconds since start
-	useEffect(() => {
-		const intervalId = setInterval(() => {
-			if (gameStarted.current == true)
-				setCount((prevCount) => prevCount + 1);
-		}, 1000);
-
-		return () => clearInterval(intervalId);
+		console.log(param.maxPoint);
+		startGame();
 	}, []);
 
 	useEffect(() => {
@@ -103,22 +92,29 @@ function Pong() {
 			RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
 	}
 
-	const handleFaster = () => {
+	const upBallSpeed = () => {
 		speed.current = (speed.current >= 100 ? 100 : speed.current + 1);
 	};
 
-	const handleSlower = () => {
-		speed.current = (speed.current <= 1 ? 1 : speed.current - 1);
-	};
+	const isGameOver = () => {
+		// Checking if one of the players hit the target score
+		if (score.current.left >= param.maxPoint)
+			setStatusTitle("- Left Player Won ! -");
+		else if (score.current.right >= param.maxPoint)
+			setStatusTitle("- Right Player Won ! -");
+		else
+			return (false);
+		return (true);
+	}
 
 	const playAgain = () => {
 
 		// Adding score depending on the position of the ball, x=791.1 would be the right side, x=9 for left
 		if (pos.current.x == 791.1)
-			setScore((s) => s = {...s, left: s.left + 1});
+			score.current = {left: score.current.left + 1, right: score.current.right}
 		else
-			setScore((s) => s = {...s, right: s.right + 1});
-
+			score.current = {left: score.current.left, right: score.current.right + 1};
+		
 		// Resets the gamestate to keep playing (except scores)
 		speed.current = 2;
 		pos.current = ({ x: 400, y: 250 });
@@ -126,33 +122,20 @@ function Pong() {
 		LPaddle.current = ({ x: 50, y: 250});
 		RPaddle.current = ({ x: 750, y: 250});
 		vec.current = 0.005;
-		nextHit();
+		
+		setDisplayScore(score.current);
+		if (isGameOver() == true)
+			gameLoop.current = false;
 	}
 
-	const restartGame = () => {
-
-		// Resets completely the gamestate
-		gameStarted.current = false;
-		pos.current = ({ x: 400, y: 250 });
-		obj.current = ({ x: 400, y: 250 });
-		LPaddle.current = ({ x: 50, y: 250});
-		RPaddle.current = ({ x: 750, y: 250});
-		vec.current = 0.005;
-		speed.current = 2;
-	}
 	
-	const startGame = () => {
-
-		if (gameStarted.current == true)
-		return ;
-		// Sets the gamestate to default values and allows the game to start moving the ball
-		setCount(0);
-		gameStarted.current = true;
-		setScore({ left: 0, right: 0 });
-		vec.current = 0.005;
-		speed.current = 2;
-		pos.current = ({ x: 400, y: 250 });
-		obj.current = ({ x: 400, y: 250 });
+	async function startGame() {
+		for(let i = 3; i != 0; i--){
+			setStatusTitle("- Game starting in " + i + " -");
+			await sleep(1000);
+		}
+		setStatusTitle("- First to " + param.maxPoint + " wins -")
+		gameLoop.current = true;
 	}
 
 	const drawBall = (ctx, x, y) => {
@@ -236,7 +219,7 @@ function Pong() {
 					newX = (newX >= 750 ? 750 : 50);
 					newY = dir.current * (newX - pos.current.x) * vec.current + pos.current.y;
 				}
-				handleFaster();
+				upBallSpeed();
 			}
 			else // Otherwise, the ball goes to score a point
 			{
@@ -274,7 +257,7 @@ function Pong() {
 
 		const animate = (time) =>
 		{
-			if (time - lastUpdateTimeRef.current > 1000 / 61) {
+			if (gameLoop.current == true && time - lastUpdateTimeRef.current > 1000 / 61) {
 				// Calculating the distance from the current position to the target position
 				const dx = obj.current.x - pos.current.x;
 				const dy = obj.current.y - pos.current.y;
@@ -287,11 +270,10 @@ function Pong() {
 					pos.current.x = obj.current.x;
 					pos.current.y = obj.current.y;
 					drawGame(context);
-					// Checking if the ball has scored a point yet
+					// Checking if the ball has scored a point
 					if (pos.current.x == 791.1 || pos.current.x == 9)
 						playAgain();
-					else if (gameStarted.current == true)
-						nextHit();
+					nextHit();
 				}
 				else { // Determine the step's length towards the target, depending on speed
 					const angle = Math.atan2(dy, dx);
@@ -314,22 +296,26 @@ function Pong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2>{score.left}:{score.right}</h2>
+				<h2>{displayScore.left > 9 ? "" : 0}{displayScore.left}-{displayScore.right > 9 ? "" : 0}{displayScore.right}</h2>
+				<p>{statusTitle}</p>
 			</div>
 
-			<div className={styles.canvas_container}>
-				<canvas ref={canvasRef} width={800} height={500} style={{ border: '5px solid white' }}></canvas>
-			</div>
+			<div className={styles.game_container}>
 
-			<div className={styles.button_container}>
-				<button onClick={restartGame}>RESTART</button>
-				<button onClick={startGame}>START</button>
-				<button onClick={handleReturn}>RETURN</button>
-			</div>
+				<div className={styles.points_container} style={{borderLeft: "5px solid white"}}>
+					{Array.from({ length: (param.maxPoint - displayScore.left)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
+					{Array.from({ length: displayScore.left}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
+				</div>
 
-			<div className={styles.centered_container}>
-				<p>Speed: {speed.current}</p>
-				<p>Since start: {count} sec</p>
+				<div className={styles.canvas_container}>
+					<canvas ref={canvasRef} width={800} height={500}/>
+				</div>
+
+				<div className={styles.points_container} style={{borderRight: "5px solid white"}}>
+					{Array.from({ length: (param.maxPoint - displayScore.right)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
+					{Array.from({ length: displayScore.right}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
+				</div>
+
 			</div>
 
 		</div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import styles from "./MicroPong.module.css"
 
 function MicroPong() {
+
 	const canvasSize = {x: 240, y: 150};
 	const canvasRef = useRef(null);
     const pos = useRef({ x: canvasSize.x / 2, y: canvasSize.y / 2 });
@@ -75,7 +76,7 @@ function MicroPong() {
 	return (
 		<div className={styles.micro_pong}>
 			<div className={styles.canvas_container}>
-				<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y} style={{ border: '8px solid white'}}></canvas>
+				<canvas ref={canvasRef} width={canvasSize.x} height={canvasSize.y}/>
 			</div>
 		</div>
 	)

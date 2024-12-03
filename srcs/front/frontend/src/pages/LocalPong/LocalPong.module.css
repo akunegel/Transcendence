@@ -1,19 +1,48 @@
+.centered_container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.titles_display {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.titles_display h2 {
+	font-size: 3.5em;
+	font-weight: bold;
+	color: whitesmoke;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	background-color: black;
+	border: 5px solid white;
+	border-bottom: none;
+}
+.titles_display p {
+	font-size: 1.25em;
+	font-weight: bold;
+	color: whitesmoke;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	background-color: black;
+	border: 5px solid white;
+	border-bottom: none;
+}
+
 .gameform_container {
 	display: flex;
 	flex-direction: column;
-	justify-content:left;
+	justify-content: center;
 	border: 5px solid white;
 	margin-bottom: 20px;
-	min-width: 250px;
-	max-width: 250px;
+	width: 800px;
+	height: 500px;
 	background-color: black;
-	height:fit-content;
 }
 
 .gameform_number_container {
 	display: flex;
 	flex-direction: row;
-	justify-content: left;
+	justify-content: center;
 	margin: 10px;
 	margin-top: 16px;
 	gap: 10px;
@@ -42,7 +71,9 @@
 
 .gameform_checkbox_container {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
+	justify-content: center;
 	margin: 10px;
 	margin-top: 16px;
 	margin-bottom: 4px;
@@ -72,13 +103,12 @@
 }
 
 
-.start_button {
-	padding-top: 5%;
+.text_button {
 	display: flex;
 	flex-direction: column;
 	justify-content:center bottom;
 }
-.start_button button {
+.text_button button {
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
 	font-weight: bold;
 	font-size: 1em;
@@ -87,8 +117,7 @@
 	padding: 5px;
 	transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-.start_button button:hover {
+.text_button button:hover {
 	background-color: white;
 	color: black;
 }
@@ -98,4 +127,29 @@
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
 	font-size: 0.7em;
 	padding-left: 10px;
+}
+
+.exit_button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	border: 5px solid white;
+	border-top: none;
+}
+.exit_button button {
+	width: 50px;
+	font-size: 1em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
+	background-color: black;
+	color: white;
+	font-weight: bold;
+	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
+}
+.exit_button button:hover{
+	color: black;
+	background-color: white;
+}
+.exit_button button:active {
+	color: white;
+	background-color: green;
 }
