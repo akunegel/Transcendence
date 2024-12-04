@@ -33,7 +33,6 @@
 	flex-direction: column;
 	justify-content: center;
 	border: 5px solid white;
-	margin-bottom: 20px;
 	width: 800px;
 	height: 500px;
 	background-color: black;
@@ -126,7 +125,6 @@
 	color: grey;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
 	font-size: 0.7em;
-	padding-left: 10px;
 }
 
 .exit_button {
@@ -151,5 +149,5 @@
 }
 .exit_button button:active {
 	color: white;
-	background-color: green;
+	background-color: rgb(200, 0, 0);
 }

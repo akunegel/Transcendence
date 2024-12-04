@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Pong.module.css';
-
+import {AI_paddleMovement} from "./OpponentAi.js"
 
 function Pong({ param }) {
 
@@ -24,9 +24,9 @@ function Pong({ param }) {
 	useEffect(() => {
 		// Drawing the game on mount for display
 		drawGame(canvasRef.current.getContext('2d'));
-		// Setting the tab title on mount
+		// Setting the tab's title
 		document.title = "Pong";
-		console.log(param.maxPoint);
+		// Then, starting the game
 		startGame();
 	}, []);
 
@@ -74,7 +74,7 @@ function Pong({ param }) {
 
 		return () => {
 			window.removeEventListener('keydown', handleKeyDown);
-			window.addEventListener('keyup', handleKeyUp);
+			window.removeEventListener('keyup', handleKeyUp);
 		};
 	}, []);
 
@@ -82,17 +82,33 @@ function Pong({ param }) {
 	{
 		// Moves the paddles in the corresponding direction depending on pressed keys
 		// See handleKeyUp() and handleKeyDown() above
-		if (keys.current.lu)
-			LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
-		if (keys.current.ld)
-			LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
-		if (keys.current.ru)
-			RPaddle.current.y += (RPaddle.current.y <= 60 ? 0 : -5);
-		if (keys.current.rd)
-			RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
+
+		// Against an AI, arrow keys become bound to the left paddle, the AI to the right.
+		if (param.againstAI == true)
+		{
+			if (keys.current.ru)
+				LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
+			if (keys.current.rd)
+				LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
+
+			// Gets the movement determined by the AI
+			RPaddle.current.y += AI_paddleMovement(param.difficulty, obj.current, pos.current, RPaddle.current.y, dir.current);
+		}
+		else // E and D keys are bound to left paddle, arrow keys to the right.
+		{
+			if (keys.current.lu)
+				LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
+			if (keys.current.ld)
+				LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
+			if (keys.current.ru)
+				RPaddle.current.y += (RPaddle.current.y <= 60 ? 0 : -5);
+			if (keys.current.rd)
+				RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
+		}
 	}
 
 	const upBallSpeed = () => {
+		// gotta go fast
 		speed.current = (speed.current >= 100 ? 100 : speed.current + 1);
 	};
 
@@ -101,7 +117,7 @@ function Pong({ param }) {
 		if (score.current.left >= param.maxPoint)
 			setStatusTitle("- Left Player Won ! -");
 		else if (score.current.right >= param.maxPoint)
-			setStatusTitle("- Right Player Won ! -");
+			setStatusTitle("- " + (againstAI ? "AI" : "Right") + " Player Won ! -");
 		else
 			return (false);
 		return (true);
@@ -115,7 +131,7 @@ function Pong({ param }) {
 		else
 			score.current = {left: score.current.left, right: score.current.right + 1};
 		
-		// Resets the gamestate to keep playing (except scores)
+		// Resets the gamestate to play again (except scores)
 		speed.current = 2;
 		pos.current = ({ x: 400, y: 250 });
 		obj.current = ({ x: 400, y: 250 });
@@ -130,11 +146,15 @@ function Pong({ param }) {
 
 	
 	async function startGame() {
+		
+		// 3 seconds delay before game starts
 		for(let i = 3; i != 0; i--){
 			setStatusTitle("- Game starting in " + i + " -");
 			await sleep(1000);
 		}
 		setStatusTitle("- First to " + param.maxPoint + " wins -")
+		
+		// Unblocking the game loop (in animate())
 		gameLoop.current = true;
 	}
 
@@ -174,6 +194,7 @@ function Pong({ param }) {
 
 	function isPaddleAtLevel(side, y) {
 		
+		// Getting the concerned paddle's y depending on direction
 		let paddleY = (side == 1 ? RPaddle.current.y : LPaddle.current.y);
 
 		// When at a paddle's x value, checks if the ball y value is inside the paddel's range to allow rebound
@@ -247,6 +268,7 @@ function Pong({ param }) {
 				vec.current *= -1;
 		}
 
+		// Old objective becomes new position, setting the new objective
 		pos.current = obj.current;
 		obj.current = {x: newX, y: newY};
 	};
@@ -263,10 +285,11 @@ function Pong({ param }) {
 				const dy = obj.current.y - pos.current.y;
 				const distance = Math.sqrt(dx * dx + dy * dy);
 
-				// The game is more fun when you can move the paddles
+				// This game is way more fun if you can move the paddles
 				handlePaddlesMovement();
 
-				if (distance <= speed.current) { // Snap to target if close enough, not going further than target
+				if (distance <= speed.current) {
+					// Snap to obj if close enough, not going further than target
 					pos.current.x = obj.current.x;
 					pos.current.y = obj.current.y;
 					drawGame(context);
@@ -275,7 +298,8 @@ function Pong({ param }) {
 						playAgain();
 					nextHit();
 				}
-				else { // Determine the step's length towards the target, depending on speed
+				else {
+					// Determine the step's length towards the target, depending on speed
 					const angle = Math.atan2(dy, dx);
 					const newX = pos.current.x + Math.cos(angle) * speed.current;
 					const newY = pos.current.y + Math.sin(angle) * speed.current;
@@ -295,6 +319,7 @@ function Pong({ param }) {
 	return (
 		<div className={styles.centered_container}>
 
+			{/* Point counter (top) and status title */}
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
 				<h2>{displayScore.left > 9 ? "" : 0}{displayScore.left}-{displayScore.right > 9 ? "" : 0}{displayScore.right}</h2>
 				<p>{statusTitle}</p>
@@ -302,15 +327,18 @@ function Pong({ param }) {
 
 			<div className={styles.game_container}>
 
+				{/* Point counter (left) */}
 				<div className={styles.points_container} style={{borderLeft: "5px solid white"}}>
 					{Array.from({ length: (param.maxPoint - displayScore.left)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
 					{Array.from({ length: displayScore.left}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
 				</div>
 
+				{/* Game display  [' °'] */}
 				<div className={styles.canvas_container}>
 					<canvas ref={canvasRef} width={800} height={500}/>
 				</div>
 
+				{/* Point counter (right) */}
 				<div className={styles.points_container} style={{borderRight: "5px solid white"}}>
 					{Array.from({ length: (param.maxPoint - displayScore.right)}).map((_, index) =>  (<div className={styles.not_point} key={index}/>))}
 					{Array.from({ length: displayScore.right}).map((_, index) => (<div className={styles.a_point} key={index}/>))}

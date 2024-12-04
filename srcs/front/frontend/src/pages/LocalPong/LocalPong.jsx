@@ -11,7 +11,7 @@ function LocalPong() {
 	const [maxTime, setMaxTime] = useState(5);
 	const [maxPoint, setMaxPoint] = useState(5);
 	const [gameParameters, setGameParameters] = useState(null);
-	const [againstAi, setAgainstAi] = useState(false);
+	const [againstAI, setAgainstAI] = useState(false);
 	const [difficulty, setDifficulty] = useState(1);
 	const navigate = useNavigate();
 
@@ -20,6 +20,7 @@ function LocalPong() {
 	}
 
 	const difficultyMessage = () => {
+		// Setting a word representation of the difficulty level
 		switch(difficulty)
 		{
 			case 1:
@@ -32,11 +33,14 @@ function LocalPong() {
 	}
 
 	const handleStart = () => {
+		// GameParameters are sent to the Pong module as parameters
 		setGameParameters({
 				addBonus: addBonus,
 				hasTimeLimit: hasTimeLimit,
 				maxTime: maxTime,
 				maxPoint: maxPoint,
+				againstAI: againstAI,
+				difficulty: difficulty,
 			});
 		setGameStarted(true);
 	};
@@ -69,6 +73,7 @@ function LocalPong() {
 						<label htmlFor="timeLimitCheckBox"></label>
 						<p>Time limit: {hasTimeLimit ? "enabled" : "disabled"}</p>
 					</div>
+					{/* Set time limit buttons */}
 					{hasTimeLimit &&
 						<div className={styles.gameform_number_container}>
 							<p>Time limit:</p> <br/>
@@ -80,11 +85,11 @@ function LocalPong() {
 					
 					{/* Toggle AI opponent checkbox */}
 					<div className={styles.gameform_checkbox_container}>
-						<input id="AICheckBox" type="checkbox" value={againstAi} onChange={() => setAgainstAi(againstAi ? false : true)}/>
+						<input id="AICheckBox" type="checkbox" value={againstAI} onChange={() => setAgainstAI(againstAI ? false : true)}/>
 						<label htmlFor="AICheckBox"></label>
-						<p>AI opponent: {againstAi ? "enabled" : "disabled"}</p>
+						<p>AI opponent: {againstAI ? "enabled" : "disabled"}</p>
 					</div>
-					{againstAi &&
+					{againstAI &&
 						<div className={styles.gameform_number_container}>
 							<p>Difficulty:</p> <br/>
 							<button onClick={() => setDifficulty(difficulty >= 3 ? 3 : difficulty + 1)}>+</button>
@@ -101,10 +106,7 @@ function LocalPong() {
 						<button onClick={() => setMaxPoint(maxPoint <= 1 ? 1 : maxPoint - 1)}>-</button>
 					</div>
 		
-					<div className={styles.gameform_input_container}>
-		
-					</div>
-		
+					{/* Start and Return buttons */}
 					<div className={styles.text_button} style={{marginTop:'80px'}}>
 						<button onClick={() => handleStart()}>START GAME</button>
 					</div>
@@ -116,10 +118,16 @@ function LocalPong() {
 				</div>
 			</>
 			}
-			{gameStarted == true ?
+			{gameStarted ?
 				<div className={styles.exit_button}>
 					<button onClick={() => setGameStarted(false)}>EXIT</button>
-				</div> : <></>}
+				</div>
+			:
+				<div style={{border: '5px solid white', borderTop: 'none', backgroundColor: 'black'}}>
+				{againstAI ? <p className={styles.info_message} style={{color: 'white'}}>Controls: up: arrowUp down: arrowDown</p>
+						   : <p className={styles.info_message} style={{color: 'white'}}>Controls: up: E down: D | up: arrowUp down: arrowDown</p>}
+				</div>
+			}
 
 		</div>
 	)
