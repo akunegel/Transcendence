@@ -8,6 +8,8 @@ from .serializers import PlayerSerializer
 from .models import Player
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth import get_user_model
+from rest_framework.exceptions import AuthenticationFailed
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -19,29 +21,26 @@ def register_player(request):
         return Response({
             'success': False,
             'errors': ["Username already used."],
-            'username': username,
-            'refresh': False,
-            'access': False,
         }, status=status.HTTP_400_BAD_REQUEST)
 
     if serializer.is_valid():
         player = serializer.save()
-        refresh = RefreshToken.for_user(player)
         return Response({
             'success': True,
             'user': serializer.data,
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
         }, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    return Response({
+        'success': False,
+        'errors': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_player(request):
     username = request.data.get('username')
     password = request.data.get('passwd')
+
     try:
         player = Player.objects.get(username=username)
         if check_password(password, player.passwd):
@@ -51,17 +50,24 @@ def login_player(request):
                 'access': str(refresh.access_token),
             })
         else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({
+                'success': False,
+                'error': 'Invalid password'
+            }, status=status.HTTP_401_UNAUTHORIZED)
     except Player.DoesNotExist:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({
+            'success': False,
+            'error': 'Invalid credentials'
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    player = request.user
+    user = request.user
     return Response({
-        'username': player.username,
-        'fname': player.fname,
-        'lname': player.lname,
-        'email': player.email
+        'username': user.username,
+        'fname': user.first_name,
+        'lname': user.last_name,
+        'email': user.email,
     })

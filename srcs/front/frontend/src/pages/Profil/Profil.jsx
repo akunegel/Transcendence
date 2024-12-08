@@ -2,6 +2,7 @@ import styles from "./Profil.module.css"
 import logo from "../../assets/images/logo_profil.png"
 import React, { useState, useEffect } from 'react';
 import {useNavigate} from "react-router-dom";
+import api from '../../api';
 
 function Profil() {
 	const navigate = useNavigate();
@@ -15,27 +16,18 @@ function Profil() {
 	useEffect(() => {
 		const fetchUserProfile = async () => {
 			try {
-				const response = await fetch(`http://${import.meta.env.VITE_IP}:8000/user/profile/`,  {
-					headers: {
-						'Authorization': `Bearer ${localStorage.getItem('access')}`						}
-				});
-
-				const responseText = await response.text();
-				console.log('Raw response:', responseText);
-
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
-
-				const data = JSON.parse(responseText);
-				setUserInfo(data);
+				const response = await api.get('/user/profile/');
+				setUserInfo(response.data);
 			} catch (error) {
 				console.error("Error fetching profile:", error);
+				localStorage.clear();
+				navigate("/login");
 			}
 		};
 
 		fetchUserProfile();
 	}, []);
+
 
 	const handleReturn = () => {
 		navigate("/home");
