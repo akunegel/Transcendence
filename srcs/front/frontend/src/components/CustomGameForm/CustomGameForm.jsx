@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 import {useNavigate} from "react-router-dom"
 import api from "../../api";
-import axios from 'axios'
 import styles from "./CustomGameForm.module.css"
 
 function CustomGameForm() {

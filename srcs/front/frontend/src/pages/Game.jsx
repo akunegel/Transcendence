@@ -1,8 +1,6 @@
 import '../styles/Game.css'
 import { useEffect, useMemo, useState, useRef } from 'react'
-import api from "../api";
-import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+
 
 export default function Game() {
     var ws = useMemo(() => {return new WebSocket("ws://localhost:8000/ws/pong/")}, [ws]);
