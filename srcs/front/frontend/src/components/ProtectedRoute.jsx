@@ -1,57 +1,12 @@
-import {Navigate} from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
-import api from "../api";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
-import { useState, useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useContext } from 'react'
+import AuthContext from '../context/AuthContext'
 
-function ProtectedRoute({children}) {
-    const [isAuthorized, setIsAuthorized] = useState(null);
-1
-    useEffect(() => {
-        auth().catch(() => setIsAuthorized(false))
-    }, []);
+const ProtectedRoute = ({ children }) => {
+    const location = useLocation();
+    let { user } = useContext(AuthContext)
 
-    const refreshToken = async () => {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-        try {//essayer d'envoyer une requete au path "api/token/refresh/", pour voir si il nous redonne un nouveau ACCESS_TOKEN
-            const res = await api.post("api/user/token/refresh/", {refresh : refreshToken});
-            if (res.status === 200) {//200 signifie que la reponse est favorable, le "===": comparaison tres tres strictement egal
-                localStorage.setItem(ACCESS_TOKEN, res.data.access);
-                setIsAuthorized(true);
-            }
-            else {
-                setIsAuthorized (false);
-            }
-        } catch (error) {
-            console.log(error);
-            setIsAuthorized(false);
-        }
-    }
+    return user ? (children) : (<Navigate to="/login" replace state={{ from: location }} />);
+};
 
-    const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN);//recupere le token et verifie son existance
-        if(!token) {
-            setIsAuthorized(false);
-            return;
-        }
-
-        const decode = jwtDecode(token);//decode le token pour avoir les info desssu
-        const tokenExp = decode.exp;
-        const now = Date.now() / 1000;
-
-        if (tokenExp < now){//si le token existe, regarde si il est pas expirer
-            await refreshToken();
-        }
-        else {
-            setIsAuthorized(true);
-        }
-    }
-
-    if (isAuthorized == null) {
-        return <div>Chargement...</div>
-    }
-
-    return isAuthorized ? children : <Navigate to="/login" />
-}
-
-export default ProtectedRoute
+export default ProtectedRoute;

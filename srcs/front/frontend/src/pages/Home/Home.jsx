@@ -1,12 +1,10 @@
-import React, {useEffect} from 'react'
 import "../../styles/Home.css"
 import styles from "./Home.module.css"
 import logo from "../../assets/images/logo_shadowed.png"
 import sublogo from "../../assets/images/logo_under.png"
-import {useNavigate, useLocation} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
 import CutePong from "../MicroPong/MicroPong.jsx"
 import Chat from "../Chat/Chat.jsx"
-import api from "../../api";
 
 function Home() {
 	const navigate = useNavigate();
@@ -16,7 +14,7 @@ function Home() {
 	}
 	
 	const handleProfil = () => {
-		navigate("/profil")
+		navigate("/profile")
 	}
 
 	const handleOnline = () => {
@@ -45,7 +43,7 @@ function Home() {
 
 				<div className={styles.centered_container}>
 					<button onClick={() => handleOnline()}>PLAY ONLINE</button>
-					<button onClick={() => handleProfil()}>PROFIL</button>
+					<button onClick={() => handleProfil()}>PROFILE</button>
 					<button>SETTINGS</button>
 					<button onClick={() => handleLogout()}>LOGOUT</button>
 					<br/>
