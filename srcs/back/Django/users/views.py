@@ -1,11 +1,14 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Note
-from .serializers import NoteSerializer
-from rest_framework.permissions import IsAuthenticated
 
+from .models import Player
+from .serializers import PlayerSerializer, PlayerRegistrationSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -17,11 +20,22 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
+class RegisterPlayer(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PlayerRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getNotes(request):
-    user = request.user
-    notes = user.note_set.all()
-    serializer = NoteSerializer(notes, many=True)
-    return Response(serializer.data)
+def getPlayerProfile(request):
+    try:
+        player = Player.objects.get(user=request.user)
+        serializer = PlayerSerializer(player)
+        return Response(serializer.data)
+    except Player.DoesNotExist:
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
