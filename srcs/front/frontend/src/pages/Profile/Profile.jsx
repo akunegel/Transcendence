@@ -31,6 +31,7 @@ const Profile =  () => {
 			logoutUser()
 		}
 	}
+
 	return (
 		<div className={styles.centered_container}>
 			<img
