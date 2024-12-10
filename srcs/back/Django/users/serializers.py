@@ -21,7 +21,7 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['username', 'password', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['username', 'password']
 
     def create(self, validated_data):
         username = validated_data.pop('username')
@@ -30,7 +30,6 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(
             username=username,
             password=password,
-            email=validated_data.get('email')
         )
 
         player = Player.objects.create(

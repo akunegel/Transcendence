@@ -6,10 +6,6 @@ const Register = () => {
         username: '',
         password: '',
         passwordVerif: '',
-        first_name: '',
-        last_name: '',
-        email: '',
-        profile_picture: ''
     })
     const navigate = useNavigate()
 
@@ -31,10 +27,6 @@ const Register = () => {
         const submitData = {
             username: formData.username,
             password: formData.password,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email,
-            profile_picture: formData.profile_picture || null
         }
 
         try {
@@ -71,30 +63,6 @@ const Register = () => {
                     required
                 />
                 <input
-                    type="text"
-                    name="first_name"
-                    placeholder="First Name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="text"
-                    name="last_name"
-                    placeholder="Last Name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                />
-                <input
                     type="password"
                     name="password"
                     placeholder="Enter Password"
@@ -109,13 +77,6 @@ const Register = () => {
                     value={formData.passwordVerif}
                     onChange={handleChange}
                     required
-                />
-                <input
-                    type="text"
-                    name="profile_picture"
-                    placeholder="Profile Picture URL (optional)"
-                    value={formData.profile_picture}
-                    onChange={handleChange}
                 />
                 <input type="submit" value="Register"/>
             </form>
