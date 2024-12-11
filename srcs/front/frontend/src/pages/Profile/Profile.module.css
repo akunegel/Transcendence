@@ -88,6 +88,8 @@
 }
 
 .close_button {
+	width: 10px;
+	height: 50px;
 	position: absolute;
 	top: 10px;
 	right: 10px;
@@ -119,9 +121,9 @@
 	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 }
 
-.edit_profile_content button {
-	min-width: 250px;
-	max-width: 250px;
+.edit_profile_content_b {
+	min-width: 50px !important;
+	max-width: 50px !important;
 	border-radius: 10px;
 	padding: 8px;
 	margin-top: 20px;
@@ -133,7 +135,7 @@
 	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
 }
 
-.edit_profile_content button:hover {
+.edit_profile_content_b:hover {
 	background-color: rgb(255, 102, 102);
 	outline: 10px double whitesmoke;
 	box-shadow: 0 0 20px rgba(255, 102, 102), 0 0 30px rgba(255, 102, 102);

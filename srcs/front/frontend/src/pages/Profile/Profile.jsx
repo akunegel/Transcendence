@@ -129,7 +129,7 @@ const Profile = () => {
 			) : (
 				<div className={styles.edit_profile_modal}>
 					<div className={styles.edit_profile_content}>
-						<button className={styles.close_button} onClick={() => setIsEditing(false)}>
+						<button className={styles.edit_profile_content_b} onClick={() => setIsEditing(false)}>
 							&times;
 						</button>
 						<h2>Edit Profile</h2>
@@ -149,7 +149,7 @@ const Profile = () => {
 							<label>Profile Picture URL</label>
 							<input type="text" name="profile_picture" value={editedProfile.profile_picture || ''} onChange={handleInputChange} placeholder="Optional"/>
 						</div>
-						<button onClick={handleSaveProfile}>Save</button>
+						<button className={styles.edit_profile_content} onClick={handleSaveProfile}>Save</button>
 					</div>
 				</div>
 			)}
