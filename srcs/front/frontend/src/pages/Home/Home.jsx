@@ -5,8 +5,12 @@ import sublogo from "../../assets/images/logo_under.png"
 import {useNavigate} from "react-router-dom"
 import CutePong from "../MicroPong/MicroPong.jsx"
 import Chat from "../Chat/Chat.jsx"
+import {useContext} from "react";
+import AuthContext from "../../context/AuthContext.jsx";
 
 function Home() {
+	let { logoutUser } = useContext(AuthContext);
+
 	const navigate = useNavigate();
 	
 	const handleLocal = () => {
@@ -22,8 +26,7 @@ function Home() {
 	}
 
 	const handleLogout = () => {
-		localStorage.clear();
-		navigate("/login")
+		logoutUser()
 	}
 
 	return (
