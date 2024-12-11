@@ -55,7 +55,7 @@ const Profile = () => {
 	const handleSaveProfile = async () => {
 		const updatedFields = Object.fromEntries(
 			Object.entries(editedProfile).filter(([key, value]) =>
-				value !== profile[key] && value !== ''
+				value !== profile[key]
 			)
 		);
 
@@ -106,26 +106,29 @@ const Profile = () => {
 				className="logo"
 			/>
 			{!isEditing ? (
-				<div className={styles.userinfo_container}>
-					{profile.profile_picture ? (
-						<img
-							className={styles.logo}
-							src={profile.profile_picture}
-							alt="Profile"
-						/>
-					) : (
-						<img
-							className={styles.logo}
-							src="https://t4.ftcdn.net/jpg/05/59/91/77/360_F_559917754_dPi14NuRWEofju2XA0Jz07kSITgjYYJm.jpg"
-							alt="Default Profile"
-						/>
-					)}
-					<p><strong>Username:</strong> {profile.username}</p>
-					<p><strong>First Name:</strong> {profile.first_name}</p>
-					<p><strong>Last Name:</strong> {profile.last_name}</p>
-					<p><strong>Email:</strong> {profile.email}</p>
-					<button onClick={handleEditProfile}>Edit profile</button>
-				</div>
+				<>
+					<div className={styles.userinfo_container}>
+						{profile.profile_picture ? (
+							<img
+								className={styles.logo}
+								src={profile.profile_picture}
+								alt="Profile"
+							/>
+						) : (
+							<img
+								className={styles.logo}
+								src="https://t4.ftcdn.net/jpg/05/59/91/77/360_F_559917754_dPi14NuRWEofju2XA0Jz07kSITgjYYJm.jpg"
+								alt="Default Profile"
+							/>
+						)}
+						<p><strong>Username:</strong> {profile.username}</p>
+						<p><strong>First Name:</strong> {profile.first_name}</p>
+						<p><strong>Last Name:</strong> {profile.last_name}</p>
+						<p><strong>Email:</strong> {profile.email}</p>
+						<button onClick={handleEditProfile}>Edit profile</button>
+					</div>
+					<button onClick={handleReturn}>RETURN</button>
+				</>
 			) : (
 				<div className={styles.edit_profile_modal}>
 					<div className={styles.edit_profile_content}>
@@ -153,7 +156,6 @@ const Profile = () => {
 					</div>
 				</div>
 			)}
-			<button onClick={handleReturn}>RETURN</button>
 		</div>
 	);
 }
