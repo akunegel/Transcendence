@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import MessageList from './MessageList.jsx';
 import logo from "../../assets/images/logo_chat_box.png"
 import styles from "./Chat.module.css"
@@ -11,9 +11,9 @@ function Chat() {
 
 	useEffect(() => {
 		const connectWebSocket = () => {
-			const socket = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/ws/chat/`);
+			const socket = new WebSocket(`wss://${window.location.host}/ws/chat/`);
 			setWs(socket);
-	
+
 			socket.onopen = () => {
 				console.log("WebSocket connection established");
 			};
@@ -30,7 +30,7 @@ function Chat() {
 		};
 
 		const timer = setTimeout(connectWebSocket, 500);
-	
+
 		return () => {
 			clearTimeout(timer);
 			if (ws)
