@@ -15,25 +15,34 @@ const Header = () => {
 				</button>
 				<div className="collapse navbar-collapse" id="navbarNav">
 					<ul className="navbar-nav me-auto mb-2 mb-lg-0">
-						<li className="nav-item">
-							<Link className="nav-link" to="/home"><i className="bi bi-house me-1"></i> Home</Link>
-						</li>
-						<li className="nav-item">
-							<Link className="nav-link" to="/profile"><i className="bi bi-person me-1"></i> Profile</Link>
-						</li>
-						<li className="nav-item">
-							<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> Lobby</Link>
-						</li>
-						<li className="nav-item">
-							<Link className="nav-link" to="/play"><i className="bi bi-play-fill me-1"></i> Play</Link>
-						</li>
-						<li className="nav-item">
-							<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
-						</li>
+						{user && (
+							<>
+								<li className="nav-item">
+									<Link className="nav-link" to="/home"><i className="bi bi-house me-1"></i> Home</Link>
+								</li>
+								<li className="nav-item">
+									<Link className="nav-link" to="/profile"><i className="bi bi-person me-1"></i> Profile</Link>
+								</li>
+								<li className="nav-item">
+									<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> Lobby</Link>
+								</li>
+								<li className="nav-item">
+									<Link className="nav-link" to="/play"><i className="bi bi-play-fill me-1"></i> Play</Link>
+								</li>
+								<li className="nav-item">
+									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
+								</li>
+							</>
+						)}
 					</ul>
 					<ul className="navbar-nav">
 						{user ? (
 							<>
+								<li className="nav-item">
+									<Link className="nav-link" to="/friends">
+										<i className="bi bi-people me-1"></i> Friends
+									</Link>
+								</li>
 								<li className="nav-item">
 									<button onClick={logoutUser} className="btn btn-link nav-link">
 										<i className="bi bi-box-arrow-right me-1"></i> Logout
