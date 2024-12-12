@@ -115,9 +115,9 @@ function Pong({ param }) {
 	const isGameOver = () => {
 		// Checking if one of the players hit the target score
 		if (score.current.left >= param.maxPoint)
-			setStatusTitle("- Left Player Won ! -");
+			setStatusTitle(param.againstAI ? "- You Won This Game ! -" : "- Left Player Won ! -");
 		else if (score.current.right >= param.maxPoint)
-			setStatusTitle("- " + (againstAI ? "AI" : "Right") + " Player Won ! -");
+			setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Won ! -");
 		else
 			return (false);
 		return (true);
