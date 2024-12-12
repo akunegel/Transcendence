@@ -8,6 +8,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import PlayerUpdateSerializer, PlayerSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer
 from .models import Player, FriendRequest, Friendship
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -65,18 +67,41 @@ def get_friends(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_friends(request):
+    try:
+        player = Player.objects.get(user=request.user)
+        friendships = Friendship.objects.filter(user=request.user)
+        serializer = FriendshipSerializer(friendships, many=True)
+        return Response(serializer.data)
+    except Player.DoesNotExist:
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_friend_requests(request):
-    friend_requests = FriendRequest.objects.filter(
-        receiver=request.user,
-        status='PENDING'
-    )
-    serializer = FriendRequestSerializer(friend_requests, many=True)
-    return Response(serializer.data)
+    try:
+        player = Player.objects.get(user=request.user)
+        friend_requests = FriendRequest.objects.filter(
+            receiver=request.user,
+            status='PENDING'
+        )
+        serializer = FriendRequestSerializer(friend_requests, many=True)
+        return Response(serializer.data)
+    except Player.DoesNotExist:
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_friend_request(request):
     username = request.data.get('username')
+
+    try:
+        sender_player = Player.objects.get(user=request.user)
+    except Player.DoesNotExist:
+        return Response(
+            {'detail': 'Sender player profile not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
     if username == request.user.username:
         return Response(
@@ -85,14 +110,17 @@ def send_friend_request(request):
         )
 
     try:
-        receiver = User.objects.get(username=username)
-    except User.DoesNotExist:
+        receiver_player = Player.objects.get(user__username=username)
+    except Player.DoesNotExist:
         return Response(
-            {'detail': 'User not found'},
+            {'detail': 'Player not found'},
             status=status.HTTP_404_NOT_FOUND
         )
 
-    if Friendship.objects.filter(user=request.user, friend=receiver).exists():
+    if Friendship.objects.filter(
+        user=request.user,
+        friend=receiver_player.user
+    ).exists():
         return Response(
             {'detail': 'You are already friends'},
             status=status.HTTP_400_BAD_REQUEST
@@ -100,7 +128,7 @@ def send_friend_request(request):
 
     existing_request = FriendRequest.objects.filter(
         sender=request.user,
-        receiver=receiver,
+        receiver=receiver_player.user,
         status='PENDING'
     ).exists()
 
@@ -112,7 +140,7 @@ def send_friend_request(request):
 
     friend_request = FriendRequest.objects.create(
         sender=request.user,
-        receiver=receiver,
+        receiver=receiver_player.user,
         status='PENDING'
     )
 
@@ -145,8 +173,8 @@ def remove_friend(request):
     friend_id = request.data.get('friend_id')
 
     try:
-        friend = User.objects.get(id=friend_id)
-    except User.DoesNotExist:
+        friend_player = Player.objects.get(user__id=friend_id)
+    except Player.DoesNotExist:
         return Response(
             {'detail': 'User not found'},
             status=status.HTTP_404_NOT_FOUND
@@ -154,16 +182,16 @@ def remove_friend(request):
 
     Friendship.objects.filter(
         user=request.user,
-        friend=friend
+        friend=friend_player.user
     ).delete()
     Friendship.objects.filter(
-        user=friend,
+        user=friend_player.user,
         friend=request.user
     ).delete()
 
     FriendRequest.objects.filter(
-        (models.Q(sender=request.user, receiver=friend) |
-         models.Q(sender=friend, receiver=request.user))
+        (Q(sender=request.user, receiver=friend_player.user) |
+         Q(sender=friend_player.user, receiver=request.user))
     ).delete()
 
     return Response({'detail': 'Friend removed'})

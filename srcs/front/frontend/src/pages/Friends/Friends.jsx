@@ -121,7 +121,7 @@ const Friends = () => {
 			}
 
 			setFriends(prevFriends =>
-				prevFriends.filter(friend => friend.id !== friendId)
+				prevFriends.filter(friend => friend.friend_id !== friendId)
 			);
 		} catch (error) {
 			console.error('Error removing friend:', error);
@@ -133,9 +133,7 @@ const Friends = () => {
 			<h1>Friends</h1>
 
 			{error && (
-				<div className="alert alert-danger" role="alert">
-					{error}
-				</div>
+				<div className="alert alert-danger" role="alert">{error}</div>
 			)}
 
 			<div className="card mb-4">
@@ -146,13 +144,8 @@ const Friends = () => {
 					) : (
 						friendRequests.map(request => (
 							<div key={request.id} className="d-flex justify-content-between align-items-center mb-2">
-								<span>{request.sender.username}</span>
-								<button
-									className="btn btn-primary btn-sm"
-									onClick={() => acceptFriendRequest(request.id)}
-								>
-									Accept
-								</button>
+								<span>{request.sender_username}</span>
+								<button className="btn btn-primary btn-sm" onClick={() => acceptFriendRequest(request.id)}>Accept</button>
 							</div>
 						))
 					)}
@@ -163,19 +156,8 @@ const Friends = () => {
 				<div className="card-header">Add Friend</div>
 				<div className="card-body">
 					<div className="input-group">
-						<input
-							type="text"
-							className="form-control"
-							placeholder="Enter username"
-							value={searchUsername}
-							onChange={(e) => setSearchUsername(e.target.value)}
-						/>
-						<button
-							className="btn btn-primary"
-							onClick={sendFriendRequest}
-						>
-							Send Request
-						</button>
+						<input type="text" className="form-control" placeholder="Enter username" value={searchUsername} onChange={(e) => setSearchUsername(e.target.value)}/>
+						<button className="btn btn-primary" onClick={sendFriendRequest}>Send Request</button>
 					</div>
 				</div>
 			</div>
@@ -187,17 +169,9 @@ const Friends = () => {
 						<p>You have no friends yet</p>
 					) : (
 						friends.map(friend => (
-							<div
-								key={friend.id}
-								className="d-flex justify-content-between align-items-center mb-2"
-							>
-								<span>{friend.username}</span>
-								<button
-									className="btn btn-danger btn-sm"
-									onClick={() => removeFriend(friend.id)}
-								>
-									Remove
-								</button>
+							<div key={friend.friend_id} className="d-flex justify-content-between align-items-center mb-2">
+								<span>{friend.friend_username}</span>
+								<button className="btn btn-danger btn-sm" onClick={() => removeFriend(friend.friend_id)}>Remove</button>
 							</div>
 						))
 					)}

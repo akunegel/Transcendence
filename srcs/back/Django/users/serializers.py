@@ -5,19 +5,19 @@ from .models import Player, FriendRequest, Friendship
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ['id', 'username']
 
 class PlayerSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
         model = Player
-        fields = ['username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
 
 class PlayerRegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     class Meta:
         model = Player
@@ -27,11 +27,13 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
         username = validated_data.pop('username')
         password = validated_data.pop('password')
 
+        # Create user first
         user = User.objects.create_user(
             username=username,
             password=password,
         )
 
+        # Create player with the user
         player = Player.objects.create(
             user=user,
             first_name='',
@@ -42,13 +44,13 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
 
         return player
 
-
 class PlayerUpdateSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
 
     class Meta:
         model = Player
-        fields = ['username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
         extra_kwargs = {
             'first_name': {'required': False},
             'last_name': {'required': False},
@@ -65,19 +67,22 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 class FriendRequestSerializer(serializers.ModelSerializer):
-    sender = serializers.StringRelatedField()
-    receiver = serializers.StringRelatedField()
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+    receiver_username = serializers.CharField(source='receiver.username', read_only=True)
+    sender_id = serializers.IntegerField(source='sender.id', read_only=True)
+    receiver_id = serializers.IntegerField(source='receiver.id', read_only=True)
 
     class Meta:
         model = FriendRequest
-        fields = ['id', 'sender', 'receiver', 'status', 'created_at']
+        fields = ['id', 'sender_id', 'sender_username', 'receiver_id', 'receiver_username', 'status', 'created_at']
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    friend = serializers.SerializerMethodField()
+    friend_id = serializers.IntegerField(source='friend.id', read_only=True)
+    friend_username = serializers.CharField(source='friend.username', read_only=True)
+    first_name = serializers.CharField(source='friend.player.first_name', read_only=True)
+    last_name = serializers.CharField(source='friend.player.last_name', read_only=True)
+    profile_picture = serializers.URLField(source='friend.player.profile_picture', read_only=True)
 
     class Meta:
         model = Friendship
-        fields = ['id', 'friend', 'created_at']
-
-    def get_friend(self, obj):
-        return obj.friend.username
+        fields = ['id', 'friend_id', 'friend_username', 'first_name', 'last_name', 'profile_picture', 'created_at']
