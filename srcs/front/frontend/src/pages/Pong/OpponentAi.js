@@ -54,8 +54,8 @@ function EasyAI(pos, paddle_y, dir)
 	towards it's paddle, it will try to match the ball's current y pos.
 	Movement are slower than the player's. */
 
-	if (pos.x > 550 && dir == 1)
-		move = clamp(dif, -4, 4);
+	if (pos.x > 600 && dir == 1)
+		move = clamp(dif, -5, 5);
 
 	return (limitMovement(move, paddle_y));
 }

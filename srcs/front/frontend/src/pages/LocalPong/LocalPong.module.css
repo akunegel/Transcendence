@@ -144,10 +144,10 @@
 	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease;
 }
 .exit_button button:hover{
-	color: black;
-	background-color: white;
-}
-.exit_button button:active {
 	color: white;
 	background-color: rgb(200, 0, 0);
+}
+.exit_button button:active {
+	color: black;
+	background-color: white;
 }

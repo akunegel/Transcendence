@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
-import {useNavigate} from "react-router-dom"
-import api from "../../api";
+import { useState, useContext } from "react";
+import AuthContext from "../../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom"
 import styles from "./CustomGameForm.module.css"
 
 function CustomGameForm() {
 
 	const navigate = useNavigate();
+	const { authTokens } = useContext(AuthContext);
 	const [addBonus, setAddBonus] = useState(false);
 	const [isPrivate, setIsPrivate] = useState(true);
 	const [hasTimeLimit, setHasTimeLimit] = useState(false);
@@ -15,12 +15,30 @@ function CustomGameForm() {
 
 
 	const handleSubmit = async (f) => {
-		const token = localStorage.getItem(ACCESS_TOKEN);
 		f.preventDefault();
 
-		const res = await api.post("/pong/createCustomGame/", {addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint});
-		const room_id = res.data.room_id;
-		navigate(`/play/${room_id}/`);
+		try {
+			const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/createCustomGame/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				},
+				body: JSON.stringify({addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint})
+			})
+
+			const data = await res.json();
+			const room_id = data.room_id;
+
+			if (res.status === 200) {
+					navigate(`/play/${room_id}/`);
+			}
+			else {
+				console.error(JSON.stringify(data));
+			}
+		} catch (error) {
+			console.error('Room creation error:', error)
+		}
 	};
 
 	return (

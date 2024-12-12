@@ -1,24 +1,43 @@
-import React, {useEffect, useState} from 'react'
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
-import {useNavigate} from "react-router-dom"
+import React, { useState, useContext } from 'react'
+import AuthContext from "../../context/AuthContext.jsx";
+import { useNavigate } from "react-router-dom"
 import CustomGameForm from "../../components/CustomGameForm/CustomGameForm.jsx"
-import api from "../../api";
 import logo from "../../assets/images/logo_lobby.png"
 import styles from "./Lobby.module.css"
 
 
 function Lobby(){
 	const navigate = useNavigate();
+	const { authTokens } = useContext(AuthContext);
 	const [openCustom, setOpenCustom] = useState(false);
 	const [noRoomFound, setNoRoomFound] = useState(false);
 
 	const handleQuick = async (f) => {
-		const res = await api.post("/pong/quickJoinGame/");
-		const room_id = res.data.room_id;
-		if (room_id == "None")
-			setNoRoomFound(true);
-		else
-			navigate(`/play/${room_id}/`);
+		try {
+			const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/quickJoinGame/`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				}
+			})
+
+			const data = await res.json();
+			const room_id = data.room_id;
+
+			if (res.ok) {
+				if (room_id == "None")
+					// No free room was found
+					setNoRoomFound(true);
+				else // Connecting to the room
+					navigate(`/play/${room_id}/`);
+			}
+			else
+				console.error(JSON.stringify(data));
+		}
+		catch (error) {
+			console.error('Quick join error:', error)
+		}
 	}
 
 	const handleStats = () => {

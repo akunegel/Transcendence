@@ -1,13 +1,14 @@
 import { useParams } from "react-router-dom";
-import React, { useState, useEffect, useRef } from 'react';
+import AuthContext from "../../context/AuthContext.jsx";
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import styles from './OnlinePong.module.css';
-import api from "../../api";
 import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
 
 
 function OnlinePong() {
-	
+
+	const { roomId } = useParams(); // Extract roomId from URL
+	const { authTokens } = useContext(AuthContext);
 	const canvasRef = useRef(null);
 	const timeBeforeHit = useRef(0);
 	const messageTime = useRef(0);
@@ -20,7 +21,6 @@ function OnlinePong() {
 	const pos = useRef({ x: 400, y: 250 });
 	const obj = useRef({ x: 400, y: 250 });
 	const lastUpdateTimeRef = useRef(0);
-	const { roomId } = useParams(); // Extract roomId from URL
 	const wsRef = useRef(null);
 	
 	const navigate = useNavigate();
@@ -34,8 +34,26 @@ function OnlinePong() {
 
 		document.title = "Pong";
 		const fetchRoomInfo = async () => {
-			const res = await api.get(`/pong/retrieveRoomInfo/${roomId}`);
-			return (res.data);
+			try {
+				const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/retrieveRoomInfo/${roomId}`, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer ' + String(authTokens.access)
+					}
+				})
+	
+				const data = await res.json();
+	
+				if (res.ok) {
+					return (data);
+				}
+				else
+					console.error(JSON.stringify(data));
+			}
+			catch (error) {
+				console.error('Fetching room info error:', error)
+			}
 		}
 		fetchRoomInfo()
 			.then((data) => {setRules(data);
@@ -46,7 +64,7 @@ function OnlinePong() {
 	useEffect(() => {
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
-			const ws = new WebSocket(`ws://${import.meta.env.VITE_IP}:8000/ws/room/${roomId}/`);
+			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/room/${roomId}/`);
 			wsRef.current = ws;
 		}
 		
