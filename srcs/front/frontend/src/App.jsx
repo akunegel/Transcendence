@@ -8,9 +8,9 @@ import LocalPong from "./pages/LocalPong/LocalPong";
 import OnlinePong from "./pages/OnlinePong/OnlinePong";
 import NotFound from "./pages/NotFound/NotFound";
 import RedirectHome from "./pages/RedirectHome";
-import Handle42Callback from "./components/Handle42Callback.jsx";
 import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Friends from "./pages/Friends/Friends.jsx";
 import { AuthProvider} from "./context/AuthContext.jsx";
 
 function App() {
@@ -25,13 +25,13 @@ function App() {
 						<Route path="*" element={<NotFound />} />
 						<Route path="/login" element={<Login />} />
 						<Route path="/register" element={<Register />} />
-						<Route path="/42connect" element={<Handle42Callback />} />
 						<Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
 						<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 						<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
 						<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
 						<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
 						<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
+						<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
 					</Routes>
 				</AuthProvider>
 			</Router>

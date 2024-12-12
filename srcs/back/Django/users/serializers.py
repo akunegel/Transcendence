@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Player
+from .models import Player, FriendRequest, Friendship
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,3 +64,20 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender = serializers.StringRelatedField()
+    receiver = serializers.StringRelatedField()
+
+    class Meta:
+        model = FriendRequest
+        fields = ['id', 'sender', 'receiver', 'status', 'created_at']
+
+class FriendshipSerializer(serializers.ModelSerializer):
+    friend = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Friendship
+        fields = ['id', 'friend', 'created_at']
+
+    def get_friend(self, obj):
+        return obj.friend.username
