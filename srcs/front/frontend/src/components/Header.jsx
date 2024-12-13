@@ -27,9 +27,6 @@ const Header = () => {
 									<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> Lobby</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/play"><i className="bi bi-play-fill me-1"></i> Play</Link>
-								</li>
-								<li className="nav-item">
 									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
 								</li>
 							</>

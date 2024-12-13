@@ -25,13 +25,13 @@
 }
 
 .centered_container {
+	all: unset;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin-left: 50px;
 	margin-right: 50px;
-	max-width: 300px;
-	min-width: 300px;
+	width: 300px;
 	border-radius: 10px;
 }
 .centered_container button{
@@ -56,4 +56,20 @@
 .centered_container button:active {
 	color: black;
 	background-color: white;
+}
+
+.centered_container_chat {
+	all: unset;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-left: 50px;
+	margin-right: 50px;
+	width: 300px;
+	height: 280px;
+	border-radius: 10px;
+	background-color: black;
+	border: 8px solid white;
+	border-bottom: none;
+	border-radius: 0px;
 }

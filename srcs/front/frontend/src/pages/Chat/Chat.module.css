@@ -1,13 +1,12 @@
 .centered_container {
+	all: unset;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	margin-left: 50px;
 	margin-right: 50px;
-	max-width: 100%;
-	min-width: 100%;
-	min-height: 300px;
-	max-height: 300px;
+	width: 300px;
+	height: 300px;
 }
 .centered_container button:hover {
 	background-color: white;
@@ -15,41 +14,40 @@
 	box-shadow: none;
 	color: rgb(255, 102, 102);
 }
-.centered_container img {
+
+.image_move_up {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+}
+.image_move_up img {
 	height: auto;
 	position: relative;
-	top: -80px;
+	top: -380px;
 	z-index: 2;
 }
 
 .message_container {
+	all: unset;
 	display: flex;
 	flex-direction: column;
 	align-items: baseline;
-	max-width: 100%;
-	min-width: 100%;
-	height: 100%;
-	max-height: 250px;
-	min-height: 250px;
+	width: 300px;
+	height: 220px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	padding: 10px;
-
-	position: relative;
-	top: -85px;
-	z-index: 2;
 }
 .message_container p {
-	min-width: 270px;
-	max-width: 270px;
+	width: 250px;
 	margin-left: 14px;
 	padding-bottom: 7px;
 	margin-top: 7px;
+	margin-bottom: 0px;
 	border-bottom: 1px solid white;
 	background-color: none;
 	color: white;
 	border-radius: 0px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	word-wrap: break-word;
 	font-size: 0.8em;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
@@ -59,30 +57,28 @@
 }
 
 .input_container {
+	all: unset;
 	display: flex;
 	flex-direction: row;
-	max-width: 100%;
-	min-width: 100%;
-	height: 10%;
-	max-height: 10%;
-
-	position: relative;
-	top: -85px;
-	z-index: 2;
+	width: 300px;
+	height: 50px;
 }
 .input_container input {
-	max-width: 73%;
-	min-width: 73%;
-	height: 100%;
-	padding-left: 2%;
+	all: unset;
+	background-color: white;
+	width: 210px;
+	height: 40px;
+	padding-left: 10px;
 	color: black;
 	font-weight: bold;
+	font-size: 0.9em;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 }
 .input_container button {
-	min-width: 26%;
-	max-width: 26%;
-	height: 100%;
+	all: unset;
+	height: 40px;
+	width: 60px;
+	padding-left: 25px;
 	border-radius: 0px;
 	font-size: 1em;
 	font-weight: bold;

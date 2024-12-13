@@ -1,14 +1,15 @@
-import { useParams } from "react-router-dom";
-import AuthContext from "../../context/AuthContext.jsx";
 import React, { useState, useEffect, useRef, useContext } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
+import AuthContext from "../../context/AuthContext.jsx";
+import { getUser, getRoomInfo } from '../../components/GettersList.jsx';
 import styles from './OnlinePong.module.css';
-import { useNavigate } from "react-router-dom";
 
 
 function OnlinePong() {
 
 	const { roomId } = useParams(); // Extract roomId from URL
-	const { authTokens } = useContext(AuthContext);
+	const { authTokens, logoutUser } = useContext(AuthContext);
+	const [user, setUser] = useState({});
 	const canvasRef = useRef(null);
 	const timeBeforeHit = useRef(0);
 	const messageTime = useRef(0);
@@ -29,36 +30,30 @@ function OnlinePong() {
 		navigate("/lobby");
 	}
 
-	// Setting the tab's title on mount, retrieving room's specific info
+	// Setting the tab's title on mount, retrieving room's specific info, getting user info
 	useEffect(() => {
 
 		document.title = "Pong";
 		const fetchRoomInfo = async () => {
-			try {
-				const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/retrieveRoomInfo/${roomId}`, {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer ' + String(authTokens.access)
-					}
-				})
-	
-				const data = await res.json();
-	
-				if (res.ok) {
-					return (data);
-				}
-				else
-					console.error(JSON.stringify(data));
-			}
-			catch (error) {
-				console.error('Fetching room info error:', error)
-			}
+			const roomData = await getRoomInfo(authTokens, roomId);
+			return (roomData);
 		}
+
+		const fetchUserInfo = async () => {
+			const userData = await getUser(authTokens);
+			if (userData == null)
+				logoutUser();
+			console.log(userData);
+			return (userData);
+		}
+
 		fetchRoomInfo()
 			.then((data) => {setRules(data);
 							setStatusTitle("- First to " + data.max_point + " wins -");})
 			.catch((err) => console.error("Failed to fetch room info:", err));
+		fetchUserInfo()
+			.then((data) => setUser(data))
+			.catch((err) => console.error("Failed to user info:", err));
 	}, []);
 
 	useEffect(() => {
@@ -218,8 +213,8 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2 style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : 0}{score.left}:{score.right > 9 ? "" : 0}{score.right} </h2>
-				<p style={{borderTop: "5px solid white"}}>{statusTitle}</p>
+				<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : 0}{score.left}:{score.right > 9 ? "" : 0}{score.right} </h2>
+				<p className="m-0" style={{borderTop: "5px solid white"}}>{statusTitle}</p>
 			</div>
 
 			<div className={styles.game_container}>
@@ -241,7 +236,7 @@ function OnlinePong() {
 			</div>
 
 			<div className={styles.centered_container} style={{borderBottom: "5px solid white"}}>
-				<p>Room is: {rules != null && rules.is_private == true ? "Private" : "Public"}</p>
+				<p className="m-0">Room is: {rules != null && rules.is_private == true ? "Private" : "Public"}</p>
 			</div>
 
 		</div>

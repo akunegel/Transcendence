@@ -122,6 +122,9 @@
 }
 
 .info_message {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
 	color: grey;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
 	font-size: 0.7em;

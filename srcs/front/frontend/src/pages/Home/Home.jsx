@@ -52,7 +52,7 @@ function Home() {
 					<br/>
 				</div>
 				
-				<div className={styles.centered_container} style={{backgroundColor: 'black', border: '8px solid white', borderBottom: '2px solid white', borderRadius: '0px'}}>
+				<div className={styles.centered_container_chat}>
 					<Chat/>
 				</div>
 

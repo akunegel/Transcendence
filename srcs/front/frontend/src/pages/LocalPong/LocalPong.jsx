@@ -51,8 +51,8 @@ function LocalPong() {
 			{gameStarted == true ? <Pong param={gameParameters}/> :
 			<>
 				<div className={styles.titles_display} style={{marginTop:"80px"}}>
-					<h2>00-00</h2>
-					<p>- Customize your game -</p>
+					<h2 className="m-0">00-00</h2>
+					<p className="m-0">- Customize your game -</p>
 				</div>
 
 				<div className={styles.gameform_container}>
@@ -61,24 +61,24 @@ function LocalPong() {
 					<div className={styles.gameform_checkbox_container}>
 						<input id="BonusCheckbox" type="checkbox" value={addBonus} onChange={() => setAddBonus(addBonus ? false : true)}/>
 						<label htmlFor="BonusCheckbox"></label>
-						<p>Bonuses: {addBonus ? "On" : "Off"}</p>
+						<p className="m-0">Bonuses: {addBonus ? "On" : "Off"}</p>
 					</div>
-					{addBonus &&	<div className={styles.centered_container}>
-										<p className={styles.info_message}>bonuses will spawn randomly</p>
+					{addBonus &&	<div className={styles.info_message}>
+										<p className="m-0">bonuses will spawn randomly</p>
 									</div>}
 		
 					{/* Toggle time limit checkbox */}
 					<div className={styles.gameform_checkbox_container}>
 						<input id="timeLimitCheckBox" type="checkbox" value={hasTimeLimit} onChange={() => setHasTimeLimit(hasTimeLimit ? false : true)}/>
 						<label htmlFor="timeLimitCheckBox"></label>
-						<p>Time limit: {hasTimeLimit ? "enabled" : "disabled"}</p>
+						<p className="m-0">Time limit: {hasTimeLimit ? "enabled" : "disabled"}</p>
 					</div>
 					{/* Set time limit buttons */}
 					{hasTimeLimit &&
 						<div className={styles.gameform_number_container}>
-							<p>Time limit:</p> <br/>
+							<p className="m-0">Time limit:</p> <br/>
 							<button onClick={() => setMaxTime(maxTime >= 15 ? 15 : maxTime + 1)}>+</button>
-							<p>{maxTime}m</p>
+							<p className="m-0">{maxTime}m</p>
 							<button onClick={() => setMaxTime(maxTime <= 1 ? 1 : maxTime - 1)}>-</button>
 						</div>
 					}
@@ -87,22 +87,22 @@ function LocalPong() {
 					<div className={styles.gameform_checkbox_container}>
 						<input id="AICheckBox" type="checkbox" value={againstAI} onChange={() => setAgainstAI(againstAI ? false : true)}/>
 						<label htmlFor="AICheckBox"></label>
-						<p>AI opponent: {againstAI ? "enabled" : "disabled"}</p>
+						<p className="m-0">AI opponent: {againstAI ? "enabled" : "disabled"}</p>
 					</div>
 					{againstAI &&
 						<div className={styles.gameform_number_container}>
-							<p>Difficulty:</p> <br/>
+							<p className="m-0">Difficulty:</p> <br/>
 							<button onClick={() => setDifficulty(difficulty >= 3 ? 3 : difficulty + 1)}>+</button>
-							<p style={{width: '55px'}}>{difficultyMessage()}</p>
+							<p className="m-0" style={{width: '55px'}}>{difficultyMessage()}</p>
 							<button onClick={() => setDifficulty(difficulty <= 1 ? 1 : difficulty - 1)}>-</button>
 						</div>
 					}
 		
 					{/* Set point limit checkbox */}
 					<div className={styles.gameform_number_container}>
-						<p>Point limit: </p>
+						<p className="m-0">Point limit: </p>
 						<button onClick={() => setMaxPoint(maxPoint >= 15 ? 15 : maxPoint + 1)}>+</button>
-						<p>{maxPoint}</p>
+						<p className="m-0">{maxPoint}</p>
 						<button onClick={() => setMaxPoint(maxPoint <= 1 ? 1 : maxPoint - 1)}>-</button>
 					</div>
 		
@@ -111,7 +111,7 @@ function LocalPong() {
 						<button onClick={() => handleStart()}>START GAME</button>
 					</div>
 
-					<div className={styles.text_button} style={{marginTop:'50px'}}>
+					<div className={styles.text_button} style={{marginTop:'42px'}}>
 						<button onClick={() => handleReturn()}>RETURN</button>
 					</div>
 
@@ -123,9 +123,9 @@ function LocalPong() {
 					<button onClick={() => setGameStarted(false)}>EXIT</button>
 				</div>
 			:
-				<div style={{border: '5px solid white', borderTop: 'none', backgroundColor: 'black'}}>
-				{againstAI ? <p className={styles.info_message} style={{color: 'white'}}>Controls: up: arrowUp down: arrowDown</p>
-						   : <p className={styles.info_message} style={{color: 'white'}}>Controls: up: E down: D | up: arrowUp down: arrowDown</p>}
+				<div className={styles.info_message} style={{border: '5px solid white', borderTop: 'none', backgroundColor: 'black'}}>
+				{againstAI ? <p className="m-0" style={{color: 'white'}}>- Controls: up: arrowUp down: arrowDown -</p>
+						   : <p className="m-0" style={{color: 'white'}}>- Controls: up: E down: D | up: arrowUp down: arrowDown -</p>}
 				</div>
 			}
 

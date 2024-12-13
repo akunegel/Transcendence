@@ -321,8 +321,8 @@ function Pong({ param }) {
 
 			{/* Point counter (top) and status title */}
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2>{displayScore.left > 9 ? "" : 0}{displayScore.left}-{displayScore.right > 9 ? "" : 0}{displayScore.right}</h2>
-				<p>{statusTitle}</p>
+				<h2 className="m-0">{displayScore.left > 9 ? "" : 0}{displayScore.left}-{displayScore.right > 9 ? "" : 0}{displayScore.right}</h2>
+				<p className="m-0">{statusTitle}</p>
 			</div>
 
 			<div className={styles.game_container}>

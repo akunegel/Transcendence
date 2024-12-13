@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 function RedirectHome() {
@@ -13,7 +13,7 @@ function RedirectHome() {
 
 	}, [location, navigate]);
 
-	return (<></>);
+	return ;
 	}
 
 export default RedirectHome;

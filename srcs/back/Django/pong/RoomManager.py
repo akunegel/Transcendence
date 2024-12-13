@@ -27,7 +27,7 @@ class RoomManager:
 											"objx": 400, "objy": 250, 										# -
 											"l_score": 0, "r_score": 0,										# -
 											"l_paddle": 250, "r_paddle": 250},								# -
-									"dyn": {"dir": 1, "vec": 0.005, "speed": 60,							# Initialize local game variables (dynamics)
+									"dyn": {"dir": 1, "vec": 0.005, "speed": 120,							# Initialize local game variables (dynamics)
 											"l_paddle": {"going_up": False, "going_down": False},			# -
 											"r_paddle": {"going_up": False, "going_down": False}},			# -
 									}
@@ -60,11 +60,14 @@ class RoomManager:
 				self.start_game_task(room_id)
 
 
-	def remove_player_from_room(self, room_id, player_channel_name):
+	def player_disconnected(self, room_id, player_channel_name):
+		# Ending the game if it already started, or removing the room
 		room = self.rooms.get(str(room_id))
 		if room and player_channel_name in room["state"]["players"]:
-			room["state"]["players"].remove(player_channel_name)
-			room["var"]["game_started"] = False
+			if (room["var"]["game_started"] == True):
+				room["var"]["game_started"] = False
+			else:
+				self.remove_room(room_id)
 
 
 	def start_game_task(self, room_id):
