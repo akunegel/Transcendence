@@ -16,26 +16,24 @@ import { AuthProvider} from "./context/AuthContext.jsx";
 function App() {
 
 	return (
-		<div>
-			<Router>
-				<AuthProvider>
-					<Header />
-					<Routes>
-						<Route path="/" element={<RedirectHome />} />
-						<Route path="*" element={<NotFound />} />
-						<Route path="/login" element={<Login />} />
-						<Route path="/register" element={<Register />} />
-						<Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-						<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-						<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
-						<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
-						<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
-						<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
-						<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
-					</Routes>
-				</AuthProvider>
-			</Router>
-		</div>
+		<Router>
+			<AuthProvider>
+				<Header />
+				<Routes>
+					<Route path="/" element={<RedirectHome />} />
+					<Route path="*" element={<NotFound />} />
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+					<Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+					<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+					<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
+					<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
+					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
+					<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
+					<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+				</Routes>
+			</AuthProvider>
+		</Router>
 	);
 }
 

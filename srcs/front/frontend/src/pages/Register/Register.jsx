@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import styles from "./Register.module.css"
 
 const Register = () => {
+
+	const navigate = useNavigate()
+	const [displayError, setDisplayError] = useState("");
+
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         passwordVerif: '',
     })
-    const navigate = useNavigate()
 
     const handleChange = (e) => {
         setFormData({
@@ -47,13 +51,13 @@ const Register = () => {
             }
         } catch (error) {
             console.error('Registration error:', error)
-            alert('Registration failed')
+            setDisplayError("Username is already taken")
         }
     }
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className={styles.form_container}>
                 <input
                     type="text"
                     name="username"
@@ -78,6 +82,7 @@ const Register = () => {
                     onChange={handleChange}
                     required
                 />
+				{displayError == "" ? <></> : (<p>{displayError}</p>)}
                 <input type="submit" value="Register"/>
             </form>
         </div>

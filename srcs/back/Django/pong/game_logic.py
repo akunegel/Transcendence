@@ -156,7 +156,7 @@ async def game_logic(room_id):
 	time_before_hit = 3 # 3 seconds before games start
 	room["var"]["game_started"] = True
 
-	while room["var"]["game_started"]:
+	while room and room["var"]["game_started"]:
 
 		var = room["var"] # get the room's game variables
 		pos = {"x": var["objx"], "y": var["objy"]} # old objective becomes current position

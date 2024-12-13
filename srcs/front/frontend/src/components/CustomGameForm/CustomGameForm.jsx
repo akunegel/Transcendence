@@ -44,40 +44,48 @@ function CustomGameForm() {
 	return (
 		<div className={styles.gameform_container}>
 
+			{/* Turn bonuses on/off */}
 			<div className={styles.gameform_checkbox_container}>
 				<input id="BonusCheckbox" type="checkbox" value={addBonus} onChange={() => setAddBonus(addBonus ? false : true)}/>
 				<label htmlFor="BonusCheckbox"></label>
-				<p>Bonuses: {addBonus ? "On" : "Off"}</p>
+				<p className="m-0">Bonuses: {addBonus ? "On" : "Off"}</p>
 			</div>
-			{addBonus && <p className={styles.info_message}>bonuses will spawn randomly</p>}
+			{addBonus &&	<div className={styles.info_message}>
+								<p className="m-0">bonuses will spawn randomly</p>
+							</div>}
 
+			{/* Turn room status private/public */}
 			<div className={styles.gameform_checkbox_container}>
 				<input id="PrivateCheckbox" type="checkbox" value={isPrivate} onChange={() => setIsPrivate(isPrivate ? false : true)}/>
 				<label htmlFor="PrivateCheckbox"></label>
-				<p>Room is: {isPrivate ? "Private" : "Public"}</p>
-				<p></p>
+				<p className="m-0">Room is: {isPrivate ? "Private" : "Public"}</p>
 			</div>
-			{!isPrivate && <p className={styles.info_message}>random users will be able to join</p>}
+			{!isPrivate &&	<div className={styles.info_message}>
+								<p className="m-0">random users will be able to join</p>
+							</div>}
 
+			{/* Turn time limit on/off */}
 			<div className={styles.gameform_checkbox_container}>
 				<input id="timeLimitCheckBox" type="checkbox" value={hasTimeLimit} onChange={() => setHasTimeLimit(hasTimeLimit ? false : true)}/>
 				<label htmlFor="timeLimitCheckBox"></label>
-				<p>Time limit: {hasTimeLimit ? "enabled" : "disabled"}</p>
+				<p className="m-0">Time limit: {hasTimeLimit ? "enabled" : "disabled"}</p>
 			</div>
 			
+			{/* Set time limit */}
 			{hasTimeLimit &&
 				<div className={styles.gameform_number_container}>
-					<p>Time limit:</p> <br/>
+					<p className="m-0">Time limit:</p> <br/>
 					<button onClick={() => setMaxTime(maxTime >= 15 ? 15 : maxTime + 1)}>+</button>
-					<p>{maxTime}m</p>
+					<p className="m-0">{maxTime}m</p>
 					<button onClick={() => setMaxTime(maxTime <= 1 ? 1 : maxTime - 1)}>-</button>
 				</div>
 			}
 
+			{/* Set point limit */}
 			<div className={styles.gameform_number_container}>
-				<p>Point limit: </p>
+				<p className="m-0">Point limit: </p>
 				<button onClick={() => setMaxPoint(maxPoint >= 15 ? 15 : maxPoint + 1)}>+</button>
-				<p>{maxPoint}</p>
+				<p className="m-0">{maxPoint}</p>
 				<button onClick={() => setMaxPoint(maxPoint <= 1 ? 1 : maxPoint - 1)}>-</button>
 			</div>
 

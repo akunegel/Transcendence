@@ -56,15 +56,17 @@ function Chat() {
 
 
 	return (
-		<div className={styles.centered_container}>
+		<div className={styles.image_move_up}>
+			<div className={styles.centered_container}>
+				<div className={styles.message_container}>
+					<MessageList messagesList={messagesList}/>
+				</div>
+				<div className={styles.input_container}>
+					<input className="m-0" type="text" value={message} onChange={(e) => setMessage(e.target.value.substring(0, 108))} onKeyDown={handleKeyDown} placeholder="Type your message here" />
+					<button className="m-0" onClick={sendMessage}>SEND</button>
+				</div>
+			</div>
 			<img src={logo} alt="CHATBOX"/>
-			<div className={styles.message_container}>
-				<MessageList messagesList={messagesList}/>
-			</div>
-			<div className={styles.input_container}>
-				<input type="text" value={message} onChange={(e) => setMessage(e.target.value.substring(0, 108))} onKeyDown={handleKeyDown} placeholder="Type your message here" />
-				<button onClick={sendMessage}>SEND</button>
-			</div>
 		</div>
 	);
 }
