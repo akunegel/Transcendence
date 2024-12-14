@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from "./Register.module.css"
+import logo from "../../assets/images/logo_register.png"
 
 const Register = () => {
     const navigate = useNavigate()
@@ -54,7 +55,8 @@ const Register = () => {
     }
 
     return (
-        <div>
+        <div className={styles.center_container}>
+            <img className={styles.login_image} src={logo} alt="Login logo"/>
             <form onSubmit={handleSubmit} className={styles.form_container}>
                 <input
                     type="text"

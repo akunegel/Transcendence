@@ -3,6 +3,7 @@ import AuthContext from "../../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import styles from "./Login.module.css";
+import logo from "../../assets/images/logo_login.png"
 
 const Login = () => {
     const { setAuthTokens, setUser } = useContext(AuthContext);
@@ -11,7 +12,7 @@ const Login = () => {
 
     const loginUser = async (e) => {
         e.preventDefault();
-        setDisplayError(""); // Clear any previous errors
+        setDisplayError("");
 
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/users/token/`, {
@@ -28,15 +29,11 @@ const Login = () => {
             const data = await response.json();
 
             if (response.status === 200) {
-                // Set auth tokens and user
                 setAuthTokens(data);
                 setUser(jwtDecode(data.access));
-                // Store tokens in local storage
                 localStorage.setItem('authTokens', JSON.stringify(data));
-                // Navigate to home page
                 navigate('/');
             } else {
-                // Display error message from the server or a generic error
                 setDisplayError(data.detail || "Login failed. Please check your credentials.");
             }
         } catch (error) {
@@ -46,7 +43,8 @@ const Login = () => {
     }
 
     return (
-        <div>
+        <div className={styles.center_container}>
+            <img className={styles.login_image} src={logo} alt="Login logo"/>
             <form onSubmit={loginUser} className={styles.form_container}>
                 <input 
                     type="text" 
