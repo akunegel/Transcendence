@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import styles from "./Register.module.css"
 
 const Register = () => {
-
-	const navigate = useNavigate()
-	const [displayError, setDisplayError] = useState("");
+    const navigate = useNavigate()
+    const [displayError, setDisplayError] = useState("");
 
     const [formData, setFormData] = useState({
         username: '',
@@ -50,7 +49,6 @@ const Register = () => {
                 alert(JSON.stringify(data))
             }
         } catch (error) {
-            console.error('Registration error:', error)
             setDisplayError("Username is already taken")
         }
     }
@@ -82,11 +80,11 @@ const Register = () => {
                     onChange={handleChange}
                     required
                 />
-				{displayError === "" ? <></> : (<p>{displayError}</p>)}
+                {displayError && <p>{displayError}</p>}
                 <input type="submit" value="Register"/>
             </form>
         </div>
     )
 }
 
-export default Register
+export default Register 
