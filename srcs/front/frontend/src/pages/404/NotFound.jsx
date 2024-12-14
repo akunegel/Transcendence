@@ -14,7 +14,6 @@ function NotFound() {
 		<div className={styles.main_container}>
 			<div className={styles.content_notfound}>
 				<h1>404 Not Found</h1>
-				<p>The page you are looking for doesn't exist</p>
 			</div>
 			<button onClick={handleHome}>HOME</button>
 		</div>

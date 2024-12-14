@@ -4,22 +4,52 @@ import {AI_paddleMovement} from "./OpponentAi.js"
 
 function Pong({ param }) {
 
-	const	canvasRef = useRef(null);
+	const	[displayScore, setDisplayScore] = useState({left: 0, right: 0});
+	const	[timer, setTimer] = useState({min: param.maxTime, sec: 0});
+	const	timerIsRunning = useRef(false);
+	const	[timerColor, setTimerColor] = useState("white");
+	const	[statusTitle, setStatusTitle] = useState("- Game starting in 3 -");
+
 	const	keys = useRef({ lu: false, ld: false, ru: false, rd: false});
 	const	LPaddle = useRef({ x: 50, y: 250});
 	const	RPaddle = useRef({ x: 750, y: 250});
-	const	score = useRef({left: 0, right: 0});
-	const	[displayScore, setDisplayScore] = useState({left: 0, right: 0});
-	const	[statusTitle, setStatusTitle] = useState("- Game starting in 3 -");
-	const	gameLoop = useRef(false);
 	const	pos = useRef({ x: 400, y: 250 });
 	const	obj = useRef({ x: 400, y: 250 });
 	const	dir = useRef(1);
 	const	vec = useRef(0.005);
 	const	speed = useRef(2);
+	const	score = useRef({left: 0, right: 0});
+	
+	const	canvasRef = useRef(null);
+	const	gameLoop = useRef(false);
 	const	lastUpdateTimeRef = useRef(0);
 
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+	// Timer mechanic for maxTime
+	useEffect(() => {
+		let inter;
+		if (timerIsRunning.current) {
+			inter = setInterval(() => {
+				setTimer((prevTime) => {
+					let { min, sec } = prevTime;
+					if (min <= 0 && sec <= 0) {
+						setTimerColor(() => {return "darkred"});
+						timerIsRunning.current = false;
+					}
+					else {
+						sec -= 1;
+						if (sec < 0) {
+							min -= 1;
+							sec = 59;
+						}
+					}
+					return { min, sec };
+				});
+			}, 1000);
+		}
+		return () => clearInterval(inter); // Cleanup on unmount or when isRunning changes
+	  }, [timerIsRunning.current]);
 
 	useEffect(() => {
 		// Drawing the game on mount for display
@@ -113,13 +143,25 @@ function Pong({ param }) {
 	};
 
 	const isGameOver = () => {
+		
 		// Checking if one of the players hit the target score
 		if (score.current.left >= param.maxPoint)
-			setStatusTitle(param.againstAI ? "- You Won This Game ! -" : "- Left Player Won ! -");
+			setStatusTitle(param.againstAI ? "- You Win This Game ! -" : "- Left Player Wins ! -");
 		else if (score.current.right >= param.maxPoint)
-			setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Won ! -");
+			setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Wins ! -");
+		else if (param.hasTimeLimit == true && timerIsRunning.current == false)
+		{
+			// If a time limit has been set and is over, display the winner
+			if (score.current.left > score.current.right)
+				setStatusTitle(param.againstAI ? "- You Win This Game ! -" : "- Left Player Wins ! -");
+			else if (score.current.right > score.current.left)
+				setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Wins ! -");
+			else
+				setStatusTitle("- Game Ended In A Draw ! -");
+		}
 		else
 			return (false);
+		timerIsRunning.current = false;
 		return (true);
 	}
 
@@ -153,7 +195,9 @@ function Pong({ param }) {
 			await sleep(1000);
 		}
 		setStatusTitle("- First to " + param.maxPoint + " wins -")
-		
+		// Starting timer if a time limit is set
+		if (param.hasTimeLimit == true)
+			timerIsRunning.current = true;
 		// Unblocking the game loop (in animate())
 		gameLoop.current = true;
 	}
@@ -319,9 +363,13 @@ function Pong({ param }) {
 	return (
 		<div className={styles.centered_container}>
 
-			{/* Point counter (top) and status title */}
+			{/* Point counter or timer (top) and status title */}
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2 className="m-0">{displayScore.left > 9 ? "" : 0}{displayScore.left}-{displayScore.right > 9 ? "" : 0}{displayScore.right}</h2>
+				{param.hasTimeLimit == true ?
+					<h2 className="m-0" style={{color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
+				:
+					<h2 className="m-0">{displayScore.left > 9 ? "" : "0"}{displayScore.left}-{displayScore.right > 9 ? "" : "0"}{displayScore.right}</h2>
+				}	
 				<p className="m-0">{statusTitle}</p>
 			</div>
 

@@ -7,28 +7,64 @@ import styles from './OnlinePong.module.css';
 
 function OnlinePong() {
 
-	const { roomId } = useParams(); // Extract roomId from URL
-	const { authTokens, logoutUser } = useContext(AuthContext);
-	const [user, setUser] = useState({});
-	const canvasRef = useRef(null);
-	const timeBeforeHit = useRef(0);
-	const messageTime = useRef(0);
-	const LPaddle = useRef({ x: 50, y: 250});
-	const RPaddle = useRef({ x: 750, y: 250});
-	const [score, setScore] = useState({left: 0, right: 0});
-	const [rules, setRules] = useState(null);
-	const [statusTitle, setStatusTitle] = useState("");
-	const gameStarted = useRef(false);
-	const pos = useRef({ x: 400, y: 250 });
-	const obj = useRef({ x: 400, y: 250 });
-	const lastUpdateTimeRef = useRef(0);
-	const wsRef = useRef(null);
+	const	{ roomId } = useParams(); // Extract roomId from URL
+	const	{ authTokens, logoutUser } = useContext(AuthContext);
+	const	[user, setUser] = useState({});
+	
+	const	canvasRef = useRef(null);
+	const	lastUpdateTimeRef = useRef(0);
+	const	wsRef = useRef(null);
+	const	[statusTitle, setStatusTitle] = useState("");
+	const	startTime = useRef(null);
+	const	[timer, setTimer] = useState({min: 0, sec: 0});
+	const	timerIsRunning = useRef(false);
+	const	[timerColor, setTimerColor] = useState("white");
+
+	const	gameStarted = useRef(false);
+	const	messageTime = useRef(0);
+	const	timeBeforeHit = useRef(0);
+	const	LPaddle = useRef({ x: 50, y: 250});
+	const	RPaddle = useRef({ x: 750, y: 250});
+	const	pos = useRef({ x: 400, y: 250 });
+	const	obj = useRef({ x: 400, y: 250 });
+	const	[score, setScore] = useState({left: 0, right: 0});
+	const	[rules, setRules] = useState(null);
+	const	rulesRef = useRef(null);
+	
 	
 	const navigate = useNavigate();
+
+	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 	const handleReturn = () => {
 		navigate("/lobby");
 	}
+
+	// Timer mechanic for maxTime
+	useEffect(() => {
+		let inter;
+		if (timerIsRunning.current) {
+			inter = setInterval(() => {
+				setTimer((prevTime) => {
+					let secSinceStart = Math.floor((new Date() - startTime.current) / 1000);
+					let { min, sec } = prevTime;
+
+					min = (rulesRef.current.max_time) - Math.floor(secSinceStart / 60);
+					sec = 60 - (secSinceStart % 60);
+					if (sec == 60)
+						sec = 0;
+					else
+						min -= 1;
+					if (min <= 0 && sec <= 0) {
+						setTimerColor(() => {return "darkred"});
+						timerIsRunning.current = false;
+					}
+					return { min, sec };
+				});
+			}, 1000);
+		}
+		return () => clearInterval(inter); // Cleanup on unmount or when isRunning changes
+		}, [timerIsRunning.current]);
 
 	// Setting the tab's title on mount, retrieving room's specific info, getting user info
 	useEffect(() => {
@@ -49,14 +85,25 @@ function OnlinePong() {
 
 		fetchRoomInfo()
 			.then((data) => {setRules(data);
-							setStatusTitle("- First to " + data.max_point + " wins -");})
+							rulesRef.current = data;
+							setStatusTitle("- First to " + data.max_point + " wins -");
+							setTimer({min: data.max_time, sec: 0});
+						})
 			.catch((err) => console.error("Failed to fetch room info:", err));
 		fetchUserInfo()
 			.then((data) => setUser(data))
 			.catch((err) => console.error("Failed to user info:", err));
 	}, []);
 
+	const displayGameStartTimer = async () => {
+		for(let i = 3; i != 0; i--){
+			setStatusTitle("- Game starting in " + i + " -");
+			await sleep(1000);
+		}
+	}
+
 	useEffect(() => {
+
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
 			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/room/${roomId}/`);
@@ -71,6 +118,17 @@ function OnlinePong() {
 		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			gameStarted.current = data.state.game_started;
+
+			console.log(data.case);
+
+			// Game is about to start (3 seconds from now)
+			if (data.case == "start_game") {
+				displayGameStartTimer()
+					.then(() =>{timerIsRunning.current = true;
+								setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
+								startTime.current = new Date();
+					});
+				}
 
 			// Receiving the next position of the ball
 			if (data.case == "ball_update" || data.case == "global_update") {
@@ -91,7 +149,11 @@ function OnlinePong() {
 			if (data.case == "end_game") {
 				LPaddle.current.y, RPaddle.current.y = 250;
 				timeBeforeHit.current = 0
-				setStatusTitle("- " + data.state.winner + " is the winner -");
+				if (data.state.winner == "draw")
+					setStatusTitle("- Game Ended In A Draw ! -");
+				else
+					setStatusTitle("- " + data.state.winner + " is the winner -");
+				timerIsRunning.current = false;
 				drawGame(canvasRef.current.getContext('2d'), 400, 250);
 			}
 		};
@@ -213,7 +275,12 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.centered_container} style={{marginTop:"80px"}}>
-				<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : 0}{score.left}:{score.right > 9 ? "" : 0}{score.right} </h2>
+
+			{rules && rules.has_time_limit == true ?
+					<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
+				:
+					<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : "0"}{score.left}:{score.right > 9 ? "" : "0"}{score.right} </h2>
+				}
 				<p className="m-0" style={{borderTop: "5px solid white"}}>{statusTitle}</p>
 			</div>
 

@@ -6,7 +6,7 @@ import Profile from "./pages/Profile/Profile";
 import Lobby from "./pages/Lobby/Lobby";
 import LocalPong from "./pages/LocalPong/LocalPong";
 import OnlinePong from "./pages/OnlinePong/OnlinePong";
-import NotFound from "./pages/NotFound/NotFound";
+import NotFound from "./pages/404/NotFound";
 import RedirectHome from "./pages/RedirectHome";
 import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";

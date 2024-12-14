@@ -7,7 +7,12 @@ body {
 	padding: 0;
 	outline: none;
 	border: none;
-  }
+}
+
+* img {
+	pointer-events: none; /* Prevents interactions, including drag */
+	-webkit-user-drag: none; /* Prevents dragging in WebKit browsers */
+}
   
   /* Container for the whole page */
   div {
