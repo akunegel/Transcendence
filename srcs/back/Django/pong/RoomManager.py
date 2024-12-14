@@ -3,6 +3,7 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from .paddle_logic import paddle_logic
 from .game_logic import game_logic
+from .timer_logic import timer_logic
 from django.db import models
 import asyncio
 import logging
@@ -19,6 +20,7 @@ class RoomManager:
 	def create_room(self, room_id):
 		self.rooms[str(room_id)] = {"game_task": None,														# Storage for game_task id
 							  		"paddle_task": None,													# Storage for paddle_task id
+									"timer_task": None, "timer_is_over": False,								# Storage for timer_task id
 									"id": room_id,															# Storing it's own id
 									"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
 												"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
@@ -71,8 +73,12 @@ class RoomManager:
 
 
 	def start_game_task(self, room_id):
-		self.rooms[str(room_id)]["game_task"] = asyncio.create_task(game_logic(str(room_id)))
-		self.rooms[str(room_id)]["paddle_task"] = asyncio.create_task(paddle_logic(str(room_id)))
+		room = self.rooms[str(room_id)]
+		room["game_task"] = asyncio.create_task(game_logic(str(room_id)))
+		room["paddle_task"] = asyncio.create_task(paddle_logic(str(room_id)))
+		if room["rules"]["has_time_limit"] == True:
+			room["timer_task"] = asyncio.create_task(timer_logic(str(room_id)))
+
 
 
 	def get_room(self, room_id):
@@ -85,6 +91,9 @@ class RoomManager:
 			if task:
 				task.cancel()
 			task = self.rooms[str(room_id)]["paddle_task"]
+			if task:
+				task.cancel()
+			task = self.rooms[str(room_id)]["timer_task"]
 			if task:
 				task.cancel()
 

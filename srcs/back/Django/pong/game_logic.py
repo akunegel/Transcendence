@@ -126,7 +126,7 @@ async def playAgain(channel_layer, room_id, room, x):
 		var["r_score"] += 1
 
 	# Resets the gamestate to keep playing (except scores)
-	dyn["speed"] = 60
+	dyn["speed"] = 120
 	dyn["vec"] = 0.005
 	var["objx"] = 400
 	var["objy"] = 250
@@ -140,6 +140,17 @@ async def isGameOver(channel_layer, room, room_id):
 	l_score = room["var"]["l_score"]
 	r_score = room["var"]["r_score"]
 
+	# If the time limit has been exceeded
+	if (room["timer_is_over"] == True):
+		if (l_score > r_score):
+			await updateGame(channel_layer, room_id, {"winner": "player1", "game_started": False}, 0.0, "end_game")
+		elif (r_score > l_score):
+			await updateGame(channel_layer, room_id, {"winner": "player2", "game_started": False}, 0.0, "end_game")
+		else:
+			await updateGame(channel_layer, room_id, {"winner": "draw", "game_started": False}, 0.0, "end_game")
+		return True
+
+	# If the point objective has been reached
 	if (l_score >= max_point):
 		await updateGame(channel_layer, room_id, {"winner": "player1", "game_started": False}, 0.0, "end_game")
 	elif (r_score >= max_point):
@@ -153,8 +164,10 @@ async def game_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	channel_layer = get_channel_layer()  # Get the channel layer
 	room = room_manager.get_room(room_id) # getting the associated room
-	time_before_hit = 3 # 3 seconds before games start
+	time_before_hit = 3 # 3 seconds before game start
 	room["var"]["game_started"] = True
+
+	await updateGame(channel_layer, room_id, room["var"], 0, "start_game")
 
 	while room and room["var"]["game_started"]:
 
@@ -168,12 +181,11 @@ async def game_logic(room_id):
 		if (pos["x"] == 791.1 or pos["x"] == 9):
 			await playAgain(channel_layer, room_id, room, pos["x"])
 			time_before_hit = 3
+			if (await isGameOver(channel_layer, room, room_id) == True):
+				room["var"]["game_started"] = False
 		else:
 			obj = await nextHit(var["l_paddle"], var["r_paddle"], pos["x"], pos["y"], room) # determine the coordinates of the next 'rebound'
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
-
-		if (await isGameOver(channel_layer, room, room_id) == True):
-			room["var"]["game_started"] = False
 
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]

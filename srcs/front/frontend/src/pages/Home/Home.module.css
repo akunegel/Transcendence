@@ -51,7 +51,7 @@
 .centered_container button:hover{
 	background-color: rgb(255, 102, 102);
 	outline: 10px double whitesmoke;
-	box-shadow: 0 0 20px rgba(255, 102, 102), 0 0 30px rgba(255, 102, 102);
+	box-shadow: 0 0 20px rgb(244, 137, 93), 0 0 30px rgb(244, 137, 93);
 }
 .centered_container button:active {
 	color: black;

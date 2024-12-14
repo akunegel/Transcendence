@@ -1,7 +1,6 @@
 from channels.layers import get_channel_layer
 import logging
 import asyncio
-import logging
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("___paddle_logic___")     # Créer un logger avec un nom unique
@@ -22,7 +21,7 @@ async def paddle_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	room = room_manager.get_room(room_id)
 	channel_layer = get_channel_layer()
-	await asyncio.sleep(3)
+	await asyncio.sleep(3) # 3 seconds before game start
 
 	while room["var"]["game_started"]:
 		var = room["var"] # getting the room's game variables
