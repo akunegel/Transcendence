@@ -9,6 +9,7 @@
 	flex-direction: column;
 	align-items: center;
 	position: relative;
+	padding: 0 20px; /* Add horizontal padding */
 }
 
 .centered_container button {
@@ -18,7 +19,7 @@
 	padding: 8px;
 	margin-bottom: 20px;
 	font-size: 1.5em;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	color: whitesmoke;
 	background-color: rgb(75, 0, 130);
 	box-shadow: 0 0 10px rgba(75, 0, 130, 1);
@@ -35,30 +36,32 @@
 	margin-bottom: 2%;
 	border: 10px solid white;
 	border-radius: 30px;
-	max-width: 70%;
-	min-width: 70%;
-	max-height: 70%;
-	min-height: 70%;
+	width: 70%; /* Use width instead of min/max */
 	background-color: rgb(75, 0, 130, 0.4);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	padding: 20px; /* Add padding */
 }
 
 .userinfo_container p {
 	margin: 2%;
 	color: whitesmoke;
-	font-size: 50px;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-size: 1.5em;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	text-align: center;
+	width: 100%;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	max-width: 100%;
 }
 
 .userinfo_container img {
 	border-radius: 30px;
 	margin: 2%;
-	max-width: 20%;
-	max-height: 20%;
-	min-width: 20%;
-	min-height: 20%;
+	width: 200px;
+	height: 200px;
+	object-fit: cover;
 }
 
 .edit_profile_modal {
@@ -87,19 +90,6 @@
 	align-items: center;
 }
 
-.close_button {
-	width: 10px;
-	height: 50px;
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	font-size: 24px;
-	background: none;
-	border: none;
-	color: whitesmoke;
-	cursor: pointer;
-}
-
 .form_group {
 	margin-bottom: 15px;
 	width: 100%;
@@ -109,7 +99,7 @@
 	display: block;
 	margin-bottom: 5px;
 	color: whitesmoke;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 .form_group input {
@@ -118,7 +108,8 @@
 	border-radius: 10px;
 	border: none;
 	background-color: whitesmoke;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	box-sizing: border-box; /* Include padding in width */
 }
 
 .edit_profile_content_b {
@@ -128,7 +119,7 @@
 	padding: 8px;
 	margin-top: 20px;
 	font-size: 1.5em;
-	font-family: Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	color: whitesmoke;
 	background-color: rgb(75, 0, 130);
 	box-shadow: 0 0 10px rgba(75, 0, 130, 1);
