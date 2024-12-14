@@ -1,5 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
+import styles from './Friends.module.css';
+import logo from "../../assets/images/logo_profil.png"
 
 const Friends = () => {
 	const { authTokens } = useContext(AuthContext);
@@ -7,6 +9,7 @@ const Friends = () => {
 	const [friends, setFriends] = useState([]);
 	const [friendRequests, setFriendRequests] = useState([]);
 	const [error, setError] = useState(null);
+	const [addFriendError, setAddFriendError] = useState('');
 
 	useEffect(() => {
 		const fetchFriendsAndRequests = async () => {
@@ -46,6 +49,7 @@ const Friends = () => {
 	}, [authTokens]);
 
 	const sendFriendRequest = async () => {
+		setAddFriendError('');
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/send-request/`, {
 				method: 'POST',
@@ -60,12 +64,10 @@ const Friends = () => {
 				const errorData = await response.json();
 				throw new Error(errorData.detail || 'Failed to send friend request');
 			}
-
-			alert('Friend request sent!');
 			setSearchUsername('');
 		} catch (error) {
 			console.error('Error sending friend request:', error);
-			alert(error.message);
+			setAddFriendError(error.message);
 		}
 	};
 
@@ -129,53 +131,74 @@ const Friends = () => {
 	};
 
 	return (
-		<div className="container mt-4">
-			<h1>Friends</h1>
+		<div className={styles.centered_container}>
+			<img
+				src={logo}
+				alt="Logo"
+				className={styles.logo}
+			/>
 
 			{error && (
-				<div className="alert alert-danger" role="alert">{error}</div>
+				<div className={styles.error_message}>{error}</div>
 			)}
 
-			<div className="card mb-4">
-				<div className="card-header">Friend Requests</div>
-				<div className="card-body">
-					{friendRequests.length === 0 ? (
-						<p>No pending friend requests</p>
-					) : (
-						friendRequests.map(request => (
-							<div key={request.id} className="d-flex justify-content-between align-items-center mb-2">
-								<span>{request.sender_username}</span>
-								<button className="btn btn-primary btn-sm" onClick={() => acceptFriendRequest(request.id)}>Accept</button>
-							</div>
-						))
-					)}
-				</div>
+			<div className={styles.userinfo_container}>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Friend Requests</h2>
+				{friendRequests.length === 0 ? (
+					<p style={{color: 'whitesmoke'}}>No pending friend requests</p>
+				) : (
+					friendRequests.map(request => (
+						<div key={request.id} className={styles.friend_item}>
+							<span>{request.sender_username}</span>
+							<button
+								className={styles.accept_button}
+								onClick={() => acceptFriendRequest(request.id)}
+							>
+								Accept
+							</button>
+						</div>
+					))
+				)}
 			</div>
 
-			<div className="card mb-4">
-				<div className="card-header">Add Friend</div>
-				<div className="card-body">
-					<div className="input-group">
-						<input type="text" className="form-control" placeholder="Enter username" value={searchUsername} onChange={(e) => setSearchUsername(e.target.value)}/>
-						<button className="btn btn-primary" onClick={sendFriendRequest}>Send Request</button>
-					</div>
+			<div className={styles.userinfo_container}>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Add Friend</h2>
+				<div className={styles.add_friend_input}>
+					<input
+						type="text"
+						placeholder="Enter username"
+						value={searchUsername}
+						onChange={(e) => setSearchUsername(e.target.value)}
+					/>
+					<button
+						className={styles.send_request_button}
+						onClick={sendFriendRequest}
+					>
+						Send Request
+					</button>
 				</div>
+				{addFriendError && (
+					<p style={{color: 'red', marginTop: '10px'}}>{addFriendError}</p>
+				)}
 			</div>
 
-			<div className="card">
-				<div className="card-header">My Friends</div>
-				<div className="card-body">
-					{friends.length === 0 ? (
-						<p>You have no friends yet</p>
-					) : (
-						friends.map(friend => (
-							<div key={friend.friend_id} className="d-flex justify-content-between align-items-center mb-2">
-								<span>{friend.friend_username}</span>
-								<button className="btn btn-danger btn-sm" onClick={() => removeFriend(friend.friend_id)}>Remove</button>
-							</div>
-						))
-					)}
-				</div>
+			<div className={styles.userinfo_container}>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>My Friends</h2>
+				{friends.length === 0 ? (
+					<p style={{color: 'whitesmoke'}}>You have no friends yet</p>
+				) : (
+					friends.map(friend => (
+						<div key={friend.friend_id} className={styles.friend_item}>
+							<span>{friend.friend_username}</span>
+							<button
+								className={styles.remove_button}
+								onClick={() => removeFriend(friend.friend_id)}
+							>
+								Remove
+							</button>
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);

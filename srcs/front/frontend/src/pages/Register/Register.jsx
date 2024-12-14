@@ -24,7 +24,7 @@ const Register = () => {
         e.preventDefault()
 
         if (formData.password !== formData.passwordVerif) {
-            alert("Passwords do not match!")
+            setDisplayError("Passwords do not match!")
             return
         }
 
@@ -82,7 +82,7 @@ const Register = () => {
                     onChange={handleChange}
                     required
                 />
-				{displayError == "" ? <></> : (<p>{displayError}</p>)}
+				{displayError === "" ? <></> : (<p>{displayError}</p>)}
                 <input type="submit" value="Register"/>
             </form>
         </div>
