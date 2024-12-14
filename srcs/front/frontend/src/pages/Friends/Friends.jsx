@@ -9,6 +9,7 @@ const Friends = () => {
 	const [friends, setFriends] = useState([]);
 	const [friendRequests, setFriendRequests] = useState([]);
 	const [error, setError] = useState(null);
+	const [addFriendError, setAddFriendError] = useState('');
 
 	useEffect(() => {
 		const fetchFriendsAndRequests = async () => {
@@ -48,6 +49,7 @@ const Friends = () => {
 	}, [authTokens]);
 
 	const sendFriendRequest = async () => {
+		setAddFriendError('');
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/send-request/`, {
 				method: 'POST',
@@ -62,12 +64,10 @@ const Friends = () => {
 				const errorData = await response.json();
 				throw new Error(errorData.detail || 'Failed to send friend request');
 			}
-
-			alert('Friend request sent!');
 			setSearchUsername('');
 		} catch (error) {
 			console.error('Error sending friend request:', error);
-			alert(error.message);
+			setAddFriendError(error.message);
 		}
 	};
 
@@ -177,6 +177,9 @@ const Friends = () => {
 						Send Request
 					</button>
 				</div>
+				{addFriendError && (
+					<p style={{color: 'red', marginTop: '10px'}}>{addFriendError}</p>
+				)}
 			</div>
 
 			<div className={styles.userinfo_container}>
