@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import AuthContext from '../../context/AuthContext';
 import styles from './Friends.module.css';
-import logo from "../../assets/images/logo_profil.png"
+import logo from "../../assets/images/logo_friends.png"
 
 const Friends = () => {
-	const { authTokens } = useContext(AuthContext);
+	const { authTokens, logoutUser } = useContext(AuthContext);
 	const [searchUsername, setSearchUsername] = useState('');
 	const [friends, setFriends] = useState([]);
 	const [friendRequests, setFriendRequests] = useState([]);
@@ -31,6 +31,7 @@ const Friends = () => {
 				});
 
 				if (!friendsResponse.ok || !requestsResponse.ok) {
+					logoutUser();
 					throw new Error('Failed to fetch friends or requests');
 				}
 
