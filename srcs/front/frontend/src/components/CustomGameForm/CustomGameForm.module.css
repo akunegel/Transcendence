@@ -4,8 +4,7 @@
 	justify-content:left;
 	border: 5px solid white;
 	margin-bottom: 20px;
-	min-width: 250px;
-	max-width: 250px;
+	width: 280px;
 	background-color: black;
 	height:fit-content;
 }
@@ -13,9 +12,7 @@
 .gameform_number_container {
 	display: flex;
 	flex-direction: row;
-	justify-content: left;
-	margin: 10px;
-	margin-top: 16px;
+	justify-content: center;
 	gap: 10px;
 }
 .gameform_number_container p {
@@ -44,8 +41,8 @@
 	display: flex;
 	align-items: center;
 	margin: 10px;
-	margin-top: 16px;
-	margin-bottom: 4px;
+	margin-top: 8px;
+	margin-bottom: 0px;
 	gap: 10px;
 }
 .gameform_checkbox_container p {
@@ -56,6 +53,7 @@
 	display: none;
 }
 .gameform_checkbox_container label {
+	all:unset;
 	cursor: pointer;
 	width: 6px;
 	height: 6px;
@@ -73,7 +71,7 @@
 
 
 .start_button {
-	padding-top: 5%;
+	padding-top: 10px;
 	display: flex;
 	flex-direction: column;
 	justify-content:center bottom;
@@ -96,6 +94,8 @@
 .info_message {
 	color: grey;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
+	height: 8px;
 	font-size: 0.7em;
 	padding-left: 10px;
+	margin-bottom: 0px;
 }
