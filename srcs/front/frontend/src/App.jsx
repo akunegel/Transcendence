@@ -3,6 +3,7 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
+import Settings from "./pages/Settings/Settings";
 import Lobby from "./pages/Lobby/Lobby";
 import LocalPong from "./pages/LocalPong/LocalPong";
 import OnlinePong from "./pages/OnlinePong/OnlinePong";
@@ -26,6 +27,7 @@ function App() {
 					<Route path="/register" element={<Register />} />
 					<Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
 					<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+					<Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 					<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
 					<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
 					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />

@@ -1,11 +1,48 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import Dropdown from 'react-bootstrap/Dropdown';
 
 const Header = () => {
-	const { user, logoutUser } = useContext(AuthContext);
+	const { authTokens, logoutUser } = useContext(AuthContext);
+	const [userLanguage, setLanguage] = useState({
+		language: ''
+	});
+
+	useEffect(() => {
+        if (authTokens) {
+            getPlayerLanguage()
+        }
+    }, [authTokens])
+
+	function handleLanguageChange(event){
+		setLanguage({ language: event });
+	}
+
+	let getPlayerLanguage = async () => {
+		try {
+			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/settings/`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				}
+			})
+
+			let data = await response.json()
+
+			if (response.status === 200) {
+				setLanguage({language: data.language});
+			} else if (response.status === 401) {
+				logoutUser()
+			}
+		} catch (error) {
+			console.error('Failed to fetch language', error)
+			logoutUser()
+		}
+	}
 
 	return (
 		<nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -15,7 +52,7 @@ const Header = () => {
 				</button>
 				<div className="collapse navbar-collapse" id="navbarNav">
 					<ul className="navbar-nav me-auto mb-2 mb-lg-0">
-						{user && (
+						{authTokens && (
 							<>
 								<li className="nav-item">
 									<Link className="nav-link" to="/home"><i className="bi bi-house me-1"></i> Home</Link>
@@ -33,8 +70,25 @@ const Header = () => {
 						)}
 					</ul>
 					<ul className="navbar-nav">
-						{user ? (
+						{authTokens ? (
 							<>
+								<Dropdown>
+                                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
+                                        {userLanguage.language || 'Loading...'}
+                                    </Dropdown.Toggle>
+
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item onClick={() => handleLanguageChange('English')}>
+                                            English
+                                        </Dropdown.Item>
+                                        <Dropdown.Item onClick={() => handleLanguageChange('Français')}>
+                                            Français
+                                        </Dropdown.Item>
+                                        <Dropdown.Item onClick={() => handleLanguageChange('Español')}>
+                                            Español
+                                        </Dropdown.Item>
+                                    </Dropdown.Menu>
+                                </Dropdown>
 								<li className="nav-item">
 									<Link className="nav-link" to="/friends">
 										<i className="bi bi-people me-1"></i> Friends

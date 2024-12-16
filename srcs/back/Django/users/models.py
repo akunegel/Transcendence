@@ -8,6 +8,7 @@ class Player(models.Model):
     first_name = models.CharField(max_length=100, blank=True, default="")
     last_name = models.CharField(max_length=100, blank=True, default="")
     email = models.EmailField(blank=True, default="")
+    language = models.CharField(max_length=30, default="English")
 
 
 class FriendRequest(models.Model):
