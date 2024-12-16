@@ -1,8 +1,8 @@
 
-function limitMovement(move, paddle_y)
+function limitMovement(move, y, size)
 {
 	// Avoiding the paddle from going out of bounds
-	if (paddle_y + move < 60 || paddle_y + move > 440)
+	if (y + move < (size / 2) || y + move > (500 - (size / 2)))
 		return (0);
 
 	return (move);
@@ -13,11 +13,11 @@ function clamp(val, min, max)
 	return (Math.min(Math.max(min, val), max));
 }
 
-function HardAI(obj, pos, paddle_y, dir)
+function HardAI(obj, pos, paddle, dir)
 {
 	let move = 0;
-	let dif = obj.y - paddle_y;
-	let center_dif = 250 - paddle_y;
+	let dif = obj.y - paddle.y;
+	let center_dif = 250 - paddle.y;
 
 	/* If the ball is going in AI's direction : Will try to
 	match the ball's next y obj. Otherwise, returns to the center.
@@ -28,13 +28,13 @@ function HardAI(obj, pos, paddle_y, dir)
 	else
 		move = clamp(center_dif, -5, 5);
 
-	return (limitMovement(move, paddle_y));
+	return (limitMovement(move, paddle.y, paddle.size));
 }
 
-function NormalAI(pos, paddle_y, dir)
+function NormalAI(pos, paddle, dir)
 {
 	let move = 0;
-	let dif = pos.y - paddle_y;
+	let dif = pos.y - paddle.y;
 
 	/* If the ball is in the AI's half(+50) of the terrain and coming
 	towards it's paddle, it will try to match the ball's current y pos.*/
@@ -42,13 +42,13 @@ function NormalAI(pos, paddle_y, dir)
 	if (pos.x > 450 && dir == 1)
 		move = clamp(dif, -5, 5);
 
-	return (limitMovement(move, paddle_y));
+	return (limitMovement(move, paddle.y, paddle.size));
 }
 
-function EasyAI(pos, paddle_y, dir)
+function EasyAI(pos, paddle, dir)
 {
 	let move = 0;
-	let dif = pos.y - paddle_y;
+	let dif = pos.y - paddle.y;
 
 	/* If the ball is in the AI's half(-50) of the terrain and coming
 	towards it's paddle, it will try to match the ball's current y pos.*/
@@ -56,18 +56,18 @@ function EasyAI(pos, paddle_y, dir)
 	if (pos.x > 600 && dir == 1)
 		move = clamp(dif, -5, 5);
 
-	return (limitMovement(move, paddle_y));
+	return (limitMovement(move, paddle.y, paddle.size));
 }
 
-export function AI_paddleMovement(difficulty, obj, pos, paddle_y, dir)
+export function AI_paddleMovement(difficulty, obj, pos, paddle, dir)
 {
 	switch (difficulty)
 	{
 		case 1:
-			return (EasyAI(pos, paddle_y, dir));
+			return (EasyAI(pos, paddle, dir));
 		case 2:
-			return (NormalAI(pos, paddle_y, dir));
+			return (NormalAI(pos, paddle, dir));
 		case 3:
-			return (HardAI(obj, pos, paddle_y, dir));
+			return (HardAI(obj, pos, paddle, dir));
 	}
 }

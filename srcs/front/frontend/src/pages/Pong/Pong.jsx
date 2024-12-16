@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './Pong.module.css';
 import {AI_paddleMovement} from "./OpponentAi.js"
+import {bonusManager, drawBonus} from './BonusManager.js';
 
 function Pong({ param }) {
 
@@ -11,14 +12,15 @@ function Pong({ param }) {
 	const	[statusTitle, setStatusTitle] = useState("- Game starting in 3 -");
 
 	const	keys = useRef({ lu: false, ld: false, ru: false, rd: false});
-	const	LPaddle = useRef({ x: 50, y: 250});
-	const	RPaddle = useRef({ x: 750, y: 250});
+	const	LPaddle = useRef({ x: 50, y: 250, size: 120});
+	const	RPaddle = useRef({ x: 750, y: 250, size: 120});
 	const	pos = useRef({ x: 400, y: 250 });
 	const	obj = useRef({ x: 400, y: 250 });
 	const	dir = useRef(1);
 	const	vec = useRef(0.005);
 	const	speed = useRef(2);
 	const	score = useRef({left: 0, right: 0});
+	const	bonus = useRef({available: "none", bonus: "none", timer: 3, oldSpeed: 2});
 	
 	const	canvasRef = useRef(null);
 	const	gameLoop = useRef(false);
@@ -117,23 +119,23 @@ function Pong({ param }) {
 		if (param.againstAI == true)
 		{
 			if (keys.current.ru)
-				LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
+				LPaddle.current.y += (LPaddle.current.y <= (LPaddle.current.size / 2) ? 0 : -5);
 			if (keys.current.rd)
-				LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
+				LPaddle.current.y += (LPaddle.current.y >= (500 - (LPaddle.current.size / 2)) ? 0 : 5);
 
 			// Gets the movement determined by the AI
-			RPaddle.current.y += AI_paddleMovement(param.difficulty, obj.current, pos.current, RPaddle.current.y, dir.current);
+			RPaddle.current.y += AI_paddleMovement(param.difficulty, obj.current, pos.current, RPaddle.current, dir.current);
 		}
 		else // E and D keys are bound to left paddle, arrow keys to the right.
 		{
 			if (keys.current.lu)
-				LPaddle.current.y += (LPaddle.current.y <= 60 ? 0 : -5);
+				LPaddle.current.y += (LPaddle.current.y <= (LPaddle.current.size / 2) ? 0 : -5);
 			if (keys.current.ld)
-				LPaddle.current.y += (LPaddle.current.y >= 440 ? 0 : 5);
+				LPaddle.current.y += (LPaddle.current.y >= (500 - (LPaddle.current.size / 2)) ? 0 : 5);
 			if (keys.current.ru)
-				RPaddle.current.y += (RPaddle.current.y <= 60 ? 0 : -5);
+				RPaddle.current.y += (RPaddle.current.y <= (RPaddle.current.size / 2) ? 0 : -5);
 			if (keys.current.rd)
-				RPaddle.current.y += (RPaddle.current.y >= 440 ? 0 : 5);
+				RPaddle.current.y += (RPaddle.current.y >= (500 - (RPaddle.current.size / 2)) ? 0 : 5);
 		}
 	}
 
@@ -177,9 +179,12 @@ function Pong({ param }) {
 		speed.current = 2;
 		pos.current = ({ x: 400, y: 250 });
 		obj.current = ({ x: 400, y: 250 });
-		LPaddle.current = ({ x: 50, y: 250});
-		RPaddle.current = ({ x: 750, y: 250});
+		LPaddle.current = ({ x: 50, y: 250, size: 120});
+		RPaddle.current = ({ x: 750, y: 250, size: 120});
 		vec.current = 0.005;
+
+		if (param.addBonus == true)
+			bonus.current = {available: "none", bonus: "none", timer: 3, oldSpeed: 2};
 		
 		setDisplayScore(score.current);
 		if (isGameOver() == true)
@@ -202,6 +207,18 @@ function Pong({ param }) {
 		gameLoop.current = true;
 	}
 
+	const drawBonusBox = (ctx) => {
+		// Drawing a box in the center to hold the current bonus
+		ctx.beginPath();
+		ctx.rect(375, 225, 50, 50);
+		ctx.fillStyle = 'white';
+		ctx.fill();
+		ctx.clearRect(380, 230, 40, 40);
+		// Drawing a visual for the bonus
+		if (bonus.current.available != "none")
+			drawBonus(bonus.current, ctx);
+	}
+
 	const drawBall = (ctx, x, y) => {
 		// Drawing the ball at the given position
 		ctx.beginPath();
@@ -210,10 +227,10 @@ function Pong({ param }) {
 		ctx.fill();
 	};
 
-	const drawPaddle = (ctx, x, y) => {
+	const drawPaddle = (ctx, x, y, size) => {
 		// Drawing a paddle centered at the given position
 		ctx.beginPath();
-		ctx.rect(x, y - 60, 10, 120);
+		ctx.rect(x, y - (size / 2), 10, size);
 		ctx.fillStyle = 'white';
 		ctx.fill();
 	}
@@ -231,8 +248,10 @@ function Pong({ param }) {
 		ctx.fill();
 
 		// Drawing non-static game elements
-		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y);
-		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y);
+		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y, LPaddle.current.size);
+		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, RPaddle.current.size);
+		if (param.addBonus == true)
+			drawBonusBox(ctx);
 		drawBall(ctx, pos.current.x, pos.current.y);
 	}
 
@@ -240,9 +259,10 @@ function Pong({ param }) {
 		
 		// Getting the concerned paddle's y depending on direction
 		let paddleY = (side == 1 ? RPaddle.current.y : LPaddle.current.y);
+		let size = (side == 1 ? RPaddle.current.size : LPaddle.current.size);
 
 		// When at a paddle's x value, checks if the ball y value is inside the paddel's range to allow rebound
-		if (y > paddleY + 65 || y < paddleY - 65)
+		if (y > paddleY + ((size / 2) + 5) || y < paddleY - ((size / 2) + 5))
 			return (false);
 		return (true);
 	}
@@ -250,7 +270,8 @@ function Pong({ param }) {
 	function getNewVector(side, y) {
 
 		let paddleY = (side == 1 ? RPaddle.current.y : LPaddle.current.y);
-		let newVec = 2 * (Math.abs(paddleY - y) / 60);
+		let size = (side == 1 ? RPaddle.current.size : LPaddle.current.size)
+		let newVec = 2 * (Math.abs(paddleY - y) / (size / 2));
 
 		// A new vector is assigned relative to the location of a hit on a paddle
 		newVec = (newVec < 0.05 ? 0.05 : newVec);
@@ -285,6 +306,9 @@ function Pong({ param }) {
 					newY = dir.current * (newX - pos.current.x) * vec.current + pos.current.y;
 				}
 				upBallSpeed();
+				// Bonus manager, removing a rebound from timer
+				if (param.addBonus == true)
+					bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed, "hit_update");
 			}
 			else // Otherwise, the ball goes to score a point
 			{
@@ -331,6 +355,10 @@ function Pong({ param }) {
 
 				// This game is way more fun if you can move the paddles
 				handlePaddlesMovement();
+				
+				// Checking if the ball hit the bonus box
+				if (param.addBonus == true)
+					bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed, "pos_update");
 
 				if (distance <= speed.current) {
 					// Snap to obj if close enough, not going further than target
