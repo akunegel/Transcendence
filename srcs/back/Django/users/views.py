@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import PlayerUpdateSerializer, PlayerSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer
+from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer
 from .models import Player, FriendRequest, Friendship
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -37,6 +37,16 @@ def getPlayerProfile(request):
     try:
         player = Player.objects.get(user=request.user)
         serializer = PlayerSerializer(player)
+        return Response(serializer.data)
+    except Player.DoesNotExist:
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getPlayerLanguage(request):
+    try:
+        player = Player.objects.get(user=request.user)
+        serializer = LanguageSerializer(player)
         return Response(serializer.data)
     except Player.DoesNotExist:
         return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)

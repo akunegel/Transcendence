@@ -5,5 +5,6 @@ npm audit fix
 npm install
 npm install bootstrap@5.3.2
 npm install bootstrap-icons
+npm install react-bootstrap boostrap
 npm install jwt-decode
 npm run dev -- --host
