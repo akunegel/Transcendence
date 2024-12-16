@@ -28,6 +28,11 @@ const Register = () => {
             return
         }
 
+        if (formData.username.length > 17) {
+            setDisplayError("Username must be 17 characters or less. (\"-_Dark_Sasubaka_-\") might be available")
+            return
+        }
+
         const submitData = {
             username: formData.username,
             password: formData.password,
@@ -82,7 +87,7 @@ const Register = () => {
                     onChange={handleChange}
                     required
                 />
-                {displayError && <p>{displayError}</p>}
+                {displayError && <p className={styles.error_message}>{displayError}</p>}
                 <input type="submit" value="Register"/>
             </form>
         </div>
