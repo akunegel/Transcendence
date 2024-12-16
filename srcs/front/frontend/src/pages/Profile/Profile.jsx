@@ -117,7 +117,7 @@ const Profile = () => {
 						) : (
 							<img
 								className={styles.logo}
-								src="https://t4.ftcdn.net/jpg/05/59/91/77/360_F_559917754_dPi14NuRWEofju2XA0Jz07kSITgjYYJm.jpg"
+								src="https://i.ytimg.com/vi/UqE2vaBsIDo/maxresdefault.jpg"
 								alt="Default Profile"
 							/>
 						)}
@@ -135,7 +135,7 @@ const Profile = () => {
 						<button className={styles.edit_profile_content_b} onClick={() => setIsEditing(false)}>
 							&times;
 						</button>
-						<h2>Edit Profile</h2>
+						<h2 className={styles.edit_profile_title}>Edit Profile</h2>
 						<div className={styles.form_group}>
 							<label>First Name</label>
 							<input type="text" name="first_name" value={editedProfile.first_name || ''} onChange={handleInputChange} placeholder="Optional"/>
