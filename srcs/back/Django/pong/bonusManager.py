@@ -9,13 +9,6 @@ logger = logging.getLogger("__bonusManager__")
 async def clamp(val, minVal, maxVal):
 	return (min(max(minVal, val), maxVal))
 
-async def goBack(var, dyn, action):
-	if (action == "add"):
-		# Triggering a nextHit() by setting obj to the current pos
-		# and reversing the direction.
-		dyn["timer"] = 1
-		dyn["dir"] *= -1
-
 async def speedUp(var, dyn, action):
 	if (action == "add"):
 		# Doubling the speed, storing the old speed
@@ -32,7 +25,7 @@ async def slowDown(var, dyn, action):
 		# Setting the speed to the minimum, storing the old speed
 		dyn["timer"] = 1
 		dyn["old_speed"] = dyn["speed"]
-		dyn["speed"] = 2
+		dyn["speed"] = 120
 	elif (action == "remove"):
 		# Returning to the old speed
 		dyn["speed"] = dyn["old_speed"]
@@ -41,16 +34,16 @@ async def slowDown(var, dyn, action):
 async def biggerPaddle(var, dyn, action):
 
 	if (action == "add"):
-		# Doubling the paddle's size
+		# Doubling the player's paddle size
 		dyn["timer"] = 6
 		if (dyn["dir"] == 1):
 			var["l_paddle_size"] = 240
 			# Preventing the paddle from going out of bound
-			var["l_paddle"] = clamp(var["l_paddle"], 120, 380)
+			var["l_paddle"] = await clamp(var["l_paddle"], 120, 380)
 		else:
 			var["r_paddle_size"] = 240
 			# Preventing the paddle from going out of bound
-			var["r_paddle"] = clamp(var["r_paddle"], 120, 380)
+			var["r_paddle"] = await clamp(var["r_paddle"], 120, 380)
 	elif (action == "remove"):
 		# Returning to default size
 		var["l_paddle_size"] = 120
@@ -62,7 +55,7 @@ async def safeWall(var, dyn, action):
 	if (action == "add"):
 		# Setting the paddle's size to be the max width.
 		dyn["timer"] = 2
-		if (dyn["dir"]):
+		if (dyn["dir"] == 1):
 			var["l_paddle_size"] = 500
 			var["l_paddle"] = 250
 		else:
@@ -78,11 +71,6 @@ async def getRandomBonus():
 	# Getting a random bonus value ranging from 0 to 4
 	return (random.randint(0, 4))
 
-async def isBallInRange(pos):
-	# Is the ball in the range of the bonus box ?
-	if ((pos["x"] >= 375 and pos["x"] <= 425) and (pos["y"] >= 225 and pos["y"] <= 275)):
-		return (True)
-	return (False)
 
 async def bonusManager(room, type):
 
@@ -104,8 +92,8 @@ async def bonusManager(room, type):
 					await speedUp(var, dyn, "add")
 				case 3: # Paddle becomes an impenetrable wall until it's hit
 					await safeWall(var, dyn, "add")
-				case 4: # Ball bounces back
-					await goBack(var, dyn, "add")
+				case 4: # Ball bounces on the box (see line 214)
+					dyn["timer"] = 1
 
 	elif (type == "hit_update"):
 		dyn["timer"] -= 1
@@ -183,7 +171,7 @@ async def handleBonusBoxCollision(room, pos, obj):
 
 	# No checks should be done if the ball is already within the bonus box
 	if (pos["x"] >= 370 and pos["x"] <= 430 and pos["y"] >= 220 and pos["y"] <= 280):
-		bonusManager(room, pos, obj, "pos_update")
+		await bonusManager(room, "pos_update")
 		return
 
 	dir = room["dyn"]["dir"]
@@ -192,6 +180,7 @@ async def handleBonusBoxCollision(room, pos, obj):
 	# Getting the previous vector to keep the same trajectory (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
 		vec *= -1
+
 
 	left = await doSegmentsIntersect(pos, obj, tlc, blc) # will left side be hit ?
 	hitPointL = None if not left else await whereWillItHit(pos, tlc, blc, vec, dir, "vertical")
@@ -220,6 +209,13 @@ async def handleBonusBoxCollision(room, pos, obj):
 	# Returning to previous vector direction to avoid inversing the vector twice (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
 		room["dyn"]["vec"] *= -1
+	
+	# If the current available bonus is 'solid_box' (type 4) dir or vec is reversed to simulate the box as a solid object
+	if (room["var"]["available_bonus"] == 4):
+		if (minDist == distL or minDist == distR):
+			room["dyn"]["dir"] *= -1
+		elif (minDist == distT or minDist == distB):
+			room["dyn"]["vec"] *= -1
 
 	match minDist:
 		case dist if dist == distL: # Left side was hit first

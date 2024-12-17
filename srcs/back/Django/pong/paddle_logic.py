@@ -37,16 +37,16 @@ async def paddle_logic(room_id):
 
 		# handling player1 (left) movement
 		if (lpu == True and lpd == False):
-			l_movement += 0 if var["l_paddle"] <= 60 else -5
+			l_movement += 0 if var["l_paddle"] <= (var["l_paddle_size"] / 2) else -5
 		if (lpd == True and lpu == False):
-			l_movement += 0 if var["l_paddle"] >= 440 else 5
+			l_movement += 0 if var["l_paddle"] >= 500 - (var["l_paddle_size"] / 2) else 5
 		var["l_paddle"] += l_movement
 
 		# handling player2 (right) movement
 		if (rpu == True and rpd == False):
-			r_movement += 0 if var["r_paddle"] <= 60 else -5
+			r_movement += 0 if var["r_paddle"] <= (var["r_paddle_size"] / 2) else -5
 		if (rpd == True and rpu == False):
-			r_movement += 0 if var["r_paddle"] >= 440 else 5
+			r_movement += 0 if var["r_paddle"] >= 500 - (var["r_paddle_size"] / 2) else 5
 		var["r_paddle"] += r_movement
 
 		# if any change was made, send an update to both players

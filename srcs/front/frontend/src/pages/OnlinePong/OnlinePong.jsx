@@ -141,6 +141,8 @@ function OnlinePong() {
 				obj.current.y = data.state.objy;
 				LPaddle.current.size = data.state.l_paddle_size;
 				RPaddle.current.size = data.state.r_paddle_size;
+				LPaddle.current.y = data.state.l_paddle;
+				RPaddle.current.y = data.state.r_paddle;
 				availableBonus.current = data.state.available_bonus;
 				timeBeforeHit.current = data.state.time;
 				setScore({left: data.state.l_score, right: data.state.r_score});
@@ -252,7 +254,7 @@ function OnlinePong() {
 
 		// Drawing non-static game elements
 		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y, LPaddle.current.size);
-		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, LPaddle.current.size);
+		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, RPaddle.current.size);
 		if (rulesRef.current && rulesRef.current.add_bonus == true)
 			drawBonusBox(ctx);
 		drawBall(ctx, ball_x, ball_y);

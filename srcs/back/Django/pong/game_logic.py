@@ -38,7 +38,8 @@ async def updateGame(channel_layer, room_id, var, time_before_hit, case):
 
 async def getNewVector(side, y , var):
 	paddle_y = var["r_paddle"] if side == 1 else var["l_paddle"]
-	new_vec = 2 * (abs(paddle_y - y) / 60)
+	size = var["r_paddle_size"] if side == 1 else var["l_paddle_size"]
+	new_vec = 2 * (abs(paddle_y - y) / size)
 
 	# A new vector is assigned relative to the location of a hit on a paddle
 	new_vec = 0.05 if new_vec < 0.05 else new_vec
@@ -48,15 +49,16 @@ async def getNewVector(side, y , var):
 
 async def isPaddleAtLevel(side, y, var):
 	paddle_y = var["r_paddle"] if side == 1 else var["l_paddle"]
+	size = var["r_paddle_size"] if side == 1 else var["l_paddle_size"]
 
 	# When at a paddle's x value, checks if the ball y value is inside the paddel's range to allow rebound
-	if (y > paddle_y + 65 or y < paddle_y - 65):
+	if (y > paddle_y + ((size / 2) + 5) or y < paddle_y - ((size / 2) + 5)):
 		return False
 	else:
 		return True
 
 
-async def nextHit(l_paddle, r_paddle, x, y, room):
+async def nextHit(x, y, room):
 	dyn = room["dyn"]
 	var = room["var"]
 
@@ -83,7 +85,7 @@ async def nextHit(l_paddle, r_paddle, x, y, room):
 				new_y = dyn["dir"] * (new_x - x) * dyn["vec"] + y
 			dyn["speed"] += 60
 			if (room["rules"]["add_bonus"] == True):
-				await bonusManager(room, None, None, "hit_update")
+				await bonusManager(room, "hit_update")
 
 		else: # Otherwise, the ball goes to score a point
 			if (new_x >= 791 or new_x <= 9):
@@ -192,7 +194,7 @@ async def game_logic(room_id):
 			if (await isGameOver(channel_layer, room, room_id) == True):
 				room["var"]["game_started"] = False
 		else:
-			obj = await nextHit(var["l_paddle"], var["r_paddle"], pos["x"], pos["y"], room) # determine the coordinates of the next 'rebound'
+			obj = await nextHit(pos["x"], pos["y"], room) # determine the coordinates of the next 'rebound'
 			if (room["rules"]["add_bonus"] == True):
 				await handleBonusBoxCollision(room, pos, obj)
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
