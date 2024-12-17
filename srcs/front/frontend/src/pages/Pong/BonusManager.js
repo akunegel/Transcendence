@@ -100,7 +100,7 @@ function safeWall(bonus, dir, LPaddle, RPaddle, action)
 	}
 }
 
-function getRandomBonus(bonus)
+function getRandomBonus()
 {
 	// Getting a random bonus value ranging from 0 to 4
 	return (Math.floor(Math.random() * 10) % 5);
@@ -178,7 +178,7 @@ export function bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed,
 			else
 			{
 				// Adding a bonus to be available (or changing it)
-				bonus.current.available = getRandomBonus(bonus);
+				bonus.current.available = getRandomBonus();
 				bonus.current.timer = 1;
 			}
 		}
@@ -188,9 +188,9 @@ export function bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed,
 
 
 // Drawing a small visual representation of the currently available bonus
-export function drawBonus(bonus, ctx)
+export function drawBonus(bonusType, ctx)
 {
-	switch (bonus.available)
+	switch (bonusType)
 	{
 		case 0: // Bigger Paddle
 		{

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
 import { getUser, getRoomInfo } from '../../components/GettersList.jsx';
+import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
 
 
@@ -23,10 +24,11 @@ function OnlinePong() {
 	const	gameStarted = useRef(false);
 	const	messageTime = useRef(0);
 	const	timeBeforeHit = useRef(0);
-	const	LPaddle = useRef({ x: 50, y: 250});
-	const	RPaddle = useRef({ x: 750, y: 250});
+	const	LPaddle = useRef({ x: 50, y: 250, size: 60});
+	const	RPaddle = useRef({ x: 750, y: 250, size: 60});
 	const	pos = useRef({ x: 400, y: 250 });
 	const	obj = useRef({ x: 400, y: 250 });
+	const	availableBonus = useRef("none");
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[rules, setRules] = useState(null);
 	const	rulesRef = useRef(null);
@@ -137,6 +139,9 @@ function OnlinePong() {
 				pos.current.y = obj.current.y;
 				obj.current.x = data.state.objx;
 				obj.current.y = data.state.objy;
+				LPaddle.current.size = data.state.l_paddle_size;
+				RPaddle.current.size = data.state.r_paddle_size;
+				availableBonus.current = data.state.available_bonus;
 				timeBeforeHit.current = data.state.time;
 				setScore({left: data.state.l_score, right: data.state.r_score});
 			}
@@ -213,12 +218,24 @@ function OnlinePong() {
 		ctx.fill();
 	};
 
-	const drawPaddle = (ctx, x, y) => {
+	const drawPaddle = (ctx, x, y, size) => {
 		// Drawing a paddle centered at the given position
 		ctx.beginPath();
-		ctx.rect(x, y - 60, 10, 120);
+		ctx.rect(x, y - (size / 2), 10, size);
 		ctx.fillStyle = 'white';
 		ctx.fill();
+	}
+
+	const drawBonusBox = (ctx) => {
+		// Drawing a box in the center to hold the current bonus
+		ctx.beginPath();
+		ctx.rect(375, 225, 50, 50);
+		ctx.fillStyle = 'white';
+		ctx.fill();
+		ctx.clearRect(380, 230, 40, 40);
+		// Drawing a visual for the bonus
+		if (availableBonus.current != "none")
+			drawBonus(availableBonus.current, ctx);
 	}
 
 	const drawGame = (ctx, ball_x, ball_y) =>
@@ -234,8 +251,10 @@ function OnlinePong() {
 		ctx.fill();
 
 		// Drawing non-static game elements
-		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y);
-		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y);
+		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y, LPaddle.current.size);
+		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, LPaddle.current.size);
+		if (rulesRef.current && rulesRef.current.add_bonus == true)
+			drawBonusBox(ctx);
 		drawBall(ctx, ball_x, ball_y);
 	}
 

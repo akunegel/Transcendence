@@ -24,14 +24,20 @@ class RoomManager:
 									"id": room_id,															# Storing it's own id
 									"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
 												"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
+
 									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
+
 									"var": {"game_started": False, "time": 0.0,								# Initialize 'sendable' game variables
 											"objx": 400, "objy": 250, 										# -
 											"l_score": 0, "r_score": 0,										# -
-											"l_paddle": 250, "r_paddle": 250},								# -
+											"l_paddle": 250, "r_paddle": 250,								# -
+											"l_paddle_size": 120, "r_paddle_size": 120,						# -
+											"available_bonus": "none"},										# -
+
 									"dyn": {"dir": 1, "vec": 0.005, "speed": 120,							# Initialize local game variables (dynamics)
 											"l_paddle": {"going_up": False, "going_down": False},			# -
-											"r_paddle": {"going_up": False, "going_down": False}},			# -
+											"r_paddle": {"going_up": False, "going_down": False},			# -
+											"bonus": "none", "timer": 3, "old_speed": 120},					# -
 									}
 
 	def remove_room(self, room_id):

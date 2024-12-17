@@ -69,7 +69,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 	async def update_disconnect(self, event):
 		# Handle the `update.disconnect` message from game_logic, closing the WebSocket
-		await self.disconnect()
+		await self.disconnect(0)
 
 	async def update_game_state(self, event):
 		# Handle the `update.game_state` message from game_logic

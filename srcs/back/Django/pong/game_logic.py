@@ -2,6 +2,7 @@ from channels.layers import get_channel_layer
 import asyncio
 import math
 import logging
+from .bonusManager import bonusManager, handleBonusBoxCollision
 
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
@@ -81,6 +82,8 @@ async def nextHit(l_paddle, r_paddle, x, y, room):
 				new_x = 750 if new_x >= 750 else 50
 				new_y = dyn["dir"] * (new_x - x) * dyn["vec"] + y
 			dyn["speed"] += 60
+			if (room["rules"]["add_bonus"] == True):
+				await bonusManager(room, None, None, "hit_update")
 
 		else: # Otherwise, the ball goes to score a point
 			if (new_x >= 791 or new_x <= 9):
@@ -128,10 +131,15 @@ async def playAgain(channel_layer, room_id, room, x):
 	# Resets the gamestate to keep playing (except scores)
 	dyn["speed"] = 120
 	dyn["vec"] = 0.005
+	dyn["bonus"] = "none"
+	dyn["timer"] = 3
 	var["objx"] = 400
 	var["objy"] = 250
 	var["l_paddle"] = 250
+	var["l_paddle_size"] = 120
 	var["r_paddle"] = 250
+	var["r_paddle_size"] = 120
+	var["available_bonus"] = "none"
 	await updateGame(channel_layer, room_id, var, 0.0, "global_update")
 
 
@@ -185,6 +193,8 @@ async def game_logic(room_id):
 				room["var"]["game_started"] = False
 		else:
 			obj = await nextHit(var["l_paddle"], var["r_paddle"], pos["x"], pos["y"], room) # determine the coordinates of the next 'rebound'
+			if (room["rules"]["add_bonus"] == True):
+				await handleBonusBoxCollision(room, pos, obj)
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
 
 		var["objx"] = obj["x"]
