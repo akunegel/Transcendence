@@ -3,15 +3,16 @@ function clamp(val, min, max)
 	return (Math.min(Math.max(min, val), max));
 }
 
-function goBack(bonus, dir, vec, pos, obj, action)
+function solidBox(bonus, dir, vec, pos, obj, action)
 {
 	if (action == "add")
 	{
 		/* Triggering a nextHit() by setting obj to the current pos
-		and reversing the direction. */
+		and reversing the direction or vector. */
 		bonus.current.timer = 1;
 		obj.current = pos.current;
-		dir.current *= -1;
+		if ((pos.current.y >= 235 && pos.current.y <= 265))
+			dir.current *= -1;
 	}
 }
 
@@ -100,8 +101,9 @@ function safeWall(bonus, dir, LPaddle, RPaddle, action)
 	}
 }
 
-function getRandomBonus(bonus)
+function getRandomBonus()
 {
+	return (4);
 	// Getting a random bonus value ranging from 0 to 4
 	return (Math.floor(Math.random() * 10) % 5);
 }
@@ -109,7 +111,7 @@ function getRandomBonus(bonus)
 function isBallInRange(pos)
 {
 	// Is the ball in the range of the bonus box ?
-	if ((pos.x >= 375 && pos.x <= 425) && (pos.y >= 225 && pos.y <= 275))
+	if ((pos.x >= 365 && pos.x <= 435) && (pos.y >= 215 && pos.y <= 285))
 		return (true);
 	return (false);
 }
@@ -139,7 +141,7 @@ export function bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed,
 					safeWall(bonus, dir, LPaddle, RPaddle, "add");
 					break ;
 				case 4: // Ball bounces back
-					goBack(bonus, dir, vec, pos, obj, "add");
+					solidBox(bonus, dir, vec, pos, obj, "add");
 					break ;
 			}
 		}
@@ -178,7 +180,7 @@ export function bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed,
 			else
 			{
 				// Adding a bonus to be available (or changing it)
-				bonus.current.available = getRandomBonus(bonus);
+				bonus.current.available = getRandomBonus();
 				bonus.current.timer = 1;
 			}
 		}
@@ -188,9 +190,9 @@ export function bonusManager(bonus, pos, obj, dir, vec, LPaddle, RPaddle, speed,
 
 
 // Drawing a small visual representation of the currently available bonus
-export function drawBonus(bonus, ctx)
+export function drawBonus(bonusType, ctx)
 {
-	switch (bonus.available)
+	switch (bonusType)
 	{
 		case 0: // Bigger Paddle
 		{

@@ -216,7 +216,7 @@ function Pong({ param }) {
 		ctx.clearRect(380, 230, 40, 40);
 		// Drawing a visual for the bonus
 		if (bonus.current.available != "none")
-			drawBonus(bonus.current, ctx);
+			drawBonus(bonus.current.available, ctx);
 	}
 
 	const drawBall = (ctx, x, y) => {
