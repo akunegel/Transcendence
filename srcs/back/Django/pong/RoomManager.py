@@ -27,7 +27,10 @@ class RoomManager:
 
 									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
 
-									"var": {"game_started": False, "time": 0.0,								# Initialize 'sendable' game variables
+									"players": {"one": {"name": "default", "img": "default"},							# Sendable player info for display
+					   							"two": {"name": "default", "img": "default"}},						# -
+
+									"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
 											"objx": 400, "objy": 250, 										# -
 											"l_score": 0, "r_score": 0,										# -
 											"l_paddle": 250, "r_paddle": 250,								# -

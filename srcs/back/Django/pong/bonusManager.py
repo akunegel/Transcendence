@@ -1,6 +1,6 @@
 import logging
-import math
 import random
+import math
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__bonusManager__")
@@ -68,6 +68,7 @@ async def safeWall(var, dyn, action):
 		dyn["timer"] = 1
 
 async def getRandomBonus():
+	return (4)
 	# Getting a random bonus value ranging from 0 to 4
 	return (random.randint(0, 4))
 
@@ -101,7 +102,6 @@ async def bonusManager(room, type):
 		if (dyn["timer"] <= 0):
 			# Is a bonus currently applied ?
 			if (dyn["bonus"] != "none"):
-
 				# Removing the bonus
 				match (dyn["bonus"]):
 					case 0: # Paddle becomes double the size for the next three hits
@@ -198,13 +198,14 @@ async def handleBonusBoxCollision(room, pos, obj):
 	hitPointB = None if not bottom else await whereWillItHit(pos, blc, brc, vec, dir, "horizontal")
 	distB = None if not bottom else await getDistanceTo(pos, hitPointB)
 
+	# Making a list of all valid distances (removing any 'None')
 	validDist = [distL, distR, distT, distB]
 	validDist = [d for d in validDist if d != None]
 	
 	if validDist:
 		minDist = min(validDist) # Keeping the shortest distance to the box
 	else:
-		return # Box wasn't in the trajectory
+		return # No valid dist so box wasn't in the trajectory
 
 	# Returning to previous vector direction to avoid inversing the vector twice (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
@@ -230,3 +231,5 @@ async def handleBonusBoxCollision(room, pos, obj):
 		case dist if dist == distB: # Bottom side was hit first
 			obj["x"] = hitPointB["x"]
 			obj["y"] = hitPointB["y"]
+
+	return

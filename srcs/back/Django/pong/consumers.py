@@ -37,9 +37,10 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 		await self.close()
 
 
-	async def disconnect(self, close_code):
+	async def disconnect(self, close_code=1001):
 		room_manager.player_disconnected(self.room_id, self.channel_name)
 		await self.channel_layer.group_discard(self.room_id, self.channel_name)
+		await self.close(close_code)
 		pass
 
 
@@ -69,7 +70,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 	async def update_disconnect(self, event):
 		# Handle the `update.disconnect` message from game_logic, closing the WebSocket
-		await self.disconnect(0)
+		await self.disconnect(1000)
 
 	async def update_game_state(self, event):
 		# Handle the `update.game_state` message from game_logic

@@ -63,7 +63,7 @@ async def nextHit(x, y, room):
 	var = room["var"]
 
 	# Setting next hit position
-	new_y = ROOM_HEIGHT - 10 if dyn["vec"] > 0 else 10
+	new_y = 491.1 if dyn["vec"] > 0 else 9.1
 	new_x = (dyn["dir"] * ((new_y - y) / dyn["vec"])) + x
 
 
@@ -84,6 +84,7 @@ async def nextHit(x, y, room):
 				new_x = 750 if new_x >= 750 else 50
 				new_y = dyn["dir"] * (new_x - x) * dyn["vec"] + y
 			dyn["speed"] += 60
+			# Bonus manager, removing a rebound from timer
 			if (room["rules"]["add_bonus"] == True):
 				await bonusManager(room, "hit_update")
 
@@ -153,11 +154,11 @@ async def isGameOver(channel_layer, room, room_id):
 	# If the time limit has been exceeded
 	if (room["timer_is_over"] == True):
 		if (l_score > r_score):
-			await updateGame(channel_layer, room_id, {"winner": "player1", "game_started": False}, 0.0, "end_game")
+			await updateGame(channel_layer, room_id, {"winner": "player1"}, 0.0, "end_game")
 		elif (r_score > l_score):
-			await updateGame(channel_layer, room_id, {"winner": "player2", "game_started": False}, 0.0, "end_game")
+			await updateGame(channel_layer, room_id, {"winner": "player2"}, 0.0, "end_game")
 		else:
-			await updateGame(channel_layer, room_id, {"winner": "draw", "game_started": False}, 0.0, "end_game")
+			await updateGame(channel_layer, room_id, {"winner": "draw"}, 0.0, "end_game")
 		return True
 
 	# If the point objective has been reached
@@ -177,7 +178,7 @@ async def game_logic(room_id):
 	time_before_hit = 3 # 3 seconds before game start
 	room["var"]["game_started"] = True
 
-	await updateGame(channel_layer, room_id, room["var"], 0, "start_game")
+	await updateGame(channel_layer, room_id, room["players"], 0, "start_game")
 
 	while room and room["var"]["game_started"]:
 
@@ -198,7 +199,6 @@ async def game_logic(room_id):
 			if (room["rules"]["add_bonus"] == True):
 				await handleBonusBoxCollision(room, pos, obj)
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
-
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
 
