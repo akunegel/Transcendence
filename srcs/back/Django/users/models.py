@@ -9,6 +9,7 @@ class Player(models.Model):
     last_name = models.CharField(max_length=100, blank=True, default="")
     email = models.EmailField(blank=True, default="")
     language = models.CharField(max_length=30, default="English")
+    two_factor = models.BooleanField(default=False)
 
 
 class FriendRequest(models.Model):
