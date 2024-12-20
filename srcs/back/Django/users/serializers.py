@@ -13,7 +13,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor']
 
 class LanguageSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.language', read_only=True)
@@ -57,12 +57,13 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor']
         extra_kwargs = {
             'first_name': {'required': False},
             'last_name': {'required': False},
             'email': {'required': False},
-            'profile_picture': {'required': False}
+            'profile_picture': {'required': False},
+            'two_factor': {'required': False},
         }
 
     def update(self, instance, validated_data):
@@ -70,6 +71,7 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
+        instance.two_factor = validated_data.get('two_factor', instance.two_factor)
         instance.save()
         return instance
 
