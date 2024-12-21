@@ -68,7 +68,6 @@ async def safeWall(var, dyn, action):
 		dyn["timer"] = 1
 
 async def getRandomBonus():
-	return (4)
 	# Getting a random bonus value ranging from 0 to 4
 	return (random.randint(0, 4))
 
@@ -93,7 +92,7 @@ async def bonusManager(room, type):
 					await speedUp(var, dyn, "add")
 				case 3: # Paddle becomes an impenetrable wall until it's hit
 					await safeWall(var, dyn, "add")
-				case 4: # Ball bounces on the box (see line 214)
+				case 4: # Ball bounces on the box (see line 218)
 					dyn["timer"] = 1
 
 	elif (type == "hit_update"):
@@ -173,6 +172,10 @@ async def handleBonusBoxCollision(room, pos, obj):
 	if (pos["x"] >= 370 and pos["x"] <= 430 and pos["y"] >= 220 and pos["y"] <= 280):
 		await bonusManager(room, "pos_update")
 		return
+	
+	# No checks should be done if ball is already out of bound
+	if (obj["x"] > 750 or obj["x"] < 50):
+		return
 
 	dir = room["dyn"]["dir"]
 	vec = room["dyn"]["vec"]
@@ -212,7 +215,7 @@ async def handleBonusBoxCollision(room, pos, obj):
 		room["dyn"]["vec"] *= -1
 	
 	# If the current available bonus is 'solid_box' (type 4) dir or vec is reversed to simulate the box as a solid object
-	if (room["var"]["available_bonus"] == 4):
+	if (room["var"]["available_bonus"] == 4 and minDist):
 		if (minDist == distL or minDist == distR):
 			room["dyn"]["dir"] *= -1
 		elif (minDist == distT or minDist == distB):
