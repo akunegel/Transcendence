@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import MessageList from './MessageList.jsx';
 import logo from "../../assets/images/logo_chat_box.png"
 import styles from "./Chat.module.css"
+import AuthContext from '../../context/AuthContext';
 
 function Chat() {
 
 	const [messagesList, setMessagesList] = useState([]);
 	const [ws, setWs] = useState(null);
 	const [message, setMessage] = useState('');
+	const { user } = useContext(AuthContext);
 
 	useEffect(() => {
 		const connectWebSocket = () => {
@@ -42,7 +44,7 @@ function Chat() {
 	const sendMessage = () => {
 		if (message.trim()) {
 			if (ws && ws.readyState === WebSocket.OPEN) {
-				ws.send(JSON.stringify({ content: message }));
+				ws.send(JSON.stringify({ content: `${user.username} : ${message}` }));
 			}
 		}
 		setMessage('');

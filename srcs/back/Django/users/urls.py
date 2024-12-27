@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import MyTokenObtainPairView
+from .views import LoginWith42
 
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
@@ -18,4 +19,5 @@ urlpatterns = [
     path('friends/send-request/', views.send_friend_request, name='send_friend_request'),
     path('friends/accept-request/', views.accept_friend_request, name='accept_friend_request'),
     path('friends/remove/', views.remove_friend, name='remove_friend'),
+    path('auth/42-login/', LoginWith42.as_view(), name='42-login'),
 ]

@@ -4,12 +4,22 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Connect42 from "./api42.jsx";
+import logo from "../assets/images/42img.png"
 
 const Header = () => {
 	const { authTokens, logoutUser } = useContext(AuthContext);
 	const [userLanguage, setLanguage] = useState({
 		language: ''
 	});
+
+	const handleConnect = () => {
+		const clientId = 'u-s4t2ud-7d9b3db113309f1f8f8e8d51caa7921dbf75d8c0089d720e05afe67fd37d19dc';
+		const redirectUri = 'https://localhost:9443/42connect';
+		const url = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+
+		window.location.href = url; // Redirect to 42 OAuth URL
+	};
 
 	useEffect(() => {
         if (authTokens) {
@@ -107,6 +117,9 @@ const Header = () => {
 								</li>
 								<li className="nav-item">
 									<Link className="nav-link" to="/login"><i className="bi bi-box-arrow-in-right me-1"></i> Login</Link>
+								</li>
+								<li className="nav-item">
+									<button className="nav-link" onClick={handleConnect}><img src={logo} alt="42" width="25" height="25" border="none"></img></button>
 								</li>
 							</>
 						)}
