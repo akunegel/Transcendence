@@ -13,6 +13,7 @@ import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Friends from "./pages/Friends/Friends.jsx";
 import { AuthProvider} from "./context/AuthContext.jsx";
+import Connect42 from "./components/Api42.jsx";
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
 					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
 					<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
 					<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+					<Route path="/42connect" element={<Connect42 />} />
 				</Routes>
 			</AuthProvider>
 		</Router>

@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
@@ -10,6 +12,11 @@ from .models import Player, FriendRequest, Friendship
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Q
+import requests
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
+
+load_dotenv()
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -30,6 +37,70 @@ class RegisterPlayer(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LoginWith42(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        code = request.data.get('code')
+        if not code:
+            return Response({"error": "Authorization code is required"}, status=400)
+
+        token_url = "https://api.intra.42.fr/oauth/token"
+
+        client_id = os.getenv('FORTYTWO_CLIENT_ID')
+        client_secret = os.getenv('FORTYTWO_CLIENT_SECRET')
+
+        token_data = {
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+            "redirect_uri": "https://localhost:9443/42connect",
+        }
+        token_response = requests.post(token_url, data=token_data).json()
+        access_token = token_response.get("access_token")
+
+        if not access_token:
+            return Response({"error": "Failed to obtain access token"}, status=400)
+
+        user_info_url = "https://api.intra.42.fr/v2/me"
+        user_info_headers = {"Authorization": f"Bearer {access_token}"}
+        user_info = requests.get(user_info_url, headers=user_info_headers).json()
+
+        if not user_info.get("login"):
+            return Response({"error": "Failed to fetch user info"}, status=400)
+
+        username = user_info["login"]
+        email = user_info["email"]
+        first_name = user_info["first_name"]
+        last_name = user_info["last_name"]
+        profile_picture = user_info.get("image", {}).get("versions", {}).get("large")
+        user, created = User.objects.get_or_create(username=username, defaults={
+            "email": email,
+            "first_name": first_name,
+            "last_name": last_name,
+        })
+
+        player, _ = Player.objects.get_or_create(user=user, defaults={
+            "email": email,
+            "first_name": first_name,
+            "last_name": last_name,
+            "profile_picture": profile_picture,
+        })
+
+        player.email = email
+        player.first_name = first_name
+        player.last_name = last_name
+        player.profile_picture = profile_picture
+        player.save()
+
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        })
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
