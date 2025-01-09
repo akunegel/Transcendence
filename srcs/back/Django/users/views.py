@@ -30,13 +30,17 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class RegisterPlayer(APIView):
     permission_classes = [AllowAny]
-
+    
     def post(self, request):
         serializer = PlayerRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(
+            {"error": True}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class LoginWith42(APIView):
@@ -72,7 +76,7 @@ class LoginWith42(APIView):
         if not user_info.get("login"):
             return Response({"error": "Failed to fetch user info"}, status=400)
 
-        username = user_info["login"]
+        username = f"{user_info['login']}42"
         email = user_info["email"]
         first_name = user_info["first_name"]
         last_name = user_info["last_name"]

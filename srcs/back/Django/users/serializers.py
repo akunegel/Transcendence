@@ -21,7 +21,6 @@ class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['username', 'language']
-
 class PlayerRegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
@@ -29,18 +28,21 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['username', 'password']
+    
+    def validate_username(self, value):
+        if value.endswith('42'):
+            raise Exception("Username cannot end with '42'")
+        return value
 
     def create(self, validated_data):
         username = validated_data.pop('username')
         password = validated_data.pop('password')
-
-        # Create user first
+        
         user = User.objects.create_user(
             username=username,
             password=password,
         )
-
-        # Create player with the user
+        
         player = Player.objects.create(
             user=user,
             first_name='',
@@ -48,7 +50,6 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
             email='',
             **validated_data
         )
-
         return player
 
 class PlayerUpdateSerializer(serializers.ModelSerializer):
