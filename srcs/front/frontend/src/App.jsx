@@ -13,7 +13,7 @@ import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Friends from "./pages/Friends/Friends.jsx";
 import { AuthProvider} from "./context/AuthContext.jsx";
-import Connect42 from "./components/Api42.jsx";
+import Connect42 from "./components/api42.jsx";
 
 function App() {
 

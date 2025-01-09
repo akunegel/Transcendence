@@ -77,11 +77,18 @@ class LoginWith42(APIView):
         first_name = user_info["first_name"]
         last_name = user_info["last_name"]
         profile_picture = user_info.get("image", {}).get("versions", {}).get("large")
+
         user, created = User.objects.get_or_create(username=username, defaults={
             "email": email,
             "first_name": first_name,
             "last_name": last_name,
         })
+
+        if not created:
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.save()
 
         player, _ = Player.objects.get_or_create(user=user, defaults={
             "email": email,
@@ -97,9 +104,10 @@ class LoginWith42(APIView):
         player.save()
 
         refresh = RefreshToken.for_user(user)
+        token = MyTokenObtainPairSerializer.get_token(user)
         return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
+            'access': str(token.access_token),
+            'refresh': str(token),
         })
 
 @api_view(['GET'])
