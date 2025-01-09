@@ -1,3 +1,4 @@
+// AuthContext.jsx
 import { createContext, useState, useEffect } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
@@ -47,6 +48,33 @@ export const AuthProvider = ({ children }) => {
 		}
 	}
 
+	let loginWith42 = async (code) => {
+		try {
+			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/42-login/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ code })
+			});
+
+			let data = await response.json();
+
+			if (response.status === 200) {
+				setAuthTokens(data);
+				setUser(jwtDecode(data.access));
+				localStorage.setItem('authTokens', JSON.stringify(data));
+				navigate('/');
+			} else {
+				console.error("Failed to log in with 42:", data.error);
+				navigate('/login');
+			}
+		} catch (error) {
+			console.error("Error during 42 login:", error);
+			navigate('/login');
+		}
+	};
+
 	useEffect(() => {
 		if (authTokens) {
 			updateToken();
@@ -64,42 +92,18 @@ export const AuthProvider = ({ children }) => {
 		return () => clearInterval(interval)
 	}, [authTokens])
 
-	let loginWith42 = async (code) => {
-		try {
-			let response = await fetch(`${import.meta.env.VITE_API_URL}users/auth/42-login/`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ code })
-			});
-
-			if (response.status === 200) {
-				let data = await response.json();
-				setAuthTokens(data);
-				setUser(jwtDecode(data.access));
-				localStorage.setItem('authTokens', JSON.stringify(data));
-				navigate('/');
-			} else {
-				console.error("Failed to log in with 42");
-			}
-		} catch (error) {
-			console.error("Error during 42 login", error);
-		}
-	};
-
 	let contextData = {
-		user:user,
-		authTokens:authTokens,
-		setAuthTokens:setAuthTokens,
-		setUser:setUser,
-		logoutUser:logoutUser,
-		loginWith42:loginWith42
+		user: user,
+		authTokens: authTokens,
+		setAuthTokens: setAuthTokens,
+		setUser: setUser,
+		logoutUser: logoutUser,
+		loginWith42: loginWith42
 	}
+
 	return(
 		<AuthContext.Provider value={contextData}>
 			{loading ? null : children}
 		</AuthContext.Provider>
 	);
 }
-
