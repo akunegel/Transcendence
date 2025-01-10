@@ -13,7 +13,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor', 'nb_games', 'wins', 'loss', 'tr_wins', 'rb']
 
 class LanguageSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.language', read_only=True)
