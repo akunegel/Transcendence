@@ -39,7 +39,7 @@ const Register = () => {
         }
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register/`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}users/register/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ const Register = () => {
                 alert(JSON.stringify(data))
             }
         } catch (error) {
-            setDisplayError("Username is already taken")
+            setDisplayError("Username is already taken or/and can't end with 42")
         }
     }
 

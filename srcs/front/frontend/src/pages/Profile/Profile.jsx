@@ -106,77 +106,111 @@ const Profile = () => {
 
 	return (
 		<div className={styles.centered_container}>
-			<img
-				src={logo}
-				alt="Logo"
-				className="logo"
-			/>
-			{!isEditing ? (
-				<>
-					<div className={styles.userinfo_container}>
-						{profile.profile_picture ? (
-							<img
-								className={styles.logo}
-								src={profile.profile_picture}
-								alt="Profile"
-							/>
-						) : (
-							<img
-								className={styles.logo}
-								src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s"
-								alt="Default Profile"
-							/>
-						)}
-						<p><strong>Username:</strong> {profile.username}</p>
-						<p><strong>First Name:</strong> {profile.first_name}</p>
-						<p><strong>Last Name:</strong> {profile.last_name}</p>
-						<p><strong>Email:</strong> {profile.email}</p>
-						<p><strong>Two-Factor Authentication:</strong> {profile.two_factor ? 'Enabled' : 'Disabled'}</p>
-
-						<button onClick={handleEditProfile}>Edit profile</button>
-					</div>
-					<button onClick={handleReturn}>RETURN</button>
-				</>
-			) : (
-				<div className={styles.edit_profile_modal}>
-					<div className={styles.edit_profile_content}>
-						<button className={styles.edit_profile_content_b} onClick={() => setIsEditing(false)}>
-							&times;
-						</button>
-						<h2 className={styles.edit_profile_title}>Edit Profile</h2>
-						<div className={styles.form_group}>
-							<label>First Name</label>
-							<input type="text" name="first_name" value={editedProfile.first_name} onChange={handleInputChange} placeholder="Optional"/>
-						</div>
-						<div className={styles.form_group}>
-							<label>Last Name</label>
-							<input type="text" name="last_name" value={editedProfile.last_name} onChange={handleInputChange} placeholder="Optional"/>
-						</div>
-						<div className={styles.form_group}>
-							<label>Email</label>
-							<input type="email" name="email" value={editedProfile.email} onChange={handleInputChange} placeholder="Optional"/>
-						</div>
-						<div className={styles.form_group}>
-							<label>Profile Picture URL</label>
-							<input type="text" name="profile_picture" value={editedProfile.profile_picture} onChange={handleInputChange} placeholder="Optional"/>
-						</div>
-						<div className={styles.form_group}>
-							<label>
-								<input
-									type="checkbox"
-									name="two_factor"
-									checked={editedProfile.two_factor}
-									onChange={handleInputChange}
-								/>
-								Enable Two-Factor Authentication
-							</label>
-						</div>
-						<button className={styles.edit_profile_content} onClick={handleSaveProfile}>Save</button>
-					</div>
+		  <img
+			src={logo}
+			alt="Logo"
+			className={styles.logo}
+		  />
+		  {!isEditing ? (
+			<>
+			  <div className={styles.info_wrapper}>
+				<div className={styles.userinfo_container}>
+				  {profile.profile_picture ? (
+					<img
+					  className={styles.profile_image}
+					  src={profile.profile_picture}
+					  alt="Profile"
+					/>
+				  ) : (
+					<img
+					  className={styles.profile_image}
+					  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s"
+					  alt="Default Profile"
+					/>
+				  )}
+				  <p><strong>Username:</strong> {profile.username}</p>
+				  <p><strong>First Name:</strong> {profile.first_name}</p>
+				  <p><strong>Last Name:</strong> {profile.last_name}</p>
+				  <p><strong>Email:</strong> {profile.email}</p>
+				  <p><strong>Two-Factor Authentication:</strong> {profile.two_factor ? 'Enabled' : 'Disabled'}</p>
+				  <button onClick={handleEditProfile}>Edit profile</button>
 				</div>
-			)}
+				<div className={styles.userinfo_container}>
+				  <p><strong>Number of games:</strong> {profile.nb_games}</p>
+				  <p><strong>Wins:</strong> {profile.wins}</p>
+				  <p><strong>Lost:</strong> {profile.loss}</p>
+				  <p><strong>Tournament wins:</strong> {profile.tr_wins}</p>
+				  <p><strong>Number of rebounds per game:</strong> {profile.rb}</p>
+				</div>
+			  </div>
+			  <button onClick={handleReturn}>RETURN</button>
+			</>
+		  ) : (
+			<div className={styles.edit_profile_modal}>
+			  <div className={styles.edit_profile_content}>
+				<button className={styles.edit_profile_content_b} onClick={() => setIsEditing(false)}>
+				  &times;
+				</button>
+				<h2 className={styles.edit_profile_title}>Edit Profile</h2>
+				<div className={styles.form_group}>
+				  <label>First Name</label>
+				  <input 
+					type="text" 
+					name="first_name" 
+					value={editedProfile.first_name} 
+					onChange={handleInputChange} 
+					placeholder="Optional"
+				  />
+				</div>
+				<div className={styles.form_group}>
+				  <label>Last Name</label>
+				  <input 
+					type="text" 
+					name="last_name" 
+					value={editedProfile.last_name} 
+					onChange={handleInputChange} 
+					placeholder="Optional"
+				  />
+				</div>
+				<div className={styles.form_group}>
+				  <label>Email</label>
+				  <input 
+					type="email" 
+					name="email" 
+					value={editedProfile.email} 
+					onChange={handleInputChange} 
+					placeholder="Optional"
+				  />
+				</div>
+				<div className={styles.form_group}>
+				  <label>Profile Picture URL</label>
+				  <input 
+					type="text" 
+					name="profile_picture" 
+					value={editedProfile.profile_picture} 
+					onChange={handleInputChange} 
+					placeholder="Optional"
+				  />
+				</div>
+				<div className={styles.form_group}>
+				  <label>
+					<input
+					  type="checkbox"
+					  name="two_factor"
+					  checked={editedProfile.two_factor}
+					  onChange={handleInputChange}
+					/>
+					Enable Two-Factor Authentication
+				  </label>
+				</div>
+				<button className={styles.edit_profile_content} onClick={handleSaveProfile}>
+				  Save
+				</button>
+			  </div>
+			</div>
+		  )}
 		</div>
-	);
+	  );
 }
 
 export default Profile;
