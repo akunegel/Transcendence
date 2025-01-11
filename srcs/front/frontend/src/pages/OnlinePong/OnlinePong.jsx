@@ -31,6 +31,7 @@ function OnlinePong() {
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[rules, setRules] = useState(null);
 	const	[players, setPlayers] = useState(null);
+	const	playersRef = useRef(null);
 	const	rulesRef = useRef(null);
 	
 	
@@ -123,6 +124,7 @@ function OnlinePong() {
 			if (data.case == "start_game") {
 				gameStarted.current = true;
 				setPlayers(data.state);
+				playersRef.current = data.state;
 				displayGameStartTimer()
 					.then(() =>{timerIsRunning.current = true;
 								setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
@@ -155,10 +157,14 @@ function OnlinePong() {
 				gameStarted.current = false;
 				LPaddle.current.y, RPaddle.current.y = 250;
 				timeBeforeHit.current = 0
-				if (data.state.winner == "draw")
+				// Displaying winner's username
+				if (data.state.winner == "player1")
+					setStatusTitle("- " + playersRef.current.one.name + " is the winner ! -");
+				else if (data.state.winner == "player2")
+					setStatusTitle("- " + playersRef.current.two.name + " is the winner ! -");
+				else if (data.state.winner == "draw")
 					setStatusTitle("- Game Ended In A Draw ! -");
-				else
-					setStatusTitle("- " + data.state.winner + " is the winner ! -");
+
 				timerIsRunning.current = false;
 				drawGame(canvasRef.current.getContext('2d'), 400, 250);
 			}
