@@ -27,8 +27,8 @@ class RoomManager:
 
 									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
 
-									"players": {"one": {"name": "default", "img": "default"},							# Sendable player info for display
-					   							"two": {"name": "default", "img": "default"}},						# -
+									"players": {"one": {"name": None, "img": None},				# Sendable player info for display
+					   							"two": {"name": None, "img": None}},				# -
 
 									"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
 											"objx": 400, "objy": 250, 										# -
@@ -56,14 +56,12 @@ class RoomManager:
 			raise ValueError(f"Room {room_id} may not exist.")
 		if len(room["state"]["players"]) >= 2:
 			raise ValueError(f"Room {room_id} is already full.")
-
 		# Adding user to the room, 'saving their seats' as player1 or player2
 		room["state"]["players"].append(player_channel_name)
 		if room["state"]["player1"] == None:
 			room["state"]["player1"] = player_channel_name
 		elif room["state"]["player2"] == None:
 			room["state"]["player2"] = player_channel_name
-
 		# Starting the game when room is full
 		if len(room["state"]["players"]) == 2:
 			if room["var"]["game_started"] == False:

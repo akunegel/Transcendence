@@ -178,6 +178,7 @@ async def game_logic(room_id):
 	time_before_hit = 3 # 3 seconds before game start
 	room["var"]["game_started"] = True
 
+	await asyncio.sleep(2) # 2 seconds before first update
 	await updateGame(channel_layer, room_id, room["players"], 0, "start_game")
 
 	while room and room["var"]["game_started"]:

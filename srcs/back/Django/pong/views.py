@@ -65,15 +65,16 @@ def retrieveRoomInfo(request, room_id=""):
 @permission_classes([IsAuthenticated])
 def registerPlayerInRoom(request, room_id=""):
 	room = room_manager.get_room(room_id)
+	players = room["players"]
 	if room:
 		try:
 			player = Player.objects.get(user=request.user)
-			if (room["players"]["one"]["name"] == "default"):
-				room["players"]["one"]["name"] = player.user
-				room["players"]["one"]["img"] = player.profile_picture
-			elif (room["players"]["two"]["name"] == "default"):
-				room["players"]["two"]["name"] = player.user
-				room["players"]["two"]["img"] = player.profile_picture
+			if (players["one"]["name"] == None):
+				players["one"]["name"] = str(player.user)
+				players["one"]["img"] = str(player.profile_picture)
+			elif (players["two"]["name"] == None):
+				players["two"]["name"] = str(player.user)
+				players["two"]["img"] = str(player.profile_picture)
 			else:
 				return JsonResponse({"error": "Room is full"}, status=400)
 

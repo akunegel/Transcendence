@@ -29,7 +29,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 				room_manager.add_player_to_room(self.room_id, self.channel_name)
 				await self.channel_layer.group_add(self.room_id, self.channel_name)
 				await self.accept()
-				return  # Successfully accepted the connection, so exit the loop
+				return  # Successfully accepted the connection, so exiting the function
 			except ValueError as e:
 				logger.warning(f"Attempt failed: {str(e)}")
 				await asyncio.sleep(0.2)  # Wait before retrying

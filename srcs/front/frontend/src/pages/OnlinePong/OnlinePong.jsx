@@ -42,6 +42,7 @@ function OnlinePong() {
 		navigate("/lobby");
 	}
 
+
 	// Timer mechanic for maxTime
 	useEffect(() => {
 		let inter;
@@ -68,12 +69,31 @@ function OnlinePong() {
 		return () => clearInterval(inter); // Cleanup on unmount or when isRunning changes
 		}, [timerIsRunning.current]);
 
-	// Setting the tab's title on mount, retrieving room's specific info, getting user info
+
+	const displayGameStartTimer = async () => {
+		for(let i = 3; i != 0; i--){
+			setStatusTitle("- Game starting in " + i + " -");
+			document.title = i;
+			await sleep(1000);
+		}
+		document.title = "Pong";
+	}
+
+
+	// Setting the tab's title on mount, retrieving room's specific info, getting user info, starting websocket connexion
 	useEffect(() => {
 
-		document.title = "Pong";
+		document.title = "Waiting";
 
-		// Getting the room's gamerules (point limit, add bonuses, max time, etc...)
+		// Registering to room, so name and profile pic can be sent to both players for display
+		const requestRoomRegistration = async () => {
+			const ret = await registerPlayerInRoom(authTokens, roomId);
+			return (ret);
+		}
+		requestRoomRegistration()
+			.then()
+
+		// Getting the room's gamerules (point limit, add bonuses, max time, etc...) for display
 		const fetchRoomInfo = async () => {
 			const roomData = await getRoomInfo(authTokens, roomId);
 			return (roomData);
@@ -85,28 +105,6 @@ function OnlinePong() {
 							setTimer({min: data.max_time, sec: 0});})
 			.catch((err) => console.error("Failed to fetch room info:", err));
 
-
-		// Registering to room, so name and profile pic can be sent to the other player for display
-		// const requestRoomRegistration = async () => {
-		// 	const ret = await registerPlayerInRoom(authTokens, roomId);
-		// 	return (ret);
-		// }
-		// if (registered.current == false)
-		// 	requestRoomRegistration()
-		// 		.then((data) => {console.log(data);
-		// 						registered.current = true;})
-		// 		.catch((err) => console.error("Failed to register in room:", err));
-	}, []);
-
-	const displayGameStartTimer = async () => {
-		for(let i = 3; i != 0; i--){
-			setStatusTitle("- Game starting in " + i + " -");
-			await sleep(1000);
-		}
-	}
-
-	useEffect(() => {
-
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
 			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/room/${roomId}/`);
@@ -114,7 +112,7 @@ function OnlinePong() {
 		}
 		
 		wsRef.current.onopen = () => {
-			console.log("WebSocket connected");
+			// console.log("WebSocket connected");
 		};
 		
 		// Parsing received game status updates from the room
@@ -124,7 +122,6 @@ function OnlinePong() {
 			// Game is about to start (3 seconds from now)
 			if (data.case == "start_game") {
 				gameStarted.current = true;
-				console.log(data.state);
 				setPlayers(data.state);
 				displayGameStartTimer()
 					.then(() =>{timerIsRunning.current = true;
@@ -140,7 +137,6 @@ function OnlinePong() {
 				pos.current.y = obj.current.y;
 				obj.current.x = data.state.objx;
 				obj.current.y = data.state.objy;
-				console.log(data.state.objx, data.state.objy);
 				LPaddle.current.size = data.state.l_paddle_size;
 				RPaddle.current.size = data.state.r_paddle_size;
 				LPaddle.current.y = data.state.l_paddle;
@@ -170,11 +166,12 @@ function OnlinePong() {
 
 		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
-			console.log("WebSocket disconnected");
+			// console.log("WebSocket disconnected");
 			navigate("/lobby");
 		};
 	}, []);
-	
+
+
 	useEffect(() => {
 		
 		// Listens for KeyDown event, checking if websocket is still open
@@ -215,6 +212,7 @@ function OnlinePong() {
 		};
 	}, []);
 
+
 	const drawBall = (ctx, x, y, color) => {
 		// Drawing the ball at the given position
 		ctx.beginPath();
@@ -223,6 +221,7 @@ function OnlinePong() {
 		ctx.fill();
 	};
 
+
 	const drawPaddle = (ctx, x, y, size) => {
 		// Drawing a paddle centered at the given position
 		ctx.beginPath();
@@ -230,6 +229,7 @@ function OnlinePong() {
 		ctx.fillStyle = 'white';
 		ctx.fill();
 	}
+
 
 	const drawBonusBox = (ctx) => {
 		// Drawing a box in the center to hold the current bonus
@@ -242,6 +242,7 @@ function OnlinePong() {
 		if (availableBonus.current != "none")
 			drawBonus(availableBonus.current, ctx);
 	}
+
 
 	const drawGame = (ctx, ball_x, ball_y) =>
 	{
@@ -261,8 +262,8 @@ function OnlinePong() {
 		if (rulesRef.current && rulesRef.current.add_bonus == true)
 			drawBonusBox(ctx);
 		drawBall(ctx, ball_x, ball_y, "white");
-		drawBall(ctx, obj.current.x, obj.current.y, 'red');
 	}
+
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -296,6 +297,7 @@ function OnlinePong() {
 		return () => cancelAnimationFrame(animate);
 	}, []);
 
+	
 	return (
 		<div className={styles.centered_container}>
 
