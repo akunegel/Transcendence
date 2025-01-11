@@ -13,7 +13,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor', 'nb_games', 'wins', 'loss', 'tr_wins', 'rb']
         
 class GameRegister(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
@@ -29,7 +29,6 @@ class LanguageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['username', 'language']
-
 class PlayerRegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
@@ -37,18 +36,21 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['username', 'password']
+    
+    def validate_username(self, value):
+        if value.endswith('42'):
+            raise Exception("Username cannot end with '42'")
+        return value
 
     def create(self, validated_data):
         username = validated_data.pop('username')
         password = validated_data.pop('password')
-
-        # Create user first
+        
         user = User.objects.create_user(
             username=username,
             password=password,
         )
-
-        # Create player with the user
+        
         player = Player.objects.create(
             user=user,
             first_name='',
@@ -56,7 +58,6 @@ class PlayerRegistrationSerializer(serializers.ModelSerializer):
             email='',
             **validated_data
         )
-
         return player
 
 class PlayerUpdateSerializer(serializers.ModelSerializer):
@@ -65,12 +66,13 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email']
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor']
         extra_kwargs = {
             'first_name': {'required': False},
             'last_name': {'required': False},
             'email': {'required': False},
-            'profile_picture': {'required': False}
+            'profile_picture': {'required': False},
+            'two_factor': {'required': False},
         }
 
     def update(self, instance, validated_data):
@@ -78,6 +80,7 @@ class PlayerUpdateSerializer(serializers.ModelSerializer):
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
         instance.profile_picture = validated_data.get('profile_picture', instance.profile_picture)
+        instance.two_factor = validated_data.get('two_factor', instance.two_factor)
         instance.save()
         return instance
 

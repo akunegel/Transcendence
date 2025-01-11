@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c2e74b0-085c-4fa7-9db9-8c8ce0c85172" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/back/Django/Django/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/back/Django/Django/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/back/Django/Django/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/back/Django/Django/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/api.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/components/Form.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/components/Form.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/components/ProtectedRoute.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/components/ProtectedRoute.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Login.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Profil/Profil.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Profil/Profil.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/RedirectHome.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/RedirectHome.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Register.jsx" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,12 +21,12 @@
     &quot;assignee&quot;: &quot;Anatolek27&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "git@github.com:ManougPfennig/Transcendence.git",
-    "accountId": "67c060da-26c4-48ea-8922-271aac04460e"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:ManougPfennig/Transcendence.git&quot;,
+    &quot;accountId&quot;: &quot;67c060da-26c4-48ea-8922-271aac04460e&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 8
@@ -51,8 +39,8 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "RegisterLogin",
-    "last_opened_file_path": "/Users/akunegel/Desktop/RegisterLogin",
+    "git-widget-placeholder": "FixApiUsername",
+    "last_opened_file_path": "/home/akunegel/Documents/42/Transcendence",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

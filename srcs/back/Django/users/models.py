@@ -9,6 +9,12 @@ class Player(models.Model):
     last_name = models.CharField(max_length=100, blank=True, default="")
     email = models.EmailField(blank=True, default="")
     language = models.CharField(max_length=30, default="English")
+    two_factor = models.BooleanField(default=False)
+    nb_games = models.IntegerField(default=0)
+    wins = models.IntegerField(default=0)
+    loss = models.IntegerField(default=0)
+    tr_wins = models.IntegerField(default=0)
+    rb = models.IntegerField(default=0)
 
 
 class FriendRequest(models.Model):
