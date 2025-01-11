@@ -103,7 +103,6 @@ function safeWall(bonus, dir, LPaddle, RPaddle, action)
 
 function getRandomBonus()
 {
-	return (4);
 	// Getting a random bonus value ranging from 0 to 4
 	return (Math.floor(Math.random() * 10) % 5);
 }

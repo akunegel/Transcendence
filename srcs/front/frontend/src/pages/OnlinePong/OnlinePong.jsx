@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
-import { getUser, getRoomInfo } from '../../components/GettersList.jsx';
+import { getUser, getRoomInfo, registerPlayerInRoom } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
 
@@ -10,7 +10,6 @@ function OnlinePong() {
 
 	const	{ roomId } = useParams(); // Extract roomId from URL
 	const	{ authTokens, logoutUser } = useContext(AuthContext);
-	const	[user, setUser] = useState({});
 	
 	const	canvasRef = useRef(null);
 	const	lastUpdateTimeRef = useRef(0);
@@ -31,6 +30,7 @@ function OnlinePong() {
 	const	availableBonus = useRef("none");
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[rules, setRules] = useState(null);
+	const	[players, setPlayers] = useState(null);
 	const	rulesRef = useRef(null);
 	
 	
@@ -41,6 +41,7 @@ function OnlinePong() {
 	const handleReturn = () => {
 		navigate("/lobby");
 	}
+
 
 	// Timer mechanic for maxTime
 	useEffect(() => {
@@ -68,43 +69,41 @@ function OnlinePong() {
 		return () => clearInterval(inter); // Cleanup on unmount or when isRunning changes
 		}, [timerIsRunning.current]);
 
-	// Setting the tab's title on mount, retrieving room's specific info, getting user info
-	useEffect(() => {
-
-		document.title = "Pong";
-		const fetchRoomInfo = async () => {
-			const roomData = await getRoomInfo(authTokens, roomId);
-			return (roomData);
-		}
-
-		const fetchUserInfo = async () => {
-			const userData = await getUser(authTokens);
-			if (userData == null)
-				logoutUser();
-			console.log(userData);
-			return (userData);
-		}
-
-		fetchRoomInfo()
-			.then((data) => {setRules(data);
-							rulesRef.current = data;
-							setStatusTitle("- First to " + data.max_point + " wins -");
-							setTimer({min: data.max_time, sec: 0});
-						})
-			.catch((err) => console.error("Failed to fetch room info:", err));
-		fetchUserInfo()
-			.then((data) => setUser(data))
-			.catch((err) => console.error("Failed to user info:", err));
-	}, []);
 
 	const displayGameStartTimer = async () => {
 		for(let i = 3; i != 0; i--){
 			setStatusTitle("- Game starting in " + i + " -");
+			document.title = i;
 			await sleep(1000);
 		}
+		document.title = "Pong";
 	}
 
+
+	// Setting the tab's title on mount, retrieving room's specific info, getting user info, starting websocket connexion
 	useEffect(() => {
+
+		document.title = "Waiting";
+
+		// Registering to room, so name and profile pic can be sent to both players for display
+		const requestRoomRegistration = async () => {
+			const ret = await registerPlayerInRoom(authTokens, roomId);
+			return (ret);
+		}
+		requestRoomRegistration()
+			.then()
+
+		// Getting the room's gamerules (point limit, add bonuses, max time, etc...) for display
+		const fetchRoomInfo = async () => {
+			const roomData = await getRoomInfo(authTokens, roomId);
+			return (roomData);
+		}
+		fetchRoomInfo()
+			.then((data) => {rulesRef.current = data;
+							setRules(data);
+							setStatusTitle("- First to " + data.max_point + " wins -");
+							setTimer({min: data.max_time, sec: 0});})
+			.catch((err) => console.error("Failed to fetch room info:", err));
 
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
@@ -113,24 +112,23 @@ function OnlinePong() {
 		}
 		
 		wsRef.current.onopen = () => {
-			console.log("WebSocket connected");
+			// console.log("WebSocket connected");
 		};
 		
 		// Parsing received game status updates from the room
 		wsRef.current.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			gameStarted.current = data.state.game_started;
-
-			console.log(data.case);
 
 			// Game is about to start (3 seconds from now)
 			if (data.case == "start_game") {
+				gameStarted.current = true;
+				setPlayers(data.state);
 				displayGameStartTimer()
 					.then(() =>{timerIsRunning.current = true;
 								setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
 								startTime.current = new Date();
 					});
-				}
+			}
 
 			// Receiving the next position of the ball
 			if (data.case == "ball_update" || data.case == "global_update") {
@@ -154,12 +152,13 @@ function OnlinePong() {
 			}
 			// Receiving the winner of the game and stopping the animation display
 			if (data.case == "end_game") {
+				gameStarted.current = false;
 				LPaddle.current.y, RPaddle.current.y = 250;
 				timeBeforeHit.current = 0
 				if (data.state.winner == "draw")
 					setStatusTitle("- Game Ended In A Draw ! -");
 				else
-					setStatusTitle("- " + data.state.winner + " is the winner -");
+					setStatusTitle("- " + data.state.winner + " is the winner ! -");
 				timerIsRunning.current = false;
 				drawGame(canvasRef.current.getContext('2d'), 400, 250);
 			}
@@ -167,11 +166,12 @@ function OnlinePong() {
 
 		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
-			console.log("WebSocket disconnected");
+			// console.log("WebSocket disconnected");
 			navigate("/lobby");
 		};
 	}, []);
-	
+
+
 	useEffect(() => {
 		
 		// Listens for KeyDown event, checking if websocket is still open
@@ -212,13 +212,15 @@ function OnlinePong() {
 		};
 	}, []);
 
-	const drawBall = (ctx, x, y) => {
+
+	const drawBall = (ctx, x, y, color) => {
 		// Drawing the ball at the given position
 		ctx.beginPath();
 		ctx.arc(x, y, 10, 0, 2 * Math.PI);
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = color;
 		ctx.fill();
 	};
+
 
 	const drawPaddle = (ctx, x, y, size) => {
 		// Drawing a paddle centered at the given position
@@ -227,6 +229,7 @@ function OnlinePong() {
 		ctx.fillStyle = 'white';
 		ctx.fill();
 	}
+
 
 	const drawBonusBox = (ctx) => {
 		// Drawing a box in the center to hold the current bonus
@@ -239,6 +242,7 @@ function OnlinePong() {
 		if (availableBonus.current != "none")
 			drawBonus(availableBonus.current, ctx);
 	}
+
 
 	const drawGame = (ctx, ball_x, ball_y) =>
 	{
@@ -257,8 +261,9 @@ function OnlinePong() {
 		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, RPaddle.current.size);
 		if (rulesRef.current && rulesRef.current.add_bonus == true)
 			drawBonusBox(ctx);
-		drawBall(ctx, ball_x, ball_y);
+		drawBall(ctx, ball_x, ball_y, "white");
 	}
+
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -292,17 +297,30 @@ function OnlinePong() {
 		return () => cancelAnimationFrame(animate);
 	}, []);
 
+	
 	return (
 		<div className={styles.centered_container}>
 
-			<div className={styles.centered_container} style={{marginTop:"80px"}}>
+			<div className={styles.top_container}>
 
-			{rules && rules.has_time_limit == true ?
-					<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
-				:
-					<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : "0"}{score.left}:{score.right > 9 ? "" : "0"}{score.right} </h2>
-				}
-				<p className="m-0" style={{borderTop: "5px solid white"}}>{statusTitle}</p>
+				<div className={styles.player_info}>
+					{players != null && <img src={players.one.img} alt="Profile Picture"/>}
+					<p className='m-0' style={{textAlign: "left", borderRight: "5px solid white"}}>{players == null ? "waiting..." : players.one.name}</p>
+				</div>
+
+				<div className={styles.centered_container} style={{marginTop:"80px"}}>
+					{rules && rules.has_time_limit == true ?
+							<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
+						:
+							<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : "0"}{score.left}:{score.right > 9 ? "" : "0"}{score.right} </h2>
+						}
+				</div>
+
+				<div className={styles.player_info}>
+					<p className='m-0' style={{textAlign: "right", borderLeft: "5px solid white"}}>{players == null ? "...waiting" : players.two.name}</p>
+					{players != null && <img src={players.two.img} alt="Profile Picture"/>}
+				</div>
+
 			</div>
 
 			<div className={styles.game_container}>
@@ -323,8 +341,8 @@ function OnlinePong() {
 
 			</div>
 
-			<div className={styles.centered_container} style={{borderBottom: "5px solid white"}}>
-				<p className="m-0">Room is: {rules != null && rules.is_private == true ? "Private" : "Public"}</p>
+			<div className={styles.centered_container}  style={{borderBottom: "5px solid white"}}>
+				<p className="m-0">{statusTitle}</p>
 			</div>
 
 		</div>

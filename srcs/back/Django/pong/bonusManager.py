@@ -1,6 +1,6 @@
 import logging
-import math
 import random
+import math
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__bonusManager__")
@@ -92,7 +92,7 @@ async def bonusManager(room, type):
 					await speedUp(var, dyn, "add")
 				case 3: # Paddle becomes an impenetrable wall until it's hit
 					await safeWall(var, dyn, "add")
-				case 4: # Ball bounces on the box (see line 214)
+				case 4: # Ball bounces on the box (see line 218)
 					dyn["timer"] = 1
 
 	elif (type == "hit_update"):
@@ -101,7 +101,6 @@ async def bonusManager(room, type):
 		if (dyn["timer"] <= 0):
 			# Is a bonus currently applied ?
 			if (dyn["bonus"] != "none"):
-
 				# Removing the bonus
 				match (dyn["bonus"]):
 					case 0: # Paddle becomes double the size for the next three hits
@@ -173,6 +172,10 @@ async def handleBonusBoxCollision(room, pos, obj):
 	if (pos["x"] >= 370 and pos["x"] <= 430 and pos["y"] >= 220 and pos["y"] <= 280):
 		await bonusManager(room, "pos_update")
 		return
+	
+	# No checks should be done if ball is already out of bound
+	if (obj["x"] > 750 or obj["x"] < 50):
+		return
 
 	dir = room["dyn"]["dir"]
 	vec = room["dyn"]["vec"]
@@ -198,20 +201,21 @@ async def handleBonusBoxCollision(room, pos, obj):
 	hitPointB = None if not bottom else await whereWillItHit(pos, blc, brc, vec, dir, "horizontal")
 	distB = None if not bottom else await getDistanceTo(pos, hitPointB)
 
+	# Making a list of all valid distances (removing any 'None')
 	validDist = [distL, distR, distT, distB]
 	validDist = [d for d in validDist if d != None]
 	
 	if validDist:
 		minDist = min(validDist) # Keeping the shortest distance to the box
 	else:
-		return # Box wasn't in the trajectory
+		return # No valid dist so box wasn't in the trajectory
 
 	# Returning to previous vector direction to avoid inversing the vector twice (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
 		room["dyn"]["vec"] *= -1
 	
 	# If the current available bonus is 'solid_box' (type 4) dir or vec is reversed to simulate the box as a solid object
-	if (room["var"]["available_bonus"] == 4):
+	if (room["var"]["available_bonus"] == 4 and minDist):
 		if (minDist == distL or minDist == distR):
 			room["dyn"]["dir"] *= -1
 		elif (minDist == distT or minDist == distB):
@@ -230,3 +234,5 @@ async def handleBonusBoxCollision(room, pos, obj):
 		case dist if dist == distB: # Bottom side was hit first
 			obj["x"] = hitPointB["x"]
 			obj["y"] = hitPointB["y"]
+
+	return

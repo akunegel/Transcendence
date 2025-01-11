@@ -1,7 +1,8 @@
 from pong.RoomManager import room_manager
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes
-from django.shortcuts import render, HttpResponse
+from users.models import Player
+from users.serializers import GameRegister
 from django.http import JsonResponse
 import json
 import uuid
@@ -57,5 +58,28 @@ def retrieveRoomInfo(request, room_id=""):
 	room = room_manager.get_room(room_id)
 	if room:
 		return JsonResponse(room["rules"], status=200)
+	else:
+		return JsonResponse({"error": "Cannot find room"}, status=400)
+	
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def registerPlayerInRoom(request, room_id=""):
+	room = room_manager.get_room(room_id)
+	players = room["players"]
+	if room:
+		try:
+			player = Player.objects.get(user=request.user)
+			if (players["one"]["name"] == None):
+				players["one"]["name"] = str(player.user)
+				players["one"]["img"] = str(player.profile_picture)
+			elif (players["two"]["name"] == None):
+				players["two"]["name"] = str(player.user)
+				players["two"]["img"] = str(player.profile_picture)
+			else:
+				return JsonResponse({"error": "Room is full"}, status=400)
+
+			return JsonResponse({"detail": "User registered to room"}, status=200)
+		except Player.DoesNotExist:
+			return JsonResponse({"error": "Player profile not found"}, status=400)
 	else:
 		return JsonResponse({"error": "Cannot find room"}, status=400)

@@ -14,6 +14,14 @@ class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor', 'nb_games', 'wins', 'loss', 'tr_wins', 'rb']
+        
+class GameRegister(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+
+    class Meta:
+        model = Player
+        fields = ['user_id', 'username', 'profile_picture']
 
 class LanguageSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.language', read_only=True)

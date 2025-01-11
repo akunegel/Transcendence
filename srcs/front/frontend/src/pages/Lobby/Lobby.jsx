@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import AuthContext from "../../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom"
 import CustomGameForm from "../../components/CustomGameForm/CustomGameForm.jsx"
@@ -11,6 +11,11 @@ function Lobby(){
 	const { authTokens } = useContext(AuthContext);
 	const [openCustom, setOpenCustom] = useState(false);
 	const [noRoomFound, setNoRoomFound] = useState(false);
+
+
+	useEffect(() => {
+		document.title = "Lobby";
+	}, []);
 
 	const handleQuick = async (f) => {
 		try {

@@ -5,4 +5,5 @@ urlpatterns = [
 	path("createCustomGame/", views.createCustomGame, name="createCustomGame"),
 	path("quickJoinGame/", views.quickJoinGame, name="quickJoinGame"),
 	path("retrieveRoomInfo/<path:room_id>", views.retrieveRoomInfo, name="retrieveRoomInfo"),
+	path("registerPlayerInRoom/<path:room_id>", views.registerPlayerInRoom, name="registerPlayerInRoom"),
 ]

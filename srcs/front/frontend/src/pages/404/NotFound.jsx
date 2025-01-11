@@ -1,5 +1,4 @@
 import styles from "./NotFound.module.css"
-import background from "../../assets/images/404_not_found.jpg"
 import {useNavigate, useLocation} from "react-router-dom"
 
 function NotFound() {
