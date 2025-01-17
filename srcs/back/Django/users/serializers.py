@@ -104,3 +104,9 @@ class FriendshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friendship
         fields = ['id', 'friend_id', 'friend_username', 'first_name', 'last_name', 'profile_picture', 'created_at']
+
+class TwoFactorSetupSerializer(serializers.Serializer):
+    verification_code = serializers.CharField(max_length=6, min_length=6)
+
+class TwoFactorVerifySerializer(serializers.Serializer):
+    verification_code = serializers.CharField(max_length=6, min_length=6)

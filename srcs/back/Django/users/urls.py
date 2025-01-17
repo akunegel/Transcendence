@@ -1,14 +1,12 @@
 from django.urls import path
 from . import views
-from .views import MyTokenObtainPairView
-from .views import LoginWith42
 
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
 urlpatterns = [
-    path('token/', MyTokenObtainPairView.as_view(), name='token_obtain_view'),
+    path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_view'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', views.RegisterPlayer.as_view(), name='register_player'),
     path('profile/', views.getPlayerProfile, name='get_player_profile'),
@@ -19,5 +17,7 @@ urlpatterns = [
     path('friends/send-request/', views.send_friend_request, name='send_friend_request'),
     path('friends/accept-request/', views.accept_friend_request, name='accept_friend_request'),
     path('friends/remove/', views.remove_friend, name='remove_friend'),
-    path('auth/42-login/', LoginWith42.as_view(), name='42-login'),
+    path('auth/42-login/', views.LoginWith42.as_view(), name='42-login'),
+    path('2fa/setup/', views.SetupTwoFactor.as_view(), name='setup_2fa'),
+    path('2fa/verify/', views.VerifyTwoFactor.as_view(), name='verify_2fa'),
 ]

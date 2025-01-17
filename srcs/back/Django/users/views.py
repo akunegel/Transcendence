@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer
+from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer
 from .models import Player, FriendRequest, Friendship
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -15,6 +15,11 @@ from django.db.models import Q
 import requests
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
+import pyotp
+import qrcode
+import base64
+from io import BytesIO
+from django.contrib.auth import authenticate
 
 load_dotenv()
 
@@ -27,6 +32,29 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+    
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        try:
+            user = User.objects.get(username=username)
+            player = Player.objects.get(user=user)
+            
+            if player.two_factor:
+                serializer = self.get_serializer(data=request.data)
+                try:
+                    serializer.is_valid(raise_exception=True)
+                except Exception as e:
+                    raise e
+                
+                return Response({
+                    'requires_2fa': True,
+                    'detail': 'Please provide 2FA code'
+                }, status=status.HTTP_200_OK)
+                
+        except (User.DoesNotExist, Player.DoesNotExist):
+            pass
+        
+        return super().post(request, *args, **kwargs)
 
 class RegisterPlayer(APIView):
     permission_classes = [AllowAny]
@@ -288,3 +316,114 @@ def remove_friend(request):
     ).delete()
 
     return Response({'detail': 'Friend removed'})
+
+
+class SetupTwoFactor(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        player = get_object_or_404(Player, user=request.user)
+        
+        if player.two_factor:
+            return Response(
+                {"detail": "2FA is already enabled"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        secret = pyotp.random_base32()
+        player.mfa_secret = secret
+        player.save()
+        
+        totp = pyotp.TOTP(secret)
+        provisioning_uri = totp.provisioning_uri(
+            name=request.user.username,
+            issuer_name='Transcendence'
+        )
+        
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(provisioning_uri)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        qr_code = base64.b64encode(buffered.getvalue()).decode()
+        
+        return Response({
+            'secret': secret,
+            'qr_code': f'data:image/png;base64,{qr_code}'
+        })
+    
+    def post(self, request):
+        player = get_object_or_404(Player, user=request.user)
+        serializer = TwoFactorSetupSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not player.mfa_secret:
+            return Response(
+                {"detail": "Please get a secret key first"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        totp = pyotp.TOTP(player.mfa_secret)
+        if totp.verify(serializer.validated_data['verification_code']):
+            player.two_factor = True
+            player.save()
+            return Response({"detail": "2FA enabled successfully"})
+        
+        return Response(
+            {"detail": "Invalid verification code"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+class VerifyTwoFactor(APIView):
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        verification_code = request.data.get('verification_code')
+        
+        if not all([username, password, verification_code]):
+            return Response(
+                {"detail": "Missing required fields"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = authenticate(username=username, password=password)
+        if not user:
+            return Response(
+                {"detail": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        try:
+            player = Player.objects.get(user=user)
+        except Player.DoesNotExist:
+            return Response(
+                {"detail": "Player not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        if not player.two_factor:
+            return Response(
+                {"detail": "2FA is not enabled for this user"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        totp = pyotp.TOTP(player.mfa_secret)
+        if not totp.verify(verification_code):
+            return Response(
+                {"detail": "Invalid verification code"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        refresh = RefreshToken.for_user(user)
+        token = MyTokenObtainPairSerializer.get_token(user)
+        
+        return Response({
+            'access': str(token.access_token),
+            'refresh': str(token),
+        })

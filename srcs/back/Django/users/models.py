@@ -10,6 +10,7 @@ class Player(models.Model):
     email = models.EmailField(blank=True, default="")
     language = models.CharField(max_length=30, default="English")
     two_factor = models.BooleanField(default=False)
+    mfa_secret = models.CharField(max_length=32, blank=True, null=True)
     nb_games = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
     loss = models.IntegerField(default=0)

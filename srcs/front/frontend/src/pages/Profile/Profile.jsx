@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
 import styles from "./Profile.module.css";
 import logo from "../../assets/images/logo_profil.png"
+import TwoFactorSetup from '../../components/TwoFactorSetup';
 
 const Profile = () => {
 	let [profile, setProfile] = useState(null);
 	let [isEditing, setIsEditing] = useState(false);
 	let [editedProfile, setEditedProfile] = useState({});
+	const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 	let { authTokens, logoutUser } = useContext(AuthContext);
 	const navigate = useNavigate();
 
@@ -92,8 +94,11 @@ const Profile = () => {
 
 	const handleInputChange = (e) => {
 		const { name, type, checked, value } = e.target;
+		if (name === 'two_factor' && checked) {
+			setShowTwoFactorSetup(true);
+			return;
+		}
 		const newValue = type === 'checkbox' ? checked : value;
-		console.log(`Updating ${name} to:`, newValue); // Debug log
 		setEditedProfile(prev => ({
 			...prev,
 			[name]: newValue
@@ -209,6 +214,18 @@ const Profile = () => {
 			  </div>
 			</div>
 		  )}
+		  {showTwoFactorSetup && (
+			<TwoFactorSetup
+				onClose={() => {
+					setShowTwoFactorSetup(false);
+					setEditedProfile(prev => ({
+						...prev,
+						two_factor: false
+					}));
+				}}
+				authTokens={authTokens}
+			/>
+		)}
 		</div>
 	  );
 }
