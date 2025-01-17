@@ -1,15 +1,14 @@
+from .bonusManager import bonusManager, handleBonusBoxCollision
+from .save_game import saveGameResults
 from channels.layers import get_channel_layer
+from asgiref.sync import sync_to_async
 import asyncio
 import math
 import logging
-from .bonusManager import bonusManager, handleBonusBoxCollision
 
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__gameLogic__")
-
-ROOM_WIDTH = 800
-ROOM_HEIGHT = 500
 
 async def disconnectPlayers(channel_layer, room_id):
 
@@ -203,6 +202,9 @@ async def game_logic(room_id):
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
 
+	logger.warning("---------GAME_ENDED-----------")
+	await sync_to_async(saveGameResults)(room)
+	logger.warning("---------SAVED_RESULTS-----------")
 	await asyncio.sleep(5)
 	await disconnectPlayers(channel_layer, room_id)
 	room_manager.remove_room(room_id)

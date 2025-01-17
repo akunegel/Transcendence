@@ -25,10 +25,10 @@ class RoomManager:
 									"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
 												"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
 
-									"state": {"players": [], "player1": None, "player2": None,},			# Initialize state
+									"state": {"players": [], "player1": None, "player2": None},				# Initialize state (websocket's id)
 
-									"players": {"one": {"name": None, "img": None},				# Sendable player info for display
-					   							"two": {"name": None, "img": None}},				# -
+									"players": {"one": {"name": None, "img": None,},						# Sendable player info for display
+												"two": {"name": None, "img": None,}},						# -
 
 									"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
 											"objx": 400, "objy": 250, 										# -
