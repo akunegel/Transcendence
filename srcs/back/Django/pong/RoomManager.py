@@ -35,12 +35,16 @@ class RoomManager:
 											"l_score": 0, "r_score": 0,										# -
 											"l_paddle": 250, "r_paddle": 250,								# -
 											"l_paddle_size": 120, "r_paddle_size": 120,						# -
-											"available_bonus": "none"},										# -
+											"available_bonus": "none",},									# -
 
 									"dyn": {"dir": 1, "vec": 0.005, "speed": 120,							# Initialize local game variables (dynamics)
 											"l_paddle": {"going_up": False, "going_down": False},			# -
 											"r_paddle": {"going_up": False, "going_down": False},			# -
-											"bonus": "none", "timer": 3, "old_speed": 120},					# -
+											"bonus": "none", "timer": 3, "old_speed": 120,					# -
+											"rebound": {"left": 0, "right": 0},},							# - Amount of rebounds made on paddles
+
+									"winner": None,															# - Game's winner
+
 									}
 
 	def remove_room(self, room_id):

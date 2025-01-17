@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+from users.serializers import PlayerSerializer
 from users.models import Player
 import logging
 
@@ -6,11 +8,41 @@ logger = logging.getLogger("__Save_Game_Log__")
 
 
 def saveGameResults(room):
-	players = room["players"]
 	p1Name = room["players"]["one"]["name"]
-	p1 = Player.objects.get(user=p1Name)
+	p2Name = room["players"]["two"]["name"]
 
-	logger.warning(str(p1.user))
-	logger.warning("----------------------------------")
+	try:
+		# Fetch the User object using the username
+		user1 = User.objects.get(username=p1Name)
+		user2 = User.objects.get(username=p2Name)
+		# Fetch the Player object using the User object
+		player1 = Player.objects.get(user=user1)
+		player2 = Player.objects.get(user=user2)
 
+		# Adding a game played for both players
+		player1.nb_games += 1
+		player2.nb_games += 1
+		# Adding to the players' rebound counters
+		player1.rb += room["dyn"]["rebound"]["left"]
+		player2.rb += room["dyn"]["rebound"]["right"]
+		# Incrementing wins or loss for both players
+		if p1Name == p2Name:
+			return # When playing against oneself, results are not saved
+		if room["winner"] == "player1":
+			player1.wins += 1
+			player2.loss += 1
+		elif room["winner"] == "player2":
+			player2.wins += 1
+			player1.loss += 1
+
+		player1.save()
+		player2.save()
+
+		return
+	except User.DoesNotExist:
+		logger.warning("SaveGame: User does not exist.")
+	except Player.DoesNotExist:
+		logger.warning("SaveGame: Player does not exist.")
+	except Exception as e:
+		logger.error(f"An unexpected error occurred: {e}")
 	return
