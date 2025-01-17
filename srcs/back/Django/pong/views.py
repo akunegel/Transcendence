@@ -2,7 +2,6 @@ from pong.RoomManager import room_manager
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import api_view, permission_classes
 from users.models import Player
-from users.serializers import GameRegister
 from django.http import JsonResponse
 import json
 import uuid

@@ -1,15 +1,14 @@
+from .bonusManager import bonusManager, handleBonusBoxCollision
+from .save_game import saveGameResults
 from channels.layers import get_channel_layer
+from asgiref.sync import sync_to_async
 import asyncio
 import math
 import logging
-from .bonusManager import bonusManager, handleBonusBoxCollision
 
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__gameLogic__")
-
-ROOM_WIDTH = 800
-ROOM_HEIGHT = 500
 
 async def disconnectPlayers(channel_layer, room_id):
 
@@ -47,15 +46,19 @@ async def getNewVector(side, y , var):
 	return (new_vec)
 
 
-async def isPaddleAtLevel(side, y, var):
+async def isPaddleAtLevel(dyn, y, var):
+	side = dyn["dir"]
 	paddle_y = var["r_paddle"] if side == 1 else var["l_paddle"]
 	size = var["r_paddle_size"] if side == 1 else var["l_paddle_size"]
 
 	# When at a paddle's x value, checks if the ball y value is inside the paddel's range to allow rebound
 	if (y > paddle_y + ((size / 2) + 5) or y < paddle_y - ((size / 2) + 5)):
-		return False
+		return False # Wasn't in range
 	else:
-		return True
+		# Adding a rebound to the player's counter
+		dyn["rebound"]["right"] += 1 if side == 1 else 0
+		dyn["rebound"]["left"] += 1 if side == -1 else 0
+		return True # Was in range
 
 
 async def nextHit(x, y, room):
@@ -75,7 +78,7 @@ async def nextHit(x, y, room):
 	# Or, if at paddle level, checking if the ball is going to rebound or score a point
 	elif (x == 750 or x == 50):
 		# And if this side's paddle is in range, the ball bounces off
-		if (await isPaddleAtLevel(dyn["dir"], y, var) == True):
+		if (await isPaddleAtLevel(dyn, y, var) == True):
 			dyn["vec"] = await getNewVector(dyn["dir"], y, var)
 			dyn["dir"] *= -1
 			new_y = 491.1 if dyn["vec"] > 0 else 9.1
@@ -150,24 +153,27 @@ async def isGameOver(channel_layer, room, room_id):
 	max_point = room["rules"]["max_point"]
 	l_score = room["var"]["l_score"]
 	r_score = room["var"]["r_score"]
+	winner = "draw"
 
-	# If the time limit has been exceeded
+	# If the time limit has been reached
 	if (room["timer_is_over"] == True):
 		if (l_score > r_score):
-			await updateGame(channel_layer, room_id, {"winner": "player1"}, 0.0, "end_game")
+			winner = "player1"
 		elif (r_score > l_score):
-			await updateGame(channel_layer, room_id, {"winner": "player2"}, 0.0, "end_game")
-		else:
-			await updateGame(channel_layer, room_id, {"winner": "draw"}, 0.0, "end_game")
+			winner = "player2"
+		await updateGame(channel_layer, room_id, {"winner": winner}, 0.0, "end_game")
+		room["winner"] = winner
 		return True
 
 	# If the point objective has been reached
 	if (l_score >= max_point):
-		await updateGame(channel_layer, room_id, {"winner": "player1", "game_started": False}, 0.0, "end_game")
+		winner = "player1"
 	elif (r_score >= max_point):
-		await updateGame(channel_layer, room_id, {"winner": "player2", "game_started": False}, 0.0, "end_game")
+		winner = "player2"
 	else:
 		return False
+	room["winner"] = winner
+	await updateGame(channel_layer, room_id, {"winner": winner, "game_started": False}, 0.0, "end_game")
 	return True
 
 
@@ -203,6 +209,9 @@ async def game_logic(room_id):
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
 
+	logger.warning("---------GAME_ENDED-----------")
+	await sync_to_async(saveGameResults)(room)
+	logger.warning("---------SAVED_RESULTS-----------")
 	await asyncio.sleep(5)
 	await disconnectPlayers(channel_layer, room_id)
 	room_manager.remove_room(room_id)
