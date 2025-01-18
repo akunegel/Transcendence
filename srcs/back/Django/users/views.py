@@ -178,14 +178,6 @@ def updatePlayerProfile(request):
     except Player.DoesNotExist:
         return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_friends(request):
-    friendships = Friendship.objects.filter(user=request.user)
-    serializer = FriendshipSerializer(friendships, many=True)
-    return Response(serializer.data)
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_friends(request):
@@ -287,6 +279,22 @@ def accept_friend_request(request):
     Friendship.objects.create(user=friend_request.sender, friend=request.user)
 
     return Response({'detail': 'Friend request accepted'})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def refuse_friend_request(request):
+    request_id = request.data.get('request_id')
+
+    friend_request = get_object_or_404(
+        FriendRequest,
+        id=request_id,
+        receiver=request.user,
+        status='PENDING'
+    )
+
+    friend_request.delete()
+
+    return Response({'detail': 'Friend request rejected'})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
