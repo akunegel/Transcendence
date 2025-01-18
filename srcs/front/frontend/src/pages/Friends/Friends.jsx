@@ -108,6 +108,29 @@ const Friends = () => {
 		}
 	};
 
+	const refuseFriendRequest = async (requestId) => {
+		try {
+			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/refuse-request/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				},
+				body: JSON.stringify({ request_id: requestId })
+			});
+	
+			if (!response.ok) {
+				throw new Error('Failed to refuse friend request');
+			}
+	
+			setFriendRequests(prevRequests =>
+				prevRequests.filter(req => req.id !== requestId)
+			);
+		} catch (error) {
+			console.error('Error refusing friend request:', error);
+		}
+	};
+
 	const removeFriend = async (friendId) => {
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/remove/`, {
@@ -145,21 +168,25 @@ const Friends = () => {
 
 			<div className={styles.userinfo_container}>
 				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Friend Requests</h2>
-				{friendRequests.length === 0 ? (
-					<p style={{color: 'whitesmoke'}}>No pending friend requests</p>
-				) : (
-					friendRequests.map(request => (
-						<div key={request.id} className={styles.friend_item}>
-							<span>{request.sender_username}</span>
+				{friendRequests.map(request => (
+					<div key={request.id} className={styles.friend_item}>
+						<span>{request.sender_username}</span>
+						<div>
 							<button
 								className={styles.accept_button}
 								onClick={() => acceptFriendRequest(request.id)}
 							>
 								Accept
 							</button>
+							<button
+								className={`${styles.remove_button} ml-2`}
+								onClick={() => refuseFriendRequest(request.id)}
+							>
+								Refuse
+							</button>
 						</div>
-					))
-				)}
+					</div>
+				))}
 			</div>
 
 			<div className={styles.userinfo_container}>

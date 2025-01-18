@@ -3,14 +3,10 @@ from pong.consumers import PongGameConsumer
 import json
 import time
 import asyncio
-import logging
-
-logging.basicConfig(level=logging.DEBUG)  # Définir le niveau des logs
-logger = logging.getLogger(__name__)     # Créer un logger avec un nom unique
 
 class ChatConsumer(AsyncWebsocketConsumer):
 	async def connect(self):
-		# Nom du groupe de chat, on peut utiliser un groupe global pour tous les utilisateurs pour simplifier
+		# Nom du groupe de chat
 		self.room_group_name = 'chat_room'
 
 		# Rejoindre le groupe
