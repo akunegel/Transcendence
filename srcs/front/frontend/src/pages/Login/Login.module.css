@@ -73,3 +73,9 @@
     margin-top: 10px !important;
     text-align: center !important;
 }
+
+.back_button {
+    text-decoration: underline;
+    color: whitesmoke;
+    background-color: transparent;
+}
