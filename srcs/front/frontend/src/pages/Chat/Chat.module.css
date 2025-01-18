@@ -88,3 +88,30 @@
 	box-shadow: none;
 	transition: background-color 0.3s ease, box-shadow 0.3s ease, outline 0.3s ease, color 0.3s ease;
 }
+
+.message_row {
+    display: flex;
+    align-items: baseline;
+    margin: 4px 0;
+}
+
+.username_button {
+    background: none;
+    border: none;
+    color: whitesmoke;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    margin-right: 4px;
+	text-decoration: underline;
+}
+
+.message_separator {
+    margin-right: 8px;
+	color: whitesmoke;
+}
+
+.message_content {
+    word-break: break-word;
+	color: whitesmoke;
+}
