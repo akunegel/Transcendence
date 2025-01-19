@@ -177,6 +177,17 @@ def updatePlayerProfile(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Player.DoesNotExist:
         return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getOtherPlayerProfile(request, username):
+    try:
+        user = User.objects.get(username=username)
+        player = Player.objects.get(user=user)
+        serializer = PlayerSerializer(player)
+        return Response(serializer.data)
+    except (User.DoesNotExist, Player.DoesNotExist):
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

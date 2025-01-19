@@ -1,17 +1,23 @@
 import React, {useEffect, useRef, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Chat.module.css';
 
 const MessageList = ({ messagesList }) => {
     const messagesEndRef = useRef(null);
     const [menuVisible, setMenuVisible] = useState(null);
+    const navigate = useNavigate();
 
     const handleUsernameClick = (username) => {
         setMenuVisible((prev) => (prev === username ? null : username));
     };
 
     const handleOptionClick = (option, username) => {
-        console.log(`${option} selected for ${username}`);
-        setMenuVisible(null); // Close the menu
+        if (option === 'View Profile') {
+            navigate(`/other-profile/${username}`);
+        } else {
+            console.log(`${option} selected for ${username}`);
+        }
+        setMenuVisible(null);
     };
 
     useEffect(() => {

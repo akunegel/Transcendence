@@ -21,4 +21,5 @@ urlpatterns = [
     path('auth/42-login/', views.LoginWith42.as_view(), name='42-login'),
     path('2fa/setup/', views.SetupTwoFactor.as_view(), name='setup_2fa'),
     path('2fa/verify/', views.VerifyTwoFactor.as_view(), name='verify_2fa'),
+    path('other-profile/<str:username>/', views.getOtherPlayerProfile, name='other-profile'),
 ]
