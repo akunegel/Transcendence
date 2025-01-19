@@ -90,12 +90,14 @@
 }
 
 .message_row {
+	position: relative;
     display: flex;
     align-items: baseline;
     margin: 4px 0;
 }
 
 .username_button {
+	margin-left: 10px;
     background: none;
     border: none;
     color: whitesmoke;
@@ -114,4 +116,35 @@
 .message_content {
     word-break: break-word;
 	color: whitesmoke;
+}
+
+.menu {
+	position: absolute;
+	margin-top: 20px;
+	background-color: whitesmoke;
+	padding: 8px;
+	border-radius: 4px;
+	display: flex;
+	flex-direction: column;
+	min-width: 120px;
+	margin-left: 10px;
+}
+
+.menu button {
+	background: none;
+	border: none;
+	padding: 6px 0;
+	margin: 2px 0;
+	cursor: pointer;
+	color: black;
+	text-decoration: underline;
+	text-decoration-color: black;
+	text-align: center;
+	font-size: 0.9em;
+	transition: text-decoration-color 0.2s ease;
+}
+
+.menu button:hover {
+	background: grey;
+	color: black;
 }

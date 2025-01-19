@@ -63,13 +63,13 @@ function Chat() {
                     <MessageList messagesList={messagesList} />
                 </div>
                 <div className={styles.input_container}>
-                    <input 
-                        className="m-0" 
-                        type="text" 
-                        value={message} 
-                        onChange={(e) => setMessage(e.target.value.substring(0, 108))} 
-                        onKeyDown={handleKeyDown} 
-                        placeholder="Type your message here" 
+                    <input
+                        className="m-0"
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value.substring(0, 108))}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type your message here"
                     />
                     <button className="m-0" onClick={sendMessage}>SEND</button>
                 </div>

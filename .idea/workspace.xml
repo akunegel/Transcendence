@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c2e74b0-085c-4fa7-9db9-8c8ce0c85172" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.module.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,8 +39,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "FixApiUsername",
-    "last_opened_file_path": "/home/akunegel/Documents/42/Transcendence",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Profiles",
+    "last_opened_file_path": "/home/akunegel/Desktop/Transcendence",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,7 +59,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23726.96" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-WS-243.22562.222" />
       </set>
     </attachedChunks>
   </component>
@@ -72,6 +73,7 @@
       <updated>1731620378270</updated>
       <workItem from="1731620379569" duration="3704000" />
       <workItem from="1732050804675" duration="2427000" />
+      <workItem from="1737294758406" duration="616000" />
     </task>
     <servers />
   </component>
