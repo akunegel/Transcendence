@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2c2e74b0-085c-4fa7-9db9-8c8ce0c85172" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/Chat.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/MessageList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/srcs/front/frontend/src/pages/Chat/MessageList.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,7 +73,7 @@
       <updated>1731620378270</updated>
       <workItem from="1731620379569" duration="3704000" />
       <workItem from="1732050804675" duration="2427000" />
-      <workItem from="1737294758406" duration="307000" />
+      <workItem from="1737294758406" duration="616000" />
     </task>
     <servers />
   </component>
