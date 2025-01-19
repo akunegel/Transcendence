@@ -1,8 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './Chat.module.css';
 
 const MessageList = ({ messagesList }) => {
     const messagesEndRef = useRef(null);
+    const [menuVisible, setMenuVisible] = useState(null);
+
+    const handleUsernameClick = (username) => {
+        setMenuVisible((prev) => (prev === username ? null : username));
+    };
+
+    const handleOptionClick = (option, username) => {
+        console.log(`${option} selected for ${username}`);
+        setMenuVisible(null); // Close the menu
+    };
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -12,12 +22,19 @@ const MessageList = ({ messagesList }) => {
         <div className={styles.message_list}>
             {messagesList.map((msg, index) => (
                 <div key={index} className={styles.message_row}>
-                    <button 
+                    <button
                         className={styles.username_button}
-                        onClick={() => {}}
+                        onClick={() => handleUsernameClick(msg.username)}
                     >
                         {msg.username}
                     </button>
+                    {menuVisible === msg.username && (
+                        <div className={styles.menu}>
+                            <button onClick={() => handleOptionClick('Block', msg.username)}>Block</button>
+                            <button onClick={() => handleOptionClick('Invite', msg.username)}>Invite</button>
+                            <button onClick={() => handleOptionClick('View Profile', msg.username)}>View Profile</button>
+                        </div>
+                    )}
                     <span className={styles.message_separator}>: </span>
                     <span className={styles.message_content}>{msg.message}</span>
                 </div>
