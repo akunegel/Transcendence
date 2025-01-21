@@ -5,6 +5,7 @@ import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
 import Settings from "./pages/Settings/Settings";
 import Lobby from "./pages/Lobby/Lobby";
+import Tournament from "./pages/Tournament/Tournament.jsx";
 import LocalPong from "./pages/LocalPong/LocalPong";
 import OnlinePong from "./pages/OnlinePong/OnlinePong";
 import NotFound from "./pages/404/NotFound";
@@ -30,6 +31,7 @@ function App() {
 					<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 					<Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 					<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
+					<Route path="/Tournament" element={<ProtectedRoute><Tournament /></ProtectedRoute>} />
 					<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
 					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
 					<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />

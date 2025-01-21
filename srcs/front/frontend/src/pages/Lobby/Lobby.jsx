@@ -45,13 +45,14 @@ function Lobby(){
 		}
 	}
 
-	const handleStats = () => {
-
+	const handleTournament = () => {
+		navigate("/tournament");
 	}
 
 	const handleReturn = () => {
 		navigate("/home");
 	}
+
 	return (
 		<div>
 
@@ -64,7 +65,7 @@ function Lobby(){
 					{noRoomFound && <p>No room found...</p>}
 					<button onClick={() => handleQuick()}>QUICK JOIN</button>
 					<button onClick={() => setOpenCustom(openCustom ? false : true)}>CUSTOM GAME</button>
-					<button onClick={() => handleStats()}>STATS</button>
+					<button onClick={() => handleTournament()}>TOURNAMENT</button>
 					<button onClick={() => handleReturn()}>RETURN</button>
 					<br/>
 				</div>
