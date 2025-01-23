@@ -6,9 +6,32 @@ import AuthContext from '../../context/AuthContext';
 
 function Chat() {
     const [messagesList, setMessagesList] = useState([]);
+    const [blockedUsers, setBlockedUsers] = useState([]);
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
-    const { user } = useContext(AuthContext);
+    const { user, authTokens } = useContext(AuthContext);
+
+    // Fetch blocked users when component mounts
+    useEffect(() => {
+        const fetchBlockedUsers = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/users/blocked-users/`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + String(authTokens.access)
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setBlockedUsers(data.blocked_users);
+                }
+            } catch (error) {
+                console.error('Error fetching blocked users', error);
+            }
+        };
+        fetchBlockedUsers();
+    }, []);
 
     useEffect(() => {
         const connectWebSocket = () => {
@@ -20,6 +43,7 @@ function Chat() {
             };
             socket.onmessage = (event) => {
                 const newMessage = JSON.parse(event.data);
+                // Add ALL messages, including your own
                 setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
             };
             socket.onclose = () => {
@@ -37,6 +61,12 @@ function Chat() {
             if (ws) ws.close();
         };
     }, []);
+
+    const handleBlockUser = (username) => {
+        setBlockedUsers(prev => [...prev, username]);
+        // Filter out messages from newly blocked user
+        setMessagesList(prev => prev.filter(msg => msg.username !== username));
+    };
 
     const sendMessage = () => {
         if (message.trim()) {
@@ -60,7 +90,11 @@ function Chat() {
         <div className={styles.image_move_up}>
             <div className={styles.centered_container}>
                 <div className={styles.message_container}>
-                    <MessageList messagesList={messagesList} />
+                    <MessageList
+                        messagesList={messagesList}
+                        blockedUsers={blockedUsers}
+                        onBlockUser={handleBlockUser}
+                    />
                 </div>
                 <div className={styles.input_container}>
                     <input
