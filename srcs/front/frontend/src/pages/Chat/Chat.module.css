@@ -90,10 +90,10 @@
 }
 
 .message_row {
-	position: relative;
-    display: flex;
-    align-items: baseline;
-    margin: 4px 0;
+	position: relative !important;
+	display: flex;
+	align-items: baseline;
+	margin: 4px 0;
 }
 
 .username_button {
@@ -128,6 +128,7 @@
 	flex-direction: column;
 	min-width: 120px;
 	margin-left: 10px;
+	z-index: 10;
 }
 
 .menu button {

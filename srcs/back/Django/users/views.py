@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer
-from .models import Player, FriendRequest, Friendship
+from .models import Player, FriendRequest, Friendship, BlockedUser
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -446,3 +446,37 @@ class VerifyTwoFactor(APIView):
             'access': str(token.access_token),
             'refresh': str(token),
         })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def block_user(request):
+    username = request.data.get('username')
+
+    try:
+        blocked_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return Response(
+            {'detail': 'User not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if blocked_user == request.user:
+        return Response(
+            {'detail': 'You cannot block yourself'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Check if already blocked
+    blocked, created = BlockedUser.objects.get_or_create(
+        user=request.user,
+        blocked_user=blocked_user
+    )
+
+    return Response({'detail': 'User blocked successfully'})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_blocked_users(request):
+    blocked_users = BlockedUser.objects.filter(user=request.user)
+    blocked_usernames = [block.blocked_user.username for block in blocked_users]
+    return Response({'blocked_users': blocked_usernames})

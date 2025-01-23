@@ -33,6 +33,7 @@ const OtherProfile = () => {
             if (response.status === 200) {
                 setProfile(data);
             } else {
+                navigate("/*")
                 console.error('Failed to fetch profile');
             }
         } catch (error) {
