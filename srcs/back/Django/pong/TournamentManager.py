@@ -68,4 +68,4 @@ class TournamentManager:
 				task.cancel()
 
 
-tournament_manager = tournamentManager()
+tournament_manager = TournamentManager()

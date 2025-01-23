@@ -69,7 +69,6 @@ async def nextHit(x, y, room):
 	new_y = 491.1 if dyn["vec"] > 0 else 9.1
 	new_x = (dyn["dir"] * ((new_y - y) / dyn["vec"])) + x
 
-
 	# Checking if the ball is going past a paddle, setting the next position no further than paddle level
 	if (((new_x > 750 and dyn["dir"] == 1) or (new_x < 50 and dyn["dir"] == -1)) and x < 750 and x > 50):
 		new_x = 750 if new_x > 750 else 50
@@ -184,7 +183,6 @@ async def game_logic(room_id):
 	time_before_hit = 3 # 3 seconds before game start
 	room["var"]["game_started"] = True
 
-	await asyncio.sleep(2) # 2 seconds before first update
 	await updateGame(channel_layer, room_id, room["players"], 0, "start_game")
 
 	while room and room["var"]["game_started"]:

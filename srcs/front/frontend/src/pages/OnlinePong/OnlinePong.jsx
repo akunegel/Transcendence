@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
-import { getUser, getRoomInfo, registerPlayerInRoom } from '../../components/requestList.jsx';
+import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
 
@@ -86,14 +86,6 @@ function OnlinePong() {
 
 		document.title = "Waiting";
 
-		// Registering to room, so name and profile pic can be sent to both players for display
-		const requestRoomRegistration = async () => {
-			const ret = await registerPlayerInRoom(authTokens, roomId);
-			return (ret);
-		}
-		requestRoomRegistration()
-			.then()
-
 		// Getting the room's gamerules (point limit, add bonuses, max time, etc...) for display
 		const fetchRoomInfo = async () => {
 			const roomData = await getRoomInfo(authTokens, roomId);
@@ -108,7 +100,7 @@ function OnlinePong() {
 
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
-			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/room/${roomId}/`);
+			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/room/?roomId=${roomId}&token=${authTokens.access}`);
 			wsRef.current = ws;
 		}
 		

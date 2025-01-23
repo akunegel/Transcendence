@@ -79,7 +79,7 @@ def quickJoinGame(request):
 	rooms = room_manager.rooms
 	for i in rooms:
 		if rooms[i]["rules"]["is_private"] == False:
-			if rooms[i]["state"]["player2"] == None:
+			if rooms[i]["state"]["id2"] == None:
 				return JsonResponse({"room_id": rooms[i]["id"]}, status=200)
 	return JsonResponse({"room_id": "None"}, status=200)
 
@@ -89,28 +89,5 @@ def retrieveRoomInfo(request, room_id=""):
 	room = room_manager.get_room(room_id)
 	if room:
 		return JsonResponse(room["rules"], status=200)
-	else:
-		return JsonResponse({"error": "Cannot find room"}, status=400)
-	
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def registerPlayerInRoom(request, room_id=""):
-	room = room_manager.get_room(room_id)
-	players = room["players"]
-	if room:
-		try:
-			player = Player.objects.get(user=request.user)
-			if (players["one"]["name"] == None):
-				players["one"]["name"] = str(player.user)
-				players["one"]["img"] = str(player.profile_picture)
-			elif (players["two"]["name"] == None):
-				players["two"]["name"] = str(player.user)
-				players["two"]["img"] = str(player.profile_picture)
-			else:
-				return JsonResponse({"error": "Room is full"}, status=400)
-
-			return JsonResponse({"detail": "User registered to room"}, status=200)
-		except Player.DoesNotExist:
-			return JsonResponse({"error": "Player profile not found"}, status=400)
 	else:
 		return JsonResponse({"error": "Cannot find room"}, status=400)

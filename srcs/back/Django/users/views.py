@@ -18,10 +18,15 @@ from django.conf import settings
 import pyotp
 import qrcode
 import base64
+import logging
 from io import BytesIO
 from django.contrib.auth import authenticate
 
 load_dotenv()
+
+logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
+logger = logging.getLogger("__UserViews__")
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod

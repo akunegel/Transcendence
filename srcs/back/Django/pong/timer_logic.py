@@ -9,7 +9,7 @@ async def timer_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	room = room_manager.get_room(room_id)
 	max_time = room["rules"]["max_time"]
-	await asyncio.sleep(5) # 5 seconds before game start
+	await asyncio.sleep(3) # 5 seconds before game start
 
 	# Waiting for the set duration of the game
 	await asyncio.sleep(max_time * 60)

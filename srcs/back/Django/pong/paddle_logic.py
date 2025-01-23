@@ -21,7 +21,7 @@ async def paddle_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	room = room_manager.get_room(room_id)
 	channel_layer = get_channel_layer()
-	await asyncio.sleep(5) # 5 seconds before game start
+	await asyncio.sleep(3) # 5 seconds before game start
 
 	while room["var"]["game_started"]:
 		var = room["var"] # getting the room's game variables
