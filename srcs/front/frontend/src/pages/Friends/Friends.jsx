@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import styles from './Friends.module.css';
 import logo from "../../assets/images/logo_friends.png"
@@ -10,6 +11,7 @@ const Friends = () => {
 	const [friendRequests, setFriendRequests] = useState([]);
 	const [error, setError] = useState(null);
 	const [addFriendError, setAddFriendError] = useState('');
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchFriendsAndRequests = async () => {
@@ -108,6 +110,29 @@ const Friends = () => {
 		}
 	};
 
+	const refuseFriendRequest = async (requestId) => {
+		try {
+			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/refuse-request/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				},
+				body: JSON.stringify({ request_id: requestId })
+			});
+	
+			if (!response.ok) {
+				throw new Error('Failed to refuse friend request');
+			}
+	
+			setFriendRequests(prevRequests =>
+				prevRequests.filter(req => req.id !== requestId)
+			);
+		} catch (error) {
+			console.error('Error refusing friend request:', error);
+		}
+	};
+
 	const removeFriend = async (friendId) => {
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/remove/`, {
@@ -131,6 +156,10 @@ const Friends = () => {
 		}
 	};
 
+	const viewProfile = (username) => {
+		navigate(`/other-profile/${username}`);
+	  };
+
 	return (
 		<div className={styles.centered_container}>
 			<img
@@ -145,21 +174,25 @@ const Friends = () => {
 
 			<div className={styles.userinfo_container}>
 				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Friend Requests</h2>
-				{friendRequests.length === 0 ? (
-					<p style={{color: 'whitesmoke'}}>No pending friend requests</p>
-				) : (
-					friendRequests.map(request => (
-						<div key={request.id} className={styles.friend_item}>
-							<span>{request.sender_username}</span>
+				{friendRequests.map(request => (
+					<div key={request.id} className={styles.friend_item}>
+						<button className={styles.friends} onClick={() => viewProfile(request.sender_username)}>{request.sender_username}</button>
+						<div>
 							<button
 								className={styles.accept_button}
 								onClick={() => acceptFriendRequest(request.id)}
 							>
 								Accept
 							</button>
+							<button
+								className={`${styles.remove_button} ml-2`}
+								onClick={() => refuseFriendRequest(request.id)}
+							>
+								Refuse
+							</button>
 						</div>
-					))
-				)}
+					</div>
+				))}
 			</div>
 
 			<div className={styles.userinfo_container}>
@@ -190,19 +223,21 @@ const Friends = () => {
 				) : (
 					friends.map(friend => (
 						<div key={friend.friend_id} className={styles.friend_item}>
-							<span>{friend.friend_username}</span>
-							<button
-								className={styles.remove_button}
-								onClick={() => removeFriend(friend.friend_id)}
-							>
-								Remove
-							</button>
+								<button className={styles.friends} onClick={() => viewProfile(friend.friend_username)}>{friend.friend_username}</button>							<div>
+								<button
+									className={`${styles.remove_button} ml-2`}
+									onClick={() => removeFriend(friend.friend_id)}
+								>
+									Remove
+								</button>
+							</div>
 						</div>
 					))
 				)}
 			</div>
 		</div>
-	);
+	);	
 };
+
 
 export default Friends;

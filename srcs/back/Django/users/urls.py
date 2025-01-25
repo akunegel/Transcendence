@@ -16,8 +16,12 @@ urlpatterns = [
     path('friends/requests/', views.get_friend_requests, name='get_friend_requests'),
     path('friends/send-request/', views.send_friend_request, name='send_friend_request'),
     path('friends/accept-request/', views.accept_friend_request, name='accept_friend_request'),
+    path('friends/refuse-request/', views.refuse_friend_request, name='refuse-friend-request'),
     path('friends/remove/', views.remove_friend, name='remove_friend'),
     path('auth/42-login/', views.LoginWith42.as_view(), name='42-login'),
     path('2fa/setup/', views.SetupTwoFactor.as_view(), name='setup_2fa'),
     path('2fa/verify/', views.VerifyTwoFactor.as_view(), name='verify_2fa'),
+    path('other-profile/<str:username>/', views.getOtherPlayerProfile, name='other-profile'),
+    path('block-user/', views.block_user, name='block-user'),
+    path('blocked-users/', views.get_blocked_users, name='blocked-users')
 ]

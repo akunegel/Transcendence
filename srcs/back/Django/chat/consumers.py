@@ -1,53 +1,52 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from pong.consumers import PongGameConsumer
+from channels.db import database_sync_to_async
+from django.contrib.auth.models import User
+from users.models import BlockedUser
 import json
-import time
-import asyncio
-import logging
-
-logging.basicConfig(level=logging.DEBUG)  # Définir le niveau des logs
-logger = logging.getLogger(__name__)     # Créer un logger avec un nom unique
 
 class ChatConsumer(AsyncWebsocketConsumer):
-	async def connect(self):
-		# Nom du groupe de chat, on peut utiliser un groupe global pour tous les utilisateurs pour simplifier
-		self.room_group_name = 'chat_room'
+    @database_sync_to_async
+    def check_blocking(self, sender_username, receiver_username):
+        # Check if sender is blocked by receiver
+        return BlockedUser.objects.filter(
+            user__username=receiver_username,
+            blocked_user__username=sender_username
+        ).exists()
 
-		# Rejoindre le groupe
-		await self.channel_layer.group_add(
-			self.room_group_name,
-			self.channel_name
-		)
+    async def connect(self):
+        self.room_group_name = 'chat_room'
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
 
-		# Accepter la connexion WebSocket
-		await self.accept()
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
 
-	async def disconnect(self, close_code):
-		# Quitter le groupe lors de la déconnexion
-		await self.channel_layer.group_discard(
-			self.room_group_name,
-			self.channel_name
-		)
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        sender_username = data['username']
+        message = data['message']
 
-	# Recevoir un message du WebSocket
-	async def receive(self, text_data):
-		text_data_json = json.loads(text_data)
-		message = text_data_json['content']
+        # Send to all users, add blocking logic on client-side
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'username': sender_username
+            }
+        )
 
-		# Envoyer le message au groupe
-		await self.channel_layer.group_send(
-			self.room_group_name,
-			{
-				'type': 'chat_message',
-				'message': message
-			}
-		)
+    async def chat_message(self, event):
+        username = event['username']
+        message = event['message']
 
-	# Recevoir un message du groupe
-	async def chat_message(self, event):
-		message = event['message']
-
-		# Envoyer le message au WebSocket
-		await self.send(text_data=json.dumps({
-			'content': message
-		}))
+        await self.send(text_data=json.dumps({
+            'username': username,
+            'message': message
+        }))

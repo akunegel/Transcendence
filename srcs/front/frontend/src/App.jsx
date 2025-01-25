@@ -13,9 +13,9 @@ import RedirectHome from "./pages/RedirectHome";
 import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Friends from "./pages/Friends/Friends.jsx";
-import { AuthProvider} from "./context/AuthContext.jsx";
+import { AuthProvider} from "./context/AuthContext.jsx";	
 import Connect42 from "./components/api42.jsx";
-
+import OtherProfile from './pages/OtherProfile/OtherProfile.jsx';
 function App() {
 
 	return (
@@ -29,10 +29,11 @@ function App() {
 					<Route path="/register" element={<Register />} />
 					<Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
 					<Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+					<Route path="/other-profile/:username" element={<OtherProfile />} />
 					<Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 					<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
 					<Route path="/Tournament" element={<ProtectedRoute><Tournament /></ProtectedRoute>} />
-					<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
+				<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
 					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
 					<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
 					<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
