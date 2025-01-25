@@ -172,13 +172,13 @@ async def handleBonusBoxCollision(room, pos, obj):
 	if (pos["x"] >= 370 and pos["x"] <= 430 and pos["y"] >= 220 and pos["y"] <= 280):
 		await bonusManager(room, "pos_update")
 		return
-	
-	# No checks should be done if ball is already out of bound
-	if (obj["x"] > 750 or obj["x"] < 50):
-		return
 
 	dir = room["dyn"]["dir"]
 	vec = room["dyn"]["vec"]
+	
+	# No checks should be done if the ball is not going in the box's direction
+	if ((obj["x"] > 430 and dir == 1) or (obj["x"] < 370 and dir == -1)):
+		return
 
 	# Getting the previous vector to keep the same trajectory (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):

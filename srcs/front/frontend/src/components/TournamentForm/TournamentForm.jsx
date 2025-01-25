@@ -13,7 +13,7 @@ function TournamentForm() {
 	const [hasTimeLimit, setHasTimeLimit] = useState(false);
 	const [maxTime, setMaxTime] = useState(5);
 	const [maxPoint, setMaxPoint] = useState(5);
-	const [maxPlayer, setMaxPlayer] = useState(6);
+	const [maxPlayer, setMaxPlayer] = useState(4);
 
 
 	const handleSubmit = async (f) => {
@@ -21,6 +21,33 @@ function TournamentForm() {
 
 		try {
 			const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/createTournament/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + String(authTokens.access)
+				},
+				body: JSON.stringify({addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint, maxPlayer})
+			})
+
+			const data = await res.json();
+			const room_id = data.room_id;
+
+			if (res.status === 200) {
+					navigate(`/play/${room_id}/`);
+			}
+			else {
+				console.error(JSON.stringify(data));
+			}
+		} catch (error) {
+			console.error('Room creation error:', error)
+		}
+	};
+
+	const handleQuickJoin = async (f) => {
+		f.preventDefault();
+
+		try {
+			const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/quickJoinTournament/`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -92,13 +119,16 @@ function TournamentForm() {
 			{/* Set player limit */}
 			<div className={styles.gameform_number_container} style={{margin: '16px', marginTop: '0px', marginLeft: '23px', justifyContent: 'left'}}>
 				<p className="m-0">Max players: </p>
-				<button onClick={() => setMaxPlayer(maxPlayer >= 20 ? 20 : maxPlayer + 2)}>+</button>
+				<button onClick={() => setMaxPlayer(8)}>+</button>
 				<p className="m-0">{maxPlayer}</p>
-				<button onClick={() => setMaxPlayer(maxPlayer <= 4 ? 4 : maxPlayer - 2)}>-</button>
+				<button onClick={() => setMaxPlayer(4)}>-</button>
 			</div>
 
 			<div className={styles.start_button}>
 				<button onClick={(f) => handleSubmit(f)}>START TOURNAMENT</button>
+			</div>
+			<div className={styles.start_button}>
+				<button onClick={(f) => handleQuickJoin(f)}>QUICK JOIN</button>
 			</div>
 
 		</div>

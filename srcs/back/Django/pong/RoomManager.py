@@ -34,34 +34,34 @@ class RoomManager:
 		self.rooms = {}
 
 	def create_room(self, room_id):
-		self.rooms[str(room_id)] = {"game_task": None,														# Storage for game_task id
-							  		"paddle_task": None,													# Storage for paddle_task id
-									"timer_task": None, "timer_is_over": False,								# Storage for timer_task id
-									"id": room_id,															# Storing it's own id
-									"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
-												"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
+		self.rooms[str(room_id)] = {
+			"game_task": None,														# Storage for game_task id
+			"paddle_task": None,													# Storage for paddle_task id
+			"timer_task": None, "timer_is_over": False,								# Storage for timer_task id
+			"id": room_id,															# Storing it's own id
+			"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
+						"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
 
-									"state": {"ids": [], "id1": None, "id2": None},							# Initialize state (websocket's id)
+			"state": {"ids": [], "id1": None, "id2": None},							# Initialize state (websocket's id)
 
-									"players": {"one": {"name": None, "img": None,},						# Sendable player info for display
-												"two": {"name": None, "img": None,}},						# -
+			"players": {"one": {"name": None, "img": None,},						# Sendable player info for display
+						"two": {"name": None, "img": None,}},						# -
 
-									"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
-											"objx": 400, "objy": 250, 										# -
-											"l_score": 0, "r_score": 0,										# -
-											"l_paddle": 250, "r_paddle": 250,								# -
-											"l_paddle_size": 120, "r_paddle_size": 120,						# -
-											"available_bonus": "none",},									# -
+			"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
+					"objx": 400, "objy": 250, 										# -
+					"l_score": 0, "r_score": 0,										# -
+					"l_paddle": 250, "r_paddle": 250,								# -
+					"l_paddle_size": 120, "r_paddle_size": 120,						# -
+					"available_bonus": "none",},									# -
 
-									"dyn": {"dir": 1, "vec": 0.005, "speed": 120,							# Initialize local game variables (dynamics)
-											"l_paddle": {"going_up": False, "going_down": False},			# -
-											"r_paddle": {"going_up": False, "going_down": False},			# -
-											"bonus": "none", "timer": 3, "old_speed": 120,					# -
-											"rebound": {"left": 0, "right": 0},},							# - Amount of rebounds made on paddles
+			"dyn": {"dir": 1, "vec": 0.005, "speed": 120,							# Initialize local game variables (dynamics)
+					"l_paddle": {"going_up": False, "going_down": False},			# -
+					"r_paddle": {"going_up": False, "going_down": False},			# -
+					"bonus": "none", "timer": 3, "old_speed": 120,					# -
+					"rebound": {"left": 0, "right": 0},},							# - Amount of rebounds made on paddles
 
-									"winner": None,															# - Game's winner
-
-									}
+			"winner": None,															# - Game's winner
+		}
 
 	def remove_room(self, room_id):
 		room = self.rooms.get(str(room_id))

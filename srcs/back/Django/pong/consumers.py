@@ -15,22 +15,21 @@ logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__PongGameLog__")
 
 def register_player(room, player_channel_name, auth_token):
-	players = room["players"]
-	room["state"]["ids"].append(player_channel_name)
-	# Retrieving the Player associated with the token
+	# Retrieving the Player associated with the token from the database
 	decoded_token = AccessToken(auth_token)
 	username = decoded_token['username']
 	user = User.objects.get(username=username)
 	player = Player.objects.get(user=user)
-	# Adding user to the room, storing channel id, username and profil_picture
+	# Adding user to the room, storing it's channel id, username and profil_picture
+	room["state"]["ids"].append(player_channel_name)
 	if room["state"]["id1"] == None:
 		room["state"]["id1"] = player_channel_name
-		players["one"]["name"] = str(player.user)
-		players["one"]["img"] = str(player.profile_picture)
+		room["players"]["one"]["name"] = str(player.user)
+		room["players"]["one"]["img"] = str(player.profile_picture)
 	elif room["state"]["id2"] == None:
 		room["state"]["id2"] = player_channel_name
-		players["two"]["name"] = str(player.user)
-		players["two"]["img"] = str(player.profile_picture)
+		room["players"]["two"]["name"] = str(player.user)
+		room["players"]["two"]["img"] = str(player.profile_picture)
 
 class PongGameConsumer(AsyncWebsocketConsumer):
 
@@ -48,17 +47,19 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 			for _ in range(5):
 				try:
 					room = room_manager.get_room(self.room_id)
+					# Checking if the room exists and is not full yet
 					if not room or len(room["state"]["ids"]) >= 2:
 						raise ValueError(f"Cannot connect to room {self.room_id}.")
 					# Registering the player in the room
 					await sync_to_async(register_player)(room, self.channel_name, auth_token)
-					room_manager.start_game_task(self.room_id)
 					await self.channel_layer.group_add(self.room_id, self.channel_name)
 					await self.accept()
-					return  # Successfully accepted the connection, so exiting the function
+					# Checking with room_manager if the game can start
+					room_manager.start_game_task(self.room_id)
+					return  # Successfully accepted the connection, exiting the function
 				except ValueError as e:
 					await asyncio.sleep(0.2)  # Wait before retrying
-		# If no room is found or no token was given, reject the connection
+		# If room is not found or no token was sent, reject the connection
 		await self.close()
 
 

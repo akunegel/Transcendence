@@ -207,9 +207,7 @@ async def game_logic(room_id):
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
 
-	logger.warning("---------GAME_ENDED-----------")
 	await sync_to_async(saveGameResults)(room)
-	logger.warning("---------SAVED_RESULTS-----------")
 	await asyncio.sleep(5)
 	await disconnectPlayers(channel_layer, room_id)
 	room_manager.remove_room(room_id)

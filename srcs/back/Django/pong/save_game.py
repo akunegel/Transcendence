@@ -40,9 +40,9 @@ def saveGameResults(room):
 
 		return
 	except User.DoesNotExist:
-		logger.warning("SaveGame: User does not exist.")
+		logger.error("SaveGame: User does not exist.")
 	except Player.DoesNotExist:
-		logger.warning("SaveGame: Player does not exist.")
+		logger.error("SaveGame: Player does not exist.")
 	except Exception as e:
 		logger.error(f"An unexpected error occurred: {e}")
 	return
