@@ -1,17 +1,20 @@
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MessageList from './MessageList';
 import logo from "../../assets/images/logo_chat_box.png";
 import styles from "./Chat.module.css";
 import AuthContext from '../../context/AuthContext';
+import CustomGameForm from '../../components/CustomGameForm/CustomGameForm';
 
 function Chat() {
     const [messagesList, setMessagesList] = useState([]);
     const [blockedUsers, setBlockedUsers] = useState([]);
     const [ws, setWs] = useState(null);
     const [message, setMessage] = useState('');
+    const [openCustomGame, setOpenCustomGame] = useState(null);
+    const navigate = useNavigate();
     const { user, authTokens } = useContext(AuthContext);
 
-    // Fetch blocked users when component mounts
     useEffect(() => {
         const fetchBlockedUsers = async () => {
             try {
@@ -43,8 +46,9 @@ function Chat() {
             };
             socket.onmessage = (event) => {
                 const newMessage = JSON.parse(event.data);
-                // Add ALL messages, including your own
-                setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
+                if (!newMessage.target_user || newMessage.target_user === user.username) {
+                    setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
+                }
             };
             socket.onclose = () => {
                 console.log("WebSocket connection closed");
@@ -64,26 +68,31 @@ function Chat() {
 
     const handleBlockUser = (username) => {
         setBlockedUsers(prev => [...prev, username]);
-        // Filter out messages from newly blocked user
         setMessagesList(prev => prev.filter(msg => msg.username !== username));
     };
 
+    const handleGameInviteClick = (roomId) => {
+        navigate(`/play/${roomId}/`);
+    };
+
     const sendMessage = () => {
-        if (message.trim()) {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    username: user.username,
-                    message: message.trim()
-                }));
-            }
+        if (message.trim() && ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                username: user.username,
+                message: message.trim()
+            }));
+            setMessage('');
         }
-        setMessage('');
     };
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
             sendMessage();
         }
+    };
+
+    const handleInviteUser = (username) => {
+        setOpenCustomGame(username);
     };
 
     return (
@@ -94,6 +103,8 @@ function Chat() {
                         messagesList={messagesList}
                         blockedUsers={blockedUsers}
                         onBlockUser={handleBlockUser}
+                        onGameInviteClick={handleGameInviteClick}
+                        onInviteUser={handleInviteUser}
                     />
                 </div>
                 <div className={styles.input_container}>
@@ -108,6 +119,15 @@ function Chat() {
                     <button className="m-0" onClick={sendMessage}>SEND</button>
                 </div>
             </div>
+            {openCustomGame && (
+                <div className={styles.custom_game_overlay}>
+                    <CustomGameForm 
+                        invitedUser={openCustomGame}
+                        onClose={() => setOpenCustomGame(null)}
+                        ws={ws}
+                    />
+                </div>
+            )}
             <img src={logo} alt="CHATBOX"/>
         </div>
     );
