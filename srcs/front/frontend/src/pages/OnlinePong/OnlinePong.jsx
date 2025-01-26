@@ -300,12 +300,26 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.top_container}>
-
-				<div className={styles.player_info}>
-					{players != null && <img src={players.one.img} alt="Profile Picture"/>}
-					<p className='m-0' style={{textAlign: "left", borderRight: "5px solid white"}}>{players == null ? "waiting..." : players.one.name}</p>
-				</div>
-
+				{players && !players.one.image ? (
+					<div className={styles.player_info}>
+					<img 
+						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
+						alt="Profile Picture"
+					/>
+					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
+						{players.one.name || "waiting..."}
+					</p>
+					</div>
+				) : (
+					<div className={styles.player_info}>
+					{players && players.one.img && (
+						<img src={players.one.img} alt="Profile Picture" />
+					)}
+					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
+						{players && players.one.name || "waiting..."}
+					</p>
+					</div>
+				)}
 				<div className={styles.centered_container} style={{marginTop:"80px"}}>
 					{rules && rules.has_time_limit == true ?
 							<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
@@ -314,10 +328,26 @@ function OnlinePong() {
 						}
 				</div>
 
-				<div className={styles.player_info}>
-					<p className='m-0' style={{textAlign: "right", borderLeft: "5px solid white"}}>{players == null ? "...waiting" : players.two.name}</p>
-					{players != null && <img src={players.two.img} alt="Profile Picture"/>}
-				</div>
+				{players && !players.two.image ? (
+					<div className={styles.player_info}>
+					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
+					{players.two.name || "waiting..."}
+					</p>
+					<img 
+						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
+						alt="Profile Picture"
+					/>
+					</div>
+				) : (
+					<div className={styles.player_info}>
+					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
+					{players && players.two.name || "waiting..."}
+					</p>
+					{players && players.two.img && (
+						<img src={players.two.img} alt="Profile Picture" />
+					)}
+					</div>
+				)}
 
 			</div>
 
