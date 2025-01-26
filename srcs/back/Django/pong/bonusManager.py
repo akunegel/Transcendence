@@ -177,8 +177,8 @@ async def handleBonusBoxCollision(room, pos, obj):
 	vec = room["dyn"]["vec"]
 	
 	# No checks should be done if the ball is not going in the box's direction
-	if ((obj["x"] > 430 and dir == 1) or (obj["x"] < 370 and dir == -1)):
-		return
+	#if ((obj["x"] > 430 and dir == 1) or (obj["x"] < 370 and dir == -1)):
+	#	return
 
 	# Getting the previous vector to keep the same trajectory (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
