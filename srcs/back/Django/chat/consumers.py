@@ -5,14 +5,6 @@ from users.models import BlockedUser
 import json
 
 class ChatConsumer(AsyncWebsocketConsumer):
-    @database_sync_to_async
-    def check_blocking(self, sender_username, receiver_username):
-        # Check if sender is blocked by receiver
-        return BlockedUser.objects.filter(
-            user__username=receiver_username,
-            blocked_user__username=sender_username
-        ).exists()
-
     async def connect(self):
         self.room_group_name = 'chat_room'
         await self.channel_layer.group_add(
@@ -31,22 +23,42 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         sender_username = data['username']
         message = data['message']
+        
+        target_user = data.get('target_user')
+        game_invite = data.get('game_invite')
 
-        # Send to all users, add blocking logic on client-side
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type': 'chat_message',
-                'message': message,
-                'username': sender_username
-            }
-        )
+        if not target_user:
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'username': sender_username
+                }
+            )
+        else:
+            
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'targeted_message',
+                    'message': message,
+                    'username': sender_username,
+                    'target_user': target_user,
+                    'game_invite': game_invite
+                }
+            )
 
     async def chat_message(self, event):
-        username = event['username']
-        message = event['message']
-
         await self.send(text_data=json.dumps({
-            'username': username,
-            'message': message
+            'username': event['username'],
+            'message': event['message']
+        }))
+
+    async def targeted_message(self, event):
+        await self.send(text_data=json.dumps({
+            'username': event['username'],
+            'message': event['message'],
+            'target_user': event['target_user'],
+            'game_invite': event.get('game_invite')
         }))

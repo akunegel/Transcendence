@@ -3,16 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Chat.module.css';
 import AuthContext from "../../context/AuthContext.jsx";
 
-const MessageList = ({ messagesList, blockedUsers, onBlockUser }) => {
+const MessageList = ({ 
+    messagesList, 
+    blockedUsers, 
+    onBlockUser, 
+    onGameInviteClick,
+    onInviteUser 
+}) => {
     const messagesEndRef = useRef(null);
-    const [visibleMenu, setVisibleMenu] = useState({}); // Track visibility of menu per message
+    const [visibleMenu, setVisibleMenu] = useState({}); 
     const navigate = useNavigate();
     const { user, authTokens } = useContext(AuthContext);
 
     const handleUsernameClick = (username, index) => {
         setVisibleMenu((prev) => ({
             ...prev,
-            [index]: prev[index] ? null : username, // Toggle visibility for this specific message
+            [index]: prev[index] ? null : username,
         }));
     };
 
@@ -34,7 +40,6 @@ const MessageList = ({ messagesList, blockedUsers, onBlockUser }) => {
                 if (response.ok) {
                     onBlockUser(username);
                     setVisibleMenu((prev) => {
-                        // Reset the menu visibility after blocking
                         const updatedMenu = { ...prev };
                         Object.keys(updatedMenu).forEach((key) => {
                             if (updatedMenu[key] === username) {
@@ -49,6 +54,17 @@ const MessageList = ({ messagesList, blockedUsers, onBlockUser }) => {
             } catch (error) {
                 console.error('Error blocking user', error);
             }
+        } else if (option === 'Invite') {
+            setVisibleMenu((prev) => {
+                const updatedMenu = { ...prev };
+                Object.keys(updatedMenu).forEach((key) => {
+                    if (updatedMenu[key] === username) {
+                        updatedMenu[key] = null;
+                    }
+                });
+                return updatedMenu;
+            });
+            onInviteUser(username);
         } else {
             console.log(`${option} selected for ${username}`);
         }
@@ -64,35 +80,53 @@ const MessageList = ({ messagesList, blockedUsers, onBlockUser }) => {
 
     return (
         <div className={styles.message_list}>
-            {filteredMessages.map((msg, index) => (
-                <div key={index} className={styles.message_row}>
-                    <button
-                        className={styles.username_button}
-                        onClick={() => handleUsernameClick(msg.username, index)}
-                    >
-                        {msg.username}
-                    </button>
-                    {visibleMenu[index] === msg.username && msg.username !== user.username && (
-                        <div className={styles.menu}>
-                            <button onClick={() => handleOptionClick('Block', msg.username)}>
-                                Block
+            {filteredMessages.map((msg, index) => {
+                const isValidMessage = !msg.target_user || msg.target_user === user.username;
+                
+                return isValidMessage ? (
+                    <div key={index} className={styles.message_row}>
+                        {!msg.message.startsWith("Click here to join") && (
+                            <button
+                                className={styles.username_button}
+                                onClick={() => handleUsernameClick(msg.username, index)}
+                            >
+                                {msg.username}
                             </button>
-                            <button onClick={() => handleOptionClick('Invite', msg.username)}>
-                                Invite
+                        )}
+                        {!msg.message.startsWith("Click here to join") && (
+                            <span className={styles.message_separator}>: </span>
+                        )}
+                        {visibleMenu[index] === msg.username && msg.username !== user.username && (
+                            <div className={styles.menu}>
+                                <button onClick={() => handleOptionClick('Block', msg.username)}>
+                                    Block
+                                </button>
+                                <button onClick={() => handleOptionClick('Invite', msg.username)}>
+                                    Invite
+                                </button>
+                                <button onClick={() => handleOptionClick('View Profile', msg.username)}>
+                                    View Profile
+                                </button>
+                            </div>
+                        )}
+                        <span className={styles.message_content}>
+                        {msg.game_invite ? (
+                            <button 
+                                onClick={() => onGameInviteClick(msg.game_invite.room_id)}
+                                className={styles.game_invite_button}
+                            >
+                                {msg.message}
                             </button>
-                            <button onClick={() => handleOptionClick('View Profile', msg.username)}>
-                                View Profile
-                            </button>
-                        </div>
-                    )}
-                    <span className={styles.message_separator}>: </span>
-                    <span className={styles.message_content}>{msg.message}</span>
-                </div>
-            ))}
+                        ) : (
+                            !msg.message.startsWith("Click here to join") && msg.message
+                        )}
+                        </span>
+                    </div>
+                ) : null;
+            })}
             <div ref={messagesEndRef} />
         </div>
     );
 };
-
 
 export default MessageList;
