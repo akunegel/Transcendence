@@ -33,7 +33,7 @@ function App() {
 					<Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 					<Route path="/lobby" element={<ProtectedRoute><Lobby /></ProtectedRoute>} />
 					<Route path="/Tournament" element={<ProtectedRoute><Tournament /></ProtectedRoute>} />
-				<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
+					<Route path="/play" element={<ProtectedRoute><RedirectHome /></ProtectedRoute>} />
 					<Route path="/local" element={<ProtectedRoute><LocalPong /></ProtectedRoute>} />
 					<Route path="/play/:roomId" element={<ProtectedRoute><OnlinePong /></ProtectedRoute>} />
 					<Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />

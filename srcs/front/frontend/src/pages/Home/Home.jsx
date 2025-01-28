@@ -56,7 +56,7 @@ function Home() {
 					<br/>
 				</div>
 				
-				<div className={styles.centered_container_chat}>
+				<div>
 					<Chat/>
 				</div>
 
