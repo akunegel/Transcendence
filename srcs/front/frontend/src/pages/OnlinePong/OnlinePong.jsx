@@ -339,7 +339,7 @@ function OnlinePong() {
 
 			</div>
 
-			<div className={styles.centered_container}  style={{borderBottom: "5px solid white"}}>
+			<div className={gameStarted.current ? styles.status_title_bottom : styles.status_title_center}>
 				<p className="m-0">{statusTitle}</p>
 			</div>
 

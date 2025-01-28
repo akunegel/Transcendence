@@ -175,14 +175,19 @@ async def handleBonusBoxCollision(room, pos, obj):
 
 	dir = room["dyn"]["dir"]
 	vec = room["dyn"]["vec"]
-	
-	# No checks should be done if the ball is not going in the box's direction
-	if ((obj["x"] > 430 and dir == 1) or (obj["x"] < 370 and dir == -1)):
-		return
 
 	# Getting the previous vector to keep the same trajectory (see nextHit() in game_logic.py)
 	if (pos["x"] != 750 and pos["x"] != 50):
 		vec *= -1
+
+	dify = (obj["y"] - pos["y"])
+	difx = (obj["x"] - pos["x"])
+	# Checking if the objective is not the initial position
+	if (dify == 0 or difx == 0):
+		return
+	# Cheking if the ball is going towards the bonus box
+	if ((obj["x"] > pos["x"] and pos["x"] > 430) or (obj["x"] < pos["x"] and pos["x"] < 370)):
+		return
 
 
 	left = await doSegmentsIntersect(pos, obj, tlc, blc) # will left side be hit ?

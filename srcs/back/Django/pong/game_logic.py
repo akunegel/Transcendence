@@ -86,7 +86,7 @@ async def nextHit(x, y, room):
 				new_x = 750 if new_x >= 750 else 50
 				new_y = dyn["dir"] * (new_x - x) * dyn["vec"] + y
 			dyn["speed"] += 60
-			# Bonus manager, removing a rebound from timer
+			# Removing a rebound from bonus's manager timer
 			if (room["rules"]["add_bonus"] == True):
 				await bonusManager(room, "hit_update")
 
@@ -97,9 +97,9 @@ async def nextHit(x, y, room):
 				dyn["dir"] *= -1
 			else:
 				dyn["vec"] *= -1
-
-
-	else: # Or rebound didn't need any specific verification
+	
+	# Or rebound didn't need any specific verification
+	else:
 		if (new_x >= 750 or new_x <= 50):
 			if (x > 750 or x < 50):
 				new_x = 791.1 if new_x >= 750 else 9
@@ -204,8 +204,8 @@ async def game_logic(room_id):
 			if (room["rules"]["add_bonus"] == True):
 				await handleBonusBoxCollision(room, pos, obj)
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
-		var["objx"] = obj["x"]
-		var["objy"] = obj["y"]
+		var["objx"] = abs(obj["x"])
+		var["objy"] = abs(obj["y"])
 
 	await sync_to_async(saveGameResults)(room)
 	await asyncio.sleep(5)
