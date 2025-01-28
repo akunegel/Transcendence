@@ -204,8 +204,8 @@ async def game_logic(room_id):
 			if (room["rules"]["add_bonus"] == True):
 				await handleBonusBoxCollision(room, pos, obj)
 			time_before_hit = await getTimeBeforeNextHit(pos, obj, room["dyn"]["speed"]) # as a floating-point number in seconds
-		var["objx"] = abs(obj["x"])
-		var["objy"] = abs(obj["y"])
+		var["objx"] = obj["x"]
+		var["objy"] = obj["y"]
 
 	await sync_to_async(saveGameResults)(room)
 	await asyncio.sleep(5)

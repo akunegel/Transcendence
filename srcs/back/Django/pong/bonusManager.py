@@ -123,7 +123,7 @@ async def bonusManager(room, type):
 #
 # -------------------------------------------------------------------------
 # Upper part is for the actual bonuses mechanics (the fun part)
-# Lower part is to adapt trajectory and handle collisions with the bonus box (brain on fire part)
+# Lower part is to adapt trajectory and handle collisions with the bonus box (less fun part)
 # -------------------------------------------------------------------------
 #
 
@@ -152,6 +152,10 @@ async def whereWillItHit(pos, p1, p2, vec, dir, incline):
 		hitX = p1["x"]
 		hitY = (dir * ((hitX - pos["x"]) * vec)) + pos["y"]
 
+	if (hitX < 0 or hitX > 800):
+		return (await whereWillItHit(pos, p1, p2, vec, (dir * -1), incline))
+	if (hitY < 0 or hitY > 500):
+		return (await whereWillItHit(pos, p1, p2, (vec * -1), dir, incline))
 	return ({"x": hitX, "y": hitY})
 
 async def getDistanceTo(pos, hitPoint):
@@ -168,6 +172,10 @@ async def handleBonusBoxCollision(room, pos, obj):
 	trc = {"x": 430, "y": 220} # top right corner
 	brc = {"x": 430, "y": 280} # bottom right corner
 
+	# Checking if the objective is not the initial position
+	if (obj["y"] == pos["y"] or obj["x"] == pos["x"]):
+		return
+
 	# No checks should be done if the ball is already within the bonus box
 	if (pos["x"] >= 370 and pos["x"] <= 430 and pos["y"] >= 220 and pos["y"] <= 280):
 		await bonusManager(room, "pos_update")
@@ -180,15 +188,9 @@ async def handleBonusBoxCollision(room, pos, obj):
 	if (pos["x"] != 750 and pos["x"] != 50):
 		vec *= -1
 
-	dify = (obj["y"] - pos["y"])
-	difx = (obj["x"] - pos["x"])
-	# Checking if the objective is not the initial position
-	if (dify == 0 or difx == 0):
-		return
-	# Cheking if the ball is going towards the bonus box
+	# Return if the ball is going in an opposite direction to the bonus box (no need for checks)
 	if ((obj["x"] > pos["x"] and pos["x"] > 430) or (obj["x"] < pos["x"] and pos["x"] < 370)):
 		return
-
 
 	left = await doSegmentsIntersect(pos, obj, tlc, blc) # will left side be hit ?
 	hitPointL = None if not left else await whereWillItHit(pos, tlc, blc, vec, dir, "vertical")
