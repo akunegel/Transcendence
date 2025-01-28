@@ -30,10 +30,10 @@ function TournamentForm() {
 			})
 
 			const data = await res.json();
-			const room_id = data.room_id;
+			const tour_id = data.tour_id;
 
 			if (res.status === 200) {
-					navigate(`/play/${room_id}/`);
+					navigate(`/play/${tour_id}/`);
 			}
 			else {
 				console.error(JSON.stringify(data));
@@ -48,25 +48,28 @@ function TournamentForm() {
 
 		try {
 			const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/quickJoinTournament/`, {
-				method: 'POST',
+				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
 					'Authorization': 'Bearer ' + String(authTokens.access)
-				},
-				body: JSON.stringify({addBonus, isPrivate, hasTimeLimit, maxTime, maxPoint, maxPlayer})
+				}
 			})
 
 			const data = await res.json();
-			const room_id = data.room_id;
+			const tour_id = data.tour_id;
 
-			if (res.status === 200) {
-					navigate(`/play/${room_id}/`);
+			if (res.ok) {
+				if (tour_id == "None")
+					// No free room was found
+					setNoRoomFound(true);
+				else // Connecting to the room
+					navigate(`/play/${tour_id}/`);
 			}
-			else {
+			else
 				console.error(JSON.stringify(data));
-			}
-		} catch (error) {
-			console.error('Room creation error:', error)
+		}
+		catch (error) {
+			console.error('Quick join error:', error)
 		}
 	};
 

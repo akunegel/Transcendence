@@ -9,7 +9,7 @@ import styles from './OnlinePong.module.css';
 function OnlinePong() {
 
 	const	{ roomId } = useParams(); // Extract roomId from URL
-	const	{ authTokens, logoutUser } = useContext(AuthContext);
+	const	{ authTokens } = useContext(AuthContext);
 	
 	const	canvasRef = useRef(null);
 	const	lastUpdateTimeRef = useRef(0);
@@ -330,7 +330,7 @@ function OnlinePong() {
 
 				{players && !players.two.image ? (
 					<div className={styles.player_info}>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
+					<p className="m-0" style={{ textAlign: "right", borderRight: "5px solid white" }}>
 					{players.two.name || "waiting..."}
 					</p>
 					<img 

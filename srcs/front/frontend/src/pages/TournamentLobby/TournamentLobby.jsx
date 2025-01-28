@@ -1,12 +1,11 @@
-import React, { useState, useContext, useEffect } from 'react'
-import AuthContext from "../../context/AuthContext.jsx";
+import React, { useEffect } from 'react'
 import { useNavigate } from "react-router-dom"
 import TournamentForm from '../../components/TournamentForm/TournamentForm.jsx';
 import logo from "../../assets/images/logo_tournament.png"
 import logo2 from "../../assets/images/logo_tournament2.png"
 import styles from "./Tournament.module.css"
 
-function Tournament() {
+function TournamentLobby() {
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -37,4 +36,4 @@ function Tournament() {
 
 }
 
-export default Tournament
+export default TournamentLobby
