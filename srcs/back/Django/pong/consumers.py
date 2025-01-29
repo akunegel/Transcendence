@@ -9,12 +9,19 @@ import json
 import logging
 import asyncio
 from pong.RoomManager import room_manager
+from pong.TournamentManager import tournament_manager
 
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__PongGameLog__")
 
-def register_player(room, player_channel_name, auth_token):
+
+# ***************************************************
+#               PONG GAME CONSUMER
+# ***************************************************
+
+
+def register_to_room(room, player_channel_name, auth_token):
 	# Retrieving the Player associated with the token from the database
 	decoded_token = AccessToken(auth_token)
 	username = decoded_token['username']
@@ -51,7 +58,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 					if not room or len(room["state"]["ids"]) >= 2:
 						raise ValueError(f"Cannot connect to room {self.room_id}.")
 					# Registering the player in the room
-					await sync_to_async(register_player)(room, self.channel_name, auth_token)
+					await sync_to_async(register_to_room)(room, self.channel_name, auth_token)
 					await self.channel_layer.group_add(self.room_id, self.channel_name)
 					await self.accept()
 					# Checking with room_manager if the game can start
@@ -96,6 +103,87 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 	async def update_disconnect(self, event):
 		# Handle the `update.disconnect` message from game_logic, closing the WebSocket
+		await self.disconnect(1000)
+
+	async def update_game_state(self, event):
+		# Handle the `update.game_state` message from game_logic
+		state = event["state"]
+		case = event["case"]
+		await self.send(text_data=json.dumps({"state": state, "case": case}))
+
+
+
+
+# ***************************************************
+#               TOURNAMENT CONSUMER
+# ***************************************************
+
+
+def register_to_tournament(tour, player_channel_name, auth_token):
+	# Retrieving the Player associated with the token from the database
+	decoded_token = AccessToken(auth_token)
+	username = decoded_token['username']
+	user = User.objects.get(username=username)
+	player = Player.objects.get(user=user)
+	# Adding user to the tournament, storing it's channel id, username and profil_picture
+	tour["players"].append({
+		"pcn": player_channel_name,
+		"user": str(player.user),
+		"img": str(player.profile_picture),
+		"name": None # This will be the display name for the tournament
+	})
+
+
+class TournamentConsumer(AsyncWebsocketConsumer):
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+	async def connect(self):
+		query_string = self.scope["query_string"].decode('utf-8')  # Decode bytes to string
+		query_params = urllib.parse.parse_qs(query_string)  # Parse query string
+		self.tour_id = query_params.get('tourId', [None])[0] # Get the 'tour_id' parameter (or None if not provided)
+		auth_token = query_params.get('token', [None])[0]  # Get the 'token' parameter (or None if not provided)
+
+		if (auth_token != None):
+			# Retry connecting up to 5 times with 0.2 second delay, tournament might no be initialized yet
+			for _ in range(5):
+				try:
+					tour = tournament_manager.get_tournament(self.tour_id)
+					# Checking if the room exists and is not full yet
+					if not tour or len(tour["players"]) >= tour["rules"]["max_player"]:
+						raise ValueError(f"Cannot connect to tournament {self.tour_id}.")
+					# Registering the player in the tournament
+					await sync_to_async(register_to_tournament)(tour, self.channel_name, auth_token)
+					await self.channel_layer.group_add(self.tour_id, self.channel_name)
+					await self.accept()
+					# Checking with tournament_manager if the game can start
+					tournament_manager.start_task(self.tour_id)
+					return  # Successfully accepted the connection, exiting the function
+				except ValueError as e:
+					await asyncio.sleep(0.2)  # Wait before retrying
+		# If tournament is not found or no token was sent, reject the connection
+		await self.close()
+
+
+	async def disconnect(self, close_code=1001):
+		tournament_manager.player_disconnected(self.tour_id, self.channel_name)
+		await self.channel_layer.group_discard(self.tour_id, self.channel_name)
+		await self.close(close_code)
+		pass
+
+
+	async def receive(self, text_data):
+		# Handle incoming messages (paddle movement)
+		message = json.loads(text_data)
+		tour = tournament_manager.get_room(self.tour_id)
+		if tour is None:
+			return
+
+
+
+	async def update_disconnect(self, event):
+		# Handle the `update.disconnect` message from tournament_logic, closing the WebSocket
 		await self.disconnect(1000)
 
 	async def update_game_state(self, event):

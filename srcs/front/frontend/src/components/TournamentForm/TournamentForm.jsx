@@ -33,7 +33,7 @@ function TournamentForm() {
 			const tour_id = data.tour_id;
 
 			if (res.status === 200) {
-					navigate(`/play/${tour_id}/`);
+					navigate(`/tournament/${tour_id}/`);
 			}
 			else {
 				console.error(JSON.stringify(data));
