@@ -20,6 +20,27 @@ export const getRoomInfo = async (authTokens, roomId) => {
 	}
 }
 
+export const getTournamentInfo = async (authTokens, tourId) => {
+
+	try {
+		const res = await fetch(`${import.meta.env.VITE_API_URL}/pong/retrieveTournamentInfo/${tourId}`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + String(authTokens.access)
+			}
+		})
+		const data = await res.json();
+		if (res.ok)
+			return (data);
+		else
+			console.error(JSON.stringify(data));
+	}
+	catch (error) {
+		console.error('Fetching tournament info error:', error)
+	}
+}
+
 export const getUser = async (authTokens) => {
 	
 	try {

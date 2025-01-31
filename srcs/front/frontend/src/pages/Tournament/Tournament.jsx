@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
+import { getTournamentInfo } from '../../components/requestList.jsx';
+import NameForm from './Modules/NameForm/NameForm.jsx';
+import PlayersList from './Modules/PlayersList/PlayersList.jsx';
 import styles from './Tournament.module.css';
 
 function Tournament() {
 
-	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	{ authTokens } = useContext(AuthContext);
-	const	navigate = useNavigate();
-	
+	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
-	const	[players, setPlayers] = useState(null);
-	const	playersRef = useRef(null);
+	const	logged = useRef(false);
+	const	[nameError, setNameError] = useState(false);
 	const	[info, setInfo] = useState(null);
-	const	infoRef = useRef(null);
+	const	[players, setPlayers] = useState(null);
+	const	navigate = useNavigate();
 
 
 	useEffect(() => {
@@ -23,8 +25,7 @@ function Tournament() {
 			return (roomData);
 		}
 		fetchTournamentInfo()
-			.then((data) => {infoRef.current = data;
-							setInfo(data);})
+			.then((data) => {setInfo(data);})
 			.catch((err) => console.error("Failed to fetch tournament info:", err));
 	}, []);
 
@@ -39,14 +40,26 @@ function Tournament() {
 		}
 		
 		wsRef.current.onopen = () => {
-			document.title = "Waiting";
+			document.title = "Enter Name";
 			console.log("WebSocket connected");
 		};
 		
 		// Parsing received updates from the room
 		wsRef.current.onmessage = (event) => {
-			const data = JSON.parse(event.data);
-
+			const msg = JSON.parse(event.data);
+			console.log(msg);
+			// Received updated player's object array (id, arena_name, img)
+			if (msg.case == "players_info")
+				setPlayers(msg.data);
+			// Entered name was confirmed
+			else if (msg.case == "set_name_ok") {
+				logged.current = true;
+				document.title = "Waiting...";
+			}
+			// Entered name was invalid
+			else if (msg.case == "set_name_error")
+				setNameError(msg.data);
+			
 		};
 
 		// Returning to the lobby if the tournament has ended, player lost connexion or couldn't connect
@@ -54,12 +67,11 @@ function Tournament() {
 			navigate("/tournament");
 		};
 
-
 	}, []);
 
 	return (
 		<div className={styles.centered_container}>
-			<p>hello</p>
+			{logged.current ? <PlayersList players={players}/> : <NameForm wsRef={wsRef} nameError={nameError}/>}
 		</div>
 	);
 }

@@ -84,7 +84,6 @@
 	padding: 5px;
 	transition: background-color 0.3s ease, color 0.3s ease;
 }
-
 .start_button button:hover {
 	background-color: white;
 	color: black;

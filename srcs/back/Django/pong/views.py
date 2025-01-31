@@ -95,3 +95,13 @@ def createTournament(request):
 		logger.log(f"Failed to parse JSON: {e}")
 		tournament_manager.remove_tournament(tour_id)
 		return JsonResponse({"error": "Invalid JSON data"}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def retrieveTournamentInfo(request, tour_id=""):
+	tour = tournament_manager.get_tournament(tour_id)
+	if tour:
+		return JsonResponse(tour["rules"], status=200)
+	else:
+		return JsonResponse({"error": "Cannot find tournament"}, status=400)

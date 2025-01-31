@@ -1,0 +1,35 @@
+.box {
+	display : flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	background-color: black;
+	height: 300px;
+	width: 500px;
+	border: 5px solid white;
+}
+
+.player_box {
+	display : flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 20px;
+	height: 180px;
+	width: 150px;
+	background-color: black;
+}
+.player_box img {
+	height: 100px;
+	width: 100px;
+	border: 5px solid white;
+
+}
+.player_box p {
+	color: white;
+	font-weight: bold;
+	font-size: 1em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+	margin-top: 10px;
+	height : 15px;
+}
