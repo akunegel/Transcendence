@@ -16,30 +16,35 @@ const Friends = () => {
 	useEffect(() => {
 		const fetchFriendsAndRequests = async () => {
 			try {
-				let friendsResponse = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/`, {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer ' + String(authTokens.access)
-					}
-				});
-
-				let requestsResponse = await fetch(`${import.meta.env.VITE_API_URL}/users/friends/requests/`, {
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-						'Authorization': 'Bearer ' + String(authTokens.access)
-					}
-				});
-
-				if (!friendsResponse.ok || !requestsResponse.ok) {
+				let [friendsResponse, requestsResponse] = await Promise.all([
+					fetch(`${import.meta.env.VITE_API_URL}/users/friends/`, {
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': 'Bearer ' + String(authTokens.access)
+						}
+					}),
+					fetch(`${import.meta.env.VITE_API_URL}/users/friends/requests/`, {
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': 'Bearer ' + String(authTokens.access)
+						}
+					})
+				]);
+	
+				if (friendsResponse.status === 401 || requestsResponse.status === 401) {
 					logoutUser();
+					return;
+				}
+	
+				if (!friendsResponse.ok || !requestsResponse.ok) {
 					throw new Error('Failed to fetch friends or requests');
 				}
-
+	
 				const friendsData = await friendsResponse.json();
 				const requestsData = await requestsResponse.json();
-
+	
 				setFriends(friendsData);
 				setFriendRequests(requestsData);
 			} catch (error) {
@@ -47,7 +52,7 @@ const Friends = () => {
 				setError(error.message);
 			}
 		};
-
+	
 		fetchFriendsAndRequests();
 	}, [authTokens]);
 
@@ -223,7 +228,11 @@ const Friends = () => {
 				) : (
 					friends.map(friend => (
 						<div key={friend.friend_id} className={styles.friend_item}>
-								<button className={styles.friends} onClick={() => viewProfile(friend.friend_username)}>{friend.friend_username}</button>							<div>
+								<button className={styles.friends} onClick={() => viewProfile(friend.friend_username)}>
+									{friend.friend_username}
+									<span className={friend.online ? styles.onlineDot : styles.offlineDot}></span>
+        						</button>
+							<div>
 								<button
 									className={`${styles.remove_button} ml-2`}
 									onClick={() => removeFriend(friend.friend_id)}
