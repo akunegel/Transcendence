@@ -95,15 +95,19 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         fields = ['id', 'sender_id', 'sender_username', 'receiver_id', 'receiver_username', 'status', 'created_at']
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    friend_id = serializers.IntegerField(source='friend.id', read_only=True)
-    friend_username = serializers.CharField(source='friend.username', read_only=True)
-    first_name = serializers.CharField(source='friend.player.first_name', read_only=True)
-    last_name = serializers.CharField(source='friend.player.last_name', read_only=True)
-    profile_picture = serializers.URLField(source='friend.player.profile_picture', read_only=True)
+    friend_username = serializers.CharField(source='friend.username')
+    online = serializers.SerializerMethodField()
 
     class Meta:
         model = Friendship
-        fields = ['id', 'friend_id', 'friend_username', 'first_name', 'last_name', 'profile_picture', 'created_at']
+        fields = ['friend_id', 'friend_username', 'online']
+
+    def get_online(self, obj):
+        try:
+            player = Player.objects.get(user=obj.friend)
+            return player.online
+        except Player.DoesNotExist:
+            return False
 
 class TwoFactorSetupSerializer(serializers.Serializer):
     verification_code = serializers.CharField(max_length=6, min_length=6)

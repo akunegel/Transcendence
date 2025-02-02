@@ -16,7 +16,7 @@ class Player(models.Model):
     loss = models.IntegerField(default=0)
     tr_wins = models.IntegerField(default=0)
     rb = models.IntegerField(default=0)
-
+    online = models.BooleanField(default=False)
 
 class FriendRequest(models.Model):
     STATUSES = [

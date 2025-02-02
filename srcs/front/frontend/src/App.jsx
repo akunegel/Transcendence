@@ -14,14 +14,18 @@ import Header from "./components/Header.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Friends from "./pages/Friends/Friends.jsx";
 import { AuthProvider} from "./context/AuthContext.jsx";	
+import OnlineTracking from "./context/OnlineTracking.jsx";
 import Connect42 from "./components/api42.jsx";
 import OtherProfile from './pages/OtherProfile/OtherProfile.jsx';
+
+
 function App() {
 
 	return (
 		<Router>
 			<AuthProvider>
 				<Header />
+				<OnlineTracking />
 				<Routes>
 					<Route path="/" element={<RedirectHome />} />
 					<Route path="*" element={<NotFound />} />

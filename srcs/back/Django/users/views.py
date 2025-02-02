@@ -198,12 +198,13 @@ def getOtherPlayerProfile(request, username):
 @permission_classes([IsAuthenticated])
 def get_friends(request):
     try:
-        player = Player.objects.get(user=request.user)
-        friendships = Friendship.objects.filter(user=request.user)
+        friendships = Friendship.objects.filter(user=request.user)\
+            .select_related('friend__player')
         serializer = FriendshipSerializer(friendships, many=True)
         return Response(serializer.data)
-    except Player.DoesNotExist:
-        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error fetching friends: {str(e)}")
+        return Response({"detail": "Error fetching friends"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
