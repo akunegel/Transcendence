@@ -1,4 +1,3 @@
-#consumers.py
 from channels.generic.websocket import AsyncWebsocketConsumer
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.layers import get_channel_layer
@@ -9,6 +8,7 @@ import urllib.parse
 import json
 import logging
 import asyncio
+import random
 from pong.RoomManager import room_manager
 from pong.TournamentManager import tournament_manager
 
@@ -120,6 +120,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 # ***************************************************
 
 
+def random_rgb():
+	r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
+	return f"#{r:02X}{g:02X}{b:02X}"
 
 async def broadcast_players_info(tour_id, players):
 
@@ -133,6 +136,7 @@ async def broadcast_players_info(tour_id, players):
 			"id": player["id"],
 			"arena_name": player["arena_name"],
 			"img": player["img"],
+			"color": player["color"],
 		})
 		i += 1
 	# Broadcasting to every players in the tournament
@@ -156,6 +160,7 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	# Adding user to the tournament, storing it's channel id, username and profil_picture
 	tour["players"].append({
 		"id": (len(tour["players"]) + 1),
+		"color": random_rgb(),
 		"pcn": player_channel_name,
 		"username": str(db_player.user),
 		"img": str(db_player.profile_picture),
@@ -169,7 +174,7 @@ def check_for_reconnexion(tour, player_channel_name, auth_token):
 	db_user = User.objects.get(username=username)
 	db_player = Player.objects.get(user=db_user)
 	for player in tour["players"]:
-		if (player["username"] == str(db_player.user)):
+		if (player["username"] == str(db_player.user) and player["pcn"] == None):
 			# Update the reconnecting player with it's new channel name
 			player["pcn"] = player_channel_name
 			return

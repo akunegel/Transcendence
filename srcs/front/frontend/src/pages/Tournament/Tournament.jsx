@@ -12,6 +12,7 @@ function Tournament() {
 	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
 	const	logged = useRef(false);
+	const	gameStarted = useRef(false);
 	const	[nameError, setNameError] = useState(false);
 	const	[info, setInfo] = useState(null);
 	const	[players, setPlayers] = useState(null);
@@ -71,7 +72,11 @@ function Tournament() {
 
 	return (
 		<div className={styles.centered_container}>
-			{logged.current ? <PlayersList players={players}/> : <NameForm wsRef={wsRef} nameError={nameError}/>}
+			{gameStarted.current == false ?
+				logged.current ? <PlayersList players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
+			:
+				<p>hello</p>
+			}
 		</div>
 	);
 }

@@ -100,8 +100,19 @@ def createTournament(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def retrieveTournamentInfo(request, tour_id=""):
-	tour = tournament_manager.get_tournament(tour_id)
+	tour = tournament_manager.get_tournament(str(tour_id))
 	if tour:
 		return JsonResponse(tour["rules"], status=200)
 	else:
 		return JsonResponse({"error": "Cannot find tournament"}, status=400)
+
+# Quick-Join returns the tour_id of the first non-private tournament found in the list of current tournaments
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def quickJoinTournament(request):
+	tours = tournament_manager.tournaments
+	for i in tours:
+		if tours[i]["rules"]["is_private"] == False:
+			if (len(tours[i]["players"]) < tours[i]["rules"]["max_player"]) and tours[i]["started"] == False:
+				return JsonResponse({"tour_id": str(tours[i]["id"])}, status=200)
+	return JsonResponse({"tour_id": "None"}, status=200)
