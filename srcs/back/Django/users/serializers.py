@@ -114,3 +114,19 @@ class TwoFactorSetupSerializer(serializers.Serializer):
 
 class TwoFactorVerifySerializer(serializers.Serializer):
     verification_code = serializers.CharField(max_length=6, min_length=6)
+
+class UserLanguagePatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Player
+        fields = ['language']
+
+    def validate_language(self, value):
+        supported_languages = ['English', 'Français', 'Español']
+        if value not in supported_languages:
+            raise serializers.ValidationError(f"Language '{value}' is not supported.")
+        return value
+
+    def update(self, instance, validated_data):
+        instance.language = validated_data.get('language', instance.language)
+        instance.save()
+        return instance
