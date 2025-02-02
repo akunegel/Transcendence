@@ -23,7 +23,7 @@ function NameForm({ wsRef, nameError }){
 
 	return (
 		<div className={styles.box}>
-			<p>Enter Arena Name :</p>
+			<p>{wsRef.current && wsRef.current.readyState === WebSocket.OPEN ? "Enter Arena Name :" : "Connecting..."}</p>
 			<input	type="text"
 					placeholder='...'
 					value={name}

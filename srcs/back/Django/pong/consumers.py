@@ -131,6 +131,8 @@ async def broadcast_players_info(tour_id, players):
 	i = 1
 	# Pruning the 'players' array into a new one, with only useful information 
 	for player in players:
+		if (i == 1 and player["id"] != i): # If a player becomes id:1, they are now the tournament's leader
+			await channel_layer.send(player["pcn"],{"type": "update.new_leader"})
 		player["id"] = i # Re-updating users ids in the room
 		data.append({
 			"id": player["id"],
@@ -144,9 +146,9 @@ async def broadcast_players_info(tour_id, players):
 		await channel_layer.group_send(
 			tour_id,  # Group name (tour_id)
 			{
-				"type": "update.players_info",  # Custom message type
+				"type": "update.players_info",
 				"case": "players_info",
-				"data": data,  # Data to send
+				"data": data,  # Sending the pruned players array
 			}
 		)
 	return
@@ -157,13 +159,13 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	username = decoded_token['username']
 	db_user = User.objects.get(username=username)
 	db_player = Player.objects.get(user=db_user)
-	# Adding user to the tournament, storing it's channel id, username and profil_picture
+	# Adding a new slot for the player in the tournament
 	tour["players"].append({
-		"id": (len(tour["players"]) + 1),
-		"color": random_rgb(),
-		"pcn": player_channel_name,
-		"username": str(db_player.user),
-		"img": str(db_player.profile_picture),
+		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
+		"color": random_rgb(), # Assigning a random color for frontend display 
+		"pcn": player_channel_name, # Storing the consumer's channel_name
+		"username": str(db_player.user), # Storing the username from db
+		"img": str(db_player.profile_picture), # Storing the profil picture from db
 		"arena_name": None, # This will be the display name for the tournament
 	})
 
@@ -217,19 +219,21 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					# Checking if the room exists
 					if (not tour):
 						raise ValueError(f"Tournament does not exist.")
-					# Checking is tournament is full
+					# Checking is tournament is already full
 					if (len(tour["players"]) >= tour["rules"]["max_player"]): # If full, player might be reconnecting
 						await sync_to_async(check_for_reconnexion)(tour, self.channel_name, auth_token)
 					else: # Registering the player in the tournament
 						await sync_to_async(register_to_tournament)(tour, self.channel_name, auth_token)
 					await self.channel_layer.group_add(self.tour_id, self.channel_name)
 					await self.accept()
-					return  # Successfully accepted the connection, exiting the function
+					# Showing other players that you are now connected, exiting the function
+					await broadcast_players_info(self.tour_id, tour["players"])
+					return
 				except ValueError as e:
 					if (e.args[0] == "Tournament does not exist."):
 						await asyncio.sleep(0.2)  # Wait before retrying
 					else:
-						break # No need to retry if the error came from elsewhere
+						break # No need to retry if the error was raised from elsewhere
 		# Rejecting the websocket connexion gracefully
 		await self.close()
 
@@ -276,3 +280,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	# Handle the `update.user_info` message from broadcast_players_info()
 	async def update_players_info(self, event):
 		await self.send(text_data=json.dumps({"data": event["data"], "case": event["case"]}))
+
+	# Handle the `update.new_leader` message from broadcast_players_info(), notifying the player that they are now the room's leader
+	async def update_new_leader(self, event):
+		await self.send(text_data=json.dumps({"data": None, "case": "you_are_leader"}))

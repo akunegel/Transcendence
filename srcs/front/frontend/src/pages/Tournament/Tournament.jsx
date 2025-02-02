@@ -12,6 +12,7 @@ function Tournament() {
 	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
 	const	logged = useRef(false);
+	const	[isLeader, setIsLeader] = useState(false);
 	const	gameStarted = useRef(false);
 	const	[nameError, setNameError] = useState(false);
 	const	[info, setInfo] = useState(null);
@@ -27,13 +28,13 @@ function Tournament() {
 		}
 		fetchTournamentInfo()
 			.then((data) => {setInfo(data);})
-			.catch((err) => console.error("Failed to fetch tournament info:", err));
+			.catch();
 	}, []);
 
 	// Setting the tab's title on mount, retrieving room's specific info, getting user info, starting websocket connexion
 	useEffect(() => {
 
-		document.title = "Connecting";
+		document.title = "Connecting...";
 		// Starting the connexion to the tournament's channel layer
 		if (!wsRef.current) {
 			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/tournament/?tourId=${tourId}&token=${authTokens.access}`);
@@ -49,18 +50,22 @@ function Tournament() {
 		wsRef.current.onmessage = (event) => {
 			const msg = JSON.parse(event.data);
 			console.log(msg);
-			// Received updated player's object array (id, arena_name, img)
-			if (msg.case == "players_info")
-				setPlayers(msg.data);
-			// Entered name was confirmed
-			else if (msg.case == "set_name_ok") {
-				logged.current = true;
-				document.title = "Waiting...";
+
+			switch (msg.case) {
+				case 'players_info': // Received updated player's object array (id, arena_name, img)
+					setPlayers(msg.data);
+					return ;
+				case 'set_name_ok': // Entered name was confirmed
+					logged.current = true;
+					document.title = "Waiting...";
+					return ;
+				case 'set_name_error': // Entered name was invalid
+					setNameError(msg.data);
+					return ;
+				case 'you_are_leader':
+					setIsLeader(true);
+					return ;
 			}
-			// Entered name was invalid
-			else if (msg.case == "set_name_error")
-				setNameError(msg.data);
-			
 		};
 
 		// Returning to the lobby if the tournament has ended, player lost connexion or couldn't connect
@@ -73,7 +78,7 @@ function Tournament() {
 	return (
 		<div className={styles.centered_container}>
 			{gameStarted.current == false ?
-				logged.current ? <PlayersList players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
+				logged.current ? <PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
 			:
 				<p>hello</p>
 			}

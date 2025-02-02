@@ -50,3 +50,32 @@
 	background-color: black;
 
 }
+
+.start_button {
+	margin-top: 25px;
+}
+.start_button button {
+	color: white;
+	font-weight: bold;
+	font-size: 2em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+	background: none;
+	transition: font-size 0.3s ease;
+}
+.start_button button:hover {
+	transition: font-size 0.3s ease;
+	font-size: 2.5em;
+}
+.start_button button:active {
+	transition: none;
+	font-size: 2.4em;
+}
+.start_button p {
+	color: gray;
+	font-weight: bold;
+	font-size: 1em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+	background: none;
+}

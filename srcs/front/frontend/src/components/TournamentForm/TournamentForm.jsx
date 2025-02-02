@@ -76,7 +76,7 @@ function TournamentForm() {
 
 	return (
 		<>
-			{noTournamentFound && <p className="m-0" style={{color:'white', fontWeight:'bold'}}>No tournament found</p>}
+			{noTournamentFound && <p className="m-0" style={{color:'white', fontWeight:'bold'}}>{"[ No tournament found ]"}</p>}
 			<div className={styles.gameform_container}>
 
 				{/* Turn bonuses on/off */}

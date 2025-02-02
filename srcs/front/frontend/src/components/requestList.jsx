@@ -12,8 +12,6 @@ export const getRoomInfo = async (authTokens, roomId) => {
 		const data = await res.json();
 		if (res.ok)
 			return (data);
-		else
-			console.error(JSON.stringify(data));
 	}
 	catch (error) {
 		console.error('Fetching room info error:', error)
@@ -33,8 +31,6 @@ export const getTournamentInfo = async (authTokens, tourId) => {
 		const data = await res.json();
 		if (res.ok)
 			return (data);
-		else
-			console.error(JSON.stringify(data));
 	}
 	catch (error) {
 		console.error('Fetching tournament info error:', error)
