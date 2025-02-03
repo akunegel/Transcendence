@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
 import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
@@ -34,10 +34,19 @@ function OnlinePong() {
 	const	playersRef = useRef(null);
 	const	rulesRef = useRef(null);
 	
-	
 	const navigate = useNavigate();
-
+	const location = useLocation();
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+	
+	useEffect(() => {
+		return () => {
+			// Close WebSocket when the component unmounts or the URL changes
+			if (wsRef.current) {
+				wsRef.current.close();
+				wsRef.current = null;
+			}
+		};
+	}, [location.pathname]); // Runs when the URL path changes
 
 	const handleReturn = () => {
 		navigate("/lobby");
@@ -164,8 +173,14 @@ function OnlinePong() {
 
 		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
-			// console.log("WebSocket disconnected");
+			console.log("WebSocket disconnected");
 			navigate("/lobby");
+		};
+
+		return () => {
+			// Closing websocket on unmount
+			if (wsRef.current)
+				wsRef.current.close();
 		};
 	}, []);
 

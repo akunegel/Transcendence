@@ -139,6 +139,7 @@ async def broadcast_players_info(tour_id, players):
 			"arena_name": player["arena_name"],
 			"img": player["img"],
 			"color": player["color"],
+			"connected": True if player["pcn"] else False,
 		})
 		i += 1
 	# Broadcasting to every players in the tournament
@@ -220,14 +221,17 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					if (not tour):
 						raise ValueError(f"Tournament does not exist.")
 					# Checking is tournament is already full
-					if (len(tour["players"]) >= tour["rules"]["max_player"]): # If full, player might be reconnecting
-						await sync_to_async(check_for_reconnexion)(tour, self.channel_name, auth_token)
+					if (tour["started"] == True): # If already started, player might be reconnecting
+						await sync_to_async(check_for_reconnexion)(tour, self.channel_name, auth_token) # Check if user was in this tournament
 					else: # Registering the player in the tournament
 						await sync_to_async(register_to_tournament)(tour, self.channel_name, auth_token)
+					await self.accept() # No error raised, accepting the connexion
 					await self.channel_layer.group_add(self.tour_id, self.channel_name)
-					await self.accept()
-					# Showing other players that you are now connected, exiting the function
+					# Showing other players that you are now connected
 					await broadcast_players_info(self.tour_id, tour["players"])
+					# If reconnecting, players can go around the logging phase
+					if (tour["started"] == True):
+						await self.send(text_data=json.dumps({"data": None, "case": "tournament_started"}))
 					return
 				except ValueError as e:
 					if (e.args[0] == "Tournament does not exist."):
@@ -239,48 +243,68 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
 
 	async def disconnect(self, close_code=1001):
-		# Removing the channel name from the channel layer
-		await self.channel_layer.group_discard(self.tour_id, self.channel_name)
-		# Getting the associated tournament
 		tour = tournament_manager.get_tournament(self.tour_id)
+		await self.channel_layer.group_discard(self.tour_id, self.channel_name)
 		if (tour is not None):
-			if (tour["started"] == True) : # Removing only the pcn from the slot, this allows disconnected users to reconnect
+			# Removing only the pcn from the slot, this allows disconnected users to reconnect
+			if (tour["started"] == True) :
+				# Setting the player as disconnected
 				for player in tour["players"]:
 					if (player["pcn"] == self.channel_name):
 						player["pcn"] = None
 						break
-			else: # If the tournament did not start yet, the player's slot is removed
+			# If the tournament did not start yet, the player's slot is removed
+			else:
 				for player in tour["players"]:
 					if (player["pcn"] == self.channel_name):
 						tour["players"].remove(player)
 						break
-				if (len(tour["players"]) == 0): # Removing the tournament if it is now empty
-					tournament_manager.remove_tournament(self.tour_id)
-				else: # Or updating the others of the departure
-					await broadcast_players_info(self.tour_id, tour["players"])
+			# Checking if every player is disconnected
+			disconnected = 0
+			for player in tour["players"]:
+				if (player["pcn"]):
+					break
+				disconnected += 1
+			if (len(tour["players"]) == disconnected): # Removing the tournament if it is now empty
+				tournament_manager.remove_tournament(self.tour_id)
+			# Updating the others of the departure if the tournament still exists
+			if (tournament_manager.contains(self.tour_id)):
+				await broadcast_players_info(self.tour_id, tour["players"])
 		await self.close(close_code)
 		pass
 
 	async def receive(self, text_data):
 		message = json.loads(text_data)
 		tour = tournament_manager.get_tournament(self.tour_id)
-		# Message case 'set_name' (from NameForm.jsx) 
-		if (tour is not None and "set_name" in message and tour["started"] == False):
-			try:
-				await set_arena_name(self.tour_id, tour, self.channel_name, message["set_name"])
-				await self.send(text_data=json.dumps({"data": None, "case": "set_name_ok"}))
-			except ValueError as e:
-				await self.send(text_data=json.dumps({"data": str(e.args[0]), "case": "set_name_error"}))
+		if (tour is None):
+			return
+
+		match message:
+			case {"set_name": name}:
+				try:
+					await set_arena_name(self.tour_id, tour, self.channel_name, name)
+					await self.send(text_data=json.dumps({"data": None, "case": "set_name_ok"}))
+				except ValueError as e:
+					await self.send(text_data=json.dumps({"data": str(e.args[0]), "case": "set_name_error"}))
+
+			case {"start_game": _}:
+				tournament_manager.start_tournament_task(self.tour_id)
 		return
 
-	# Handle the `update.disconnect` message from tournament_logic, closing the WebSocket
-	async def update_disconnect(self, event):
-		await self.disconnect(1000)
 
 	# Handle the `update.user_info` message from broadcast_players_info()
 	async def update_players_info(self, event):
+		tour = tournament_manager.get_tournament(self.tour_id)
 		await self.send(text_data=json.dumps({"data": event["data"], "case": event["case"]}))
 
 	# Handle the `update.new_leader` message from broadcast_players_info(), notifying the player that they are now the room's leader
 	async def update_new_leader(self, event):
 		await self.send(text_data=json.dumps({"data": None, "case": "you_are_leader"}))
+	
+	# Handle the `update.tournament_event` message from tournament_logic
+	async def update_tournament_event(self, event):
+		await self.send(text_data=json.dumps({"data": event["data"], "case": event["case"]}))
+
+	# Handle the `update.disconnect` message from tournament_logic, closing the WebSocket
+	async def update_disconnect(self, event):
+		await self.disconnect(1000)

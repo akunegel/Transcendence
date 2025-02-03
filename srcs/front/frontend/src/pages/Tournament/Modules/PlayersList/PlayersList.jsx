@@ -43,7 +43,7 @@ function PlayersList({ isLeader, wsRef, players, info }) {
 	return (
 		<div className={styles.centered_container}>
 			{players.length == info.max_player && allLogged ? 
-				<h1>{'[ Waiting for leader to start ]'}</h1>
+				<h1>{isLeader ? '[ You can start the tournament ]' : '[ Waiting for leader to start ]'}</h1>
 			:
 				<h1>{'Waiting for others to connect...'}</h1>
 			}

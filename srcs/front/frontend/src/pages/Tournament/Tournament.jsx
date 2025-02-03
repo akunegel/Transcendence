@@ -1,23 +1,41 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
-import AuthContext from "../../context/AuthContext.jsx";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { getTournamentInfo } from '../../components/requestList.jsx';
+import AuthContext from "../../context/AuthContext.jsx";
 import NameForm from './Modules/NameForm/NameForm.jsx';
 import PlayersList from './Modules/PlayersList/PlayersList.jsx';
+import GraphDisplay from './Modules/GraphDisplay/GraphDisplay.jsx';
+import PongMatch from './Modules/PongMatch/PongMatch.jsx';
 import styles from './Tournament.module.css';
+
 
 function Tournament() {
 
 	const	{ authTokens } = useContext(AuthContext);
 	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
-	const	logged = useRef(false);
+	const	[logged, setLogged] = useState(false);
 	const	[isLeader, setIsLeader] = useState(false);
-	const	gameStarted = useRef(false);
+	const	[gameStarted, setGameStarted] = useState(false);
+	const	[isInMatch, setIsInMatch] = useState(false);
+	const	[matchLink, setMatchLink] = useState(false);
 	const	[nameError, setNameError] = useState(false);
 	const	[info, setInfo] = useState(null);
 	const	[players, setPlayers] = useState(null);
 	const	navigate = useNavigate();
+
+
+	const location = useLocation();
+
+	useEffect(() => {
+		return () => {
+			// Close WebSocket when the component unmounts or the URL changes
+			if (wsRef.current) {
+				wsRef.current.close();
+				wsRef.current = null;
+			}
+		};
+	}, [location.pathname]); // Runs when the URL path changes
 
 
 	useEffect(() => {
@@ -56,14 +74,27 @@ function Tournament() {
 					setPlayers(msg.data);
 					return ;
 				case 'set_name_ok': // Entered name was confirmed
-					logged.current = true;
+					setLogged(true);
 					document.title = "Waiting...";
 					return ;
 				case 'set_name_error': // Entered name was invalid
 					setNameError(msg.data);
 					return ;
-				case 'you_are_leader':
+				case 'you_are_leader': // User is designated as tournament's leader
 					setIsLeader(true);
+					return ;
+				case 'tournament_started': // The tournament started
+					setGameStarted(true);
+					document.title = "Tournament Started !";
+					return ;
+				case 'go_to_graph': // Players return to the graph
+					setIsInMatch(false);
+					document.title = "Get ready...";
+				case 'start_new_round': // Players go play their next round
+					setMatchLink(msg.data.room_id);
+					setIsInMatch(true);
+					document.title = "Pong !";
+				default:
 					return ;
 			}
 		};
@@ -73,14 +104,19 @@ function Tournament() {
 			navigate("/tournament");
 		};
 
+		return () => {
+			// Closing websocket on unmount
+			if (wsRef.current)
+				wsRef.current.close();
+		};
 	}, []);
 
 	return (
 		<div className={styles.centered_container}>
-			{gameStarted.current == false ?
-				logged.current ? <PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
+			{gameStarted == false ?
+				logged ? <PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
 			:
-				<p>hello</p>
+				isInMatch == false ? <GraphDisplay players={players} info={info}/> : <PongMatch players={players} info={info} link={matchLink}/>
 			}
 		</div>
 	);
