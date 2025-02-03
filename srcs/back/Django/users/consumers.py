@@ -43,5 +43,6 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def set_online_status(self, status):
-        self.player.online = status
-        self.player.save()
+        player = Player.objects.get(id=self.player.id)
+        player.online = status
+        player.save()
