@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='player',
             name='language',
-            field=models.CharField(default='English', max_length=30),
+            field=models.CharField(default='NULL', max_length=30),
         ),
     ]
