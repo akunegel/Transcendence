@@ -5,10 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Connect42 from "./api42.jsx";
-import logo from "../assets/images/42img.png"
+import logo from "../assets/images/42img.png";
+import { useTranslation } from 'react-i18next'
 
 const Header = () => {
 	const { authTokens, logoutUser } = useContext(AuthContext);
+	const { i18n } = useTranslation();
 	const [userLanguage, setLanguage] = useState({
 		language: ''
 	});
@@ -27,9 +29,27 @@ const Header = () => {
         }
     }, [authTokens])
 
-	function handleLanguageChange(event){
-		setLanguage({ language: event });
-	}
+	//function handleLanguageChange(event){
+	//	setLanguage({ language: event });
+	//}
+
+	const handleLanguageChange = async (language) => {
+		try {
+			setLanguage({ language });
+			i18n.changeLanguage(language); // Set language globally in i18next
+
+			await fetch(`${import.meta.env.VITE_API_URL}/users/language/`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: 'Bearer ' + String(authTokens.access),
+				},
+				body: JSON.stringify({ language }),
+			});
+		} catch (error) {
+			console.error('Failed to update language preference:', error);
+		}
+	};
 
 	let getPlayerLanguage = async () => {
 		try {
@@ -44,7 +64,9 @@ const Header = () => {
 			let data = await response.json()
 
 			if (response.status === 200) {
-				setLanguage({language: data.language});
+				const language = data.language;
+                setLanguage({ language });
+                i18n.changeLanguage(language);
 			} else if (response.status === 401) {
 				logoutUser()
 			}

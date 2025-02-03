@@ -23,5 +23,6 @@ urlpatterns = [
     path('2fa/verify/', views.VerifyTwoFactor.as_view(), name='verify_2fa'),
     path('other-profile/<str:username>/', views.getOtherPlayerProfile, name='other-profile'),
     path('block-user/', views.block_user, name='block-user'),
-    path('blocked-users/', views.get_blocked_users, name='blocked-users')
+    path('blocked-users/', views.get_blocked_users, name='blocked-users'),
+	path('language/', views.updateUserLanguage, name='update_user_language'),
 ]
