@@ -22,6 +22,7 @@ function Tournament() {
 	const	[nameError, setNameError] = useState(false);
 	const	[info, setInfo] = useState(null);
 	const	[players, setPlayers] = useState(null);
+	const	[round, setRound] = useState(0);
 	const	navigate = useNavigate();
 
 
@@ -71,7 +72,7 @@ function Tournament() {
 
 			switch (msg.case) {
 				case 'players_info': // Received updated player's object array (id, arena_name, img)
-					setPlayers(msg.data);
+					setPlayers(msg.data); // Ensure new reference
 					return ;
 				case 'set_name_ok': // Entered name was confirmed
 					setLogged(true);
@@ -85,11 +86,11 @@ function Tournament() {
 					return ;
 				case 'tournament_started': // The tournament started
 					setGameStarted(true);
-					document.title = "Tournament Started !";
+					document.title = "Get ready...";
 					return ;
 				case 'go_to_graph': // Players return to the graph
 					setIsInMatch(false);
-					document.title = "Get ready...";
+					document.title = "Starting...";
 				case 'start_new_round': // Players go play their next round
 					setMatchLink(msg.data.room_id);
 					setIsInMatch(true);
@@ -116,7 +117,7 @@ function Tournament() {
 			{gameStarted == false ?
 				logged ? <PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
 			:
-				isInMatch == false ? <GraphDisplay players={players} info={info}/> : <PongMatch players={players} info={info} link={matchLink}/>
+				isInMatch == false ? <GraphDisplay players={players} info={info} round={round}/> : <PongMatch players={players} info={info} link={matchLink}/>
 			}
 		</div>
 	);

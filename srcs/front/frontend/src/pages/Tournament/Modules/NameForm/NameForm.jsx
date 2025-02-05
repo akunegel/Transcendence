@@ -35,7 +35,11 @@ function NameForm({ wsRef, nameError }){
 					<p className="m-0">{nameError}</p>
 				</div>
 			}
-			<button onClick={() => sendName()}>CONFIRM</button>
+			{name == "" ?
+				<button style={{color:'#a0a0a0', cursor:'default'}}>CONFIRM</button>
+			:
+				<button onClick={() => sendName()}>CONFIRM</button>
+			}
 		</div>
 	)
 }

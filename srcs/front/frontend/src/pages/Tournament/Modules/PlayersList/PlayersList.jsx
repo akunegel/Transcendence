@@ -1,5 +1,7 @@
 import styles from './PlayersList.module.css'
 import { useEffect, useState } from 'react'
+import default_pic from '../../../../assets/images/default_profile_pic.png'
+import ImgFallback from '../../../../components/ImgFallback';
 
 function PlayersList({ isLeader, wsRef, players, info }) {
 
@@ -24,7 +26,10 @@ function PlayersList({ isLeader, wsRef, players, info }) {
 	const list = players.map((player) => 
 
 		<div className={styles.player_box} key={player.id}>
-			<img src={player.img} style={{borderColor: player.color}} alt="Profil Picture"/>
+			<ImgFallback	src={player.img}
+							alt="Profil Picture"
+							fallback={default_pic}
+							style={{borderColor: player.color}}/>
 			<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
 			{player.id == 1 &&
 				<p className='m-0' style={{borderColor: player.color}}>leader</p>
