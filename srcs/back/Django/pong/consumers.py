@@ -124,16 +124,18 @@ def random_rgb():
 	r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
 	return f"#{r:02X}{g:02X}{b:02X}"
 
-async def broadcast_players_info(tour_id, players):
+async def broadcast_players_info(tour_id, tour):
 
 	channel_layer = get_channel_layer()
+	players = tour["players"]
 	data = []
 	i = 1
 	# Pruning the 'players' array into a new one, with only useful information 
 	for player in players:
-		if (i == 1 and player["id"] != i): # If a player becomes id:1, they are now the tournament's leader
+		# Re-updating users ids in the room
+		if (i == 1 and player["id"] != i and tour["started"] == False): # If a player becomes id:1, they are now the tournament's leader
 			await channel_layer.send(player["pcn"],{"type": "update.new_leader"})
-		player["id"] = i # Re-updating users ids in the room
+		player["id"] = i
 		data.append({
 			"id": player["id"],
 			"arena_name": player["arena_name"],
@@ -198,7 +200,7 @@ async def set_arena_name(tour_id, tour, player_channel_name, name):
 	for player in tour["players"]:
 		if (player["pcn"] == player_channel_name):
 			player["arena_name"] = name
-			await broadcast_players_info(tour_id, tour["players"])
+			await broadcast_players_info(tour_id, tour)
 			break
 	return
 
@@ -228,7 +230,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					await self.accept() # No error raised, accepting the connexion
 					await self.channel_layer.group_add(self.tour_id, self.channel_name)
 					# Showing other players that you are now connected
-					await broadcast_players_info(self.tour_id, tour["players"])
+					await broadcast_players_info(self.tour_id, tour)
 					# If reconnecting, players can go around the logging phase
 					if (tour["started"] == True):
 						await self.send(text_data=json.dumps({"data": None, "case": "tournament_started"}))
@@ -269,7 +271,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 				tournament_manager.remove_tournament(self.tour_id)
 			# Updating the others of the departure if the tournament still exists
 			if (tournament_manager.contains(self.tour_id)):
-				await broadcast_players_info(self.tour_id, tour["players"])
+				await broadcast_players_info(self.tour_id, tour)
 		await self.close(close_code)
 		pass
 

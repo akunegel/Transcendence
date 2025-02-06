@@ -14,19 +14,18 @@ function Tournament() {
 	const	{ authTokens } = useContext(AuthContext);
 	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
+	const	[info, setInfo] = useState(null);
+	const	[nameError, setNameError] = useState(false);
 	const	[logged, setLogged] = useState(false);
+	const	[players, setPlayers] = useState(null);
 	const	[isLeader, setIsLeader] = useState(false);
 	const	[gameStarted, setGameStarted] = useState(false);
 	const	[isInMatch, setIsInMatch] = useState(false);
 	const	[matchLink, setMatchLink] = useState(false);
-	const	[nameError, setNameError] = useState(false);
-	const	[info, setInfo] = useState(null);
-	const	[players, setPlayers] = useState(null);
 	const	[round, setRound] = useState(0);
 	const	navigate = useNavigate();
+	const	location = useLocation();
 
-
-	const location = useLocation();
 
 	useEffect(() => {
 		return () => {
@@ -42,8 +41,8 @@ function Tournament() {
 	useEffect(() => {
 		// Getting the room's gamerules (point limit, add bonuses, max time, etc...) for display
 		const fetchTournamentInfo = async () => {
-			const roomData = await getTournamentInfo(authTokens, tourId);
-			return (roomData);
+			const tourData = await getTournamentInfo(authTokens, tourId);
+			return (tourData);
 		}
 		fetchTournamentInfo()
 			.then((data) => {setInfo(data);})
@@ -59,14 +58,12 @@ function Tournament() {
 			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/tournament/?tourId=${tourId}&token=${authTokens.access}`);
 			wsRef.current = ws;
 		}
-		
-		wsRef.current.onopen = () => {
-			document.title = "Enter Name";
-			console.log("WebSocket connected");
-		};
-		
-		// Parsing received updates from the room
-		wsRef.current.onmessage = (event) => {
+
+		wsRef.current.addEventListener("open", () => {
+			console.log("WebSocket connected!");
+		});
+	
+		wsRef.current.addEventListener("message", (event) => {
 			const msg = JSON.parse(event.data);
 			console.log(msg);
 
@@ -90,15 +87,17 @@ function Tournament() {
 					return ;
 				case 'go_to_graph': // Players return to the graph
 					setIsInMatch(false);
-					document.title = "Starting...";
+					document.title = "Starting soon...";
+					return ;
 				case 'start_new_round': // Players go play their next round
-					setMatchLink(msg.data.room_id);
+					// setMatchLink(msg.data.room_id);
 					setIsInMatch(true);
 					document.title = "Pong !";
+					return ;
 				default:
 					return ;
 			}
-		};
+		});
 
 		// Returning to the lobby if the tournament has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
@@ -106,18 +105,23 @@ function Tournament() {
 		};
 
 		return () => {
-			// Closing websocket on unmount
-			if (wsRef.current)
-				wsRef.current.close();
+			if (wsRef.current) // Closing websocket on unmount
+			wsRef.current.close();
 		};
 	}, []);
 
 	return (
 		<div className={styles.centered_container}>
 			{gameStarted == false ?
-				logged ? <PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/> : <NameForm wsRef={wsRef} nameError={nameError}/>
+				logged ?
+					<PlayersList isLeader={isLeader} wsRef={wsRef} players={players} info={info}/>
+				:
+					<NameForm wsRef={wsRef} nameError={nameError}/>
 			:
-				isInMatch == false ? <GraphDisplay players={players} info={info} round={round}/> : <PongMatch players={players} info={info} link={matchLink}/>
+				isInMatch ?
+					<PongMatch players={players} info={info} roomId={matchLink} wsRef={wsRef}/>
+				:
+					<GraphDisplay players={players} info={info} round={round}/>
 			}
 		</div>
 	);

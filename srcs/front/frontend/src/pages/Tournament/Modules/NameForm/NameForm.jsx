@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import styles from './NameForm.module.css'
 
 function NameForm({ wsRef, nameError }){
 
 	const [name, setName] = useState("");
+	const inputRef = useRef(null);
 
 	const handleNameChange = (e) => {
 		let newName = e.target.value;
@@ -21,11 +22,17 @@ function NameForm({ wsRef, nameError }){
 		return ;
 	}
 
+	useEffect(() => {
+		if (inputRef.current)
+			inputRef.current.select(); // Auto-select the text inside the input
+	}, []);
+
 	return (
 		<div className={styles.box}>
 			<p>{wsRef.current && wsRef.current.readyState === WebSocket.OPEN ? "Enter Arena Name :" : "Connecting..."}</p>
 			<input	type="text"
 					placeholder='...'
+					ref={inputRef}
 					value={name}
 					onChange={(e) => handleNameChange(e)}
 					onKeyDown={(e) => e.key == "Enter" && sendName()}

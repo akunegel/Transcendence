@@ -23,6 +23,8 @@ class TournamentManager:
 						"max_player": 4,										# -
 			},																	# -
 			"players": [],														# Storage for players' websocket id, username, displayname
+			"rounds_winner": [],												# Keeping track of each round's winner
+			"match": [],														# Storing all current matchs' information
 			"started": False,													# Has the tournament started ?
 			"winner": None,														# Tournament's winner
 		}
