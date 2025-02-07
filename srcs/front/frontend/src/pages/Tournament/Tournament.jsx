@@ -21,7 +21,7 @@ function Tournament() {
 	const	[isLeader, setIsLeader] = useState(false);
 	const	[gameStarted, setGameStarted] = useState(false);
 	const	[isInMatch, setIsInMatch] = useState(false);
-	const	[matchLink, setMatchLink] = useState(false);
+	const	[matchOpponents, setMatchOpponents] = useState(false);
 	const	[round, setRound] = useState(0);
 	const	navigate = useNavigate();
 	const	location = useLocation();
@@ -89,8 +89,8 @@ function Tournament() {
 					setIsInMatch(false);
 					document.title = "Starting soon...";
 					return ;
-				case 'start_new_round': // Players go play their next round
-					// setMatchLink(msg.data.room_id);
+				case 'match_start': // Players go play their next round
+					setMatchOpponents(msg.data);
 					setIsInMatch(true);
 					document.title = "Pong !";
 					return ;
@@ -119,7 +119,7 @@ function Tournament() {
 					<NameForm wsRef={wsRef} nameError={nameError}/>
 			:
 				isInMatch ?
-					<PongMatch players={players} info={info} roomId={matchLink} wsRef={wsRef}/>
+					<PongMatch players={players} info={info} opponents={matchOpponents} wsRef={wsRef}/>
 				:
 					<GraphDisplay players={players} info={info} round={round}/>
 			}

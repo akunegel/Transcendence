@@ -2,6 +2,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from rest_framework_simplejwt.tokens import AccessToken
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
+from .match_logic import targeted_msg
 from users.models import Player
 from django.contrib.auth.models import User
 import urllib.parse
@@ -9,6 +10,7 @@ import json
 import logging
 import asyncio
 import random
+from pong.match_logic import handlePlayerInput
 from pong.RoomManager import room_manager
 from pong.TournamentManager import tournament_manager
 
@@ -162,6 +164,9 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	username = decoded_token['username']
 	db_user = User.objects.get(username=username)
 	db_player = Player.objects.get(user=db_user)
+	# Checking if tournament is full
+	if (len(tour["players"]) >= tour["rules"]["max_player"]):
+		raise ValueError(f"Tournament is full")
 	# Adding a new slot for the player in the tournament
 	tour["players"].append({
 		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
@@ -187,9 +192,10 @@ def check_for_reconnexion(tour, player_channel_name, auth_token):
 	raise ValueError(f"Tournament is full")
 
 async def set_arena_name(tour_id, tour, player_channel_name, name):
+	name = name.strip()
 	# Check if the player somehow manages to send a name too long or empty
 	if (len(name) < 1 or len(name) > 11):
-		raise ValueError(f"Invalid name length")
+		raise ValueError(f"Name is empty")
 	# Check if the name is already in use in this tournament
 	for player in tour["players"]:
 		if (player["pcn"] != player_channel_name and player["arena_name"] == name):
@@ -203,6 +209,15 @@ async def set_arena_name(tour_id, tour, player_channel_name, name):
 			await broadcast_players_info(tour_id, tour)
 			break
 	return
+
+async def log_back_player(tour, pcn):
+	await targeted_msg(pcn, "update.tournament_event", None, "tournament_started")
+	# This brings back the player to it's match
+	for match in tour["matchs"]:
+		if (match["p1"]["pcn"] == pcn or match["p2"]["pcn"] == pcn):
+			await targeted_msg(pcn, "update.tournament_event", match["pids"], "match_start")
+			break
+
 
 class TournamentConsumer(AsyncWebsocketConsumer):
 
@@ -233,7 +248,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					await broadcast_players_info(self.tour_id, tour)
 					# If reconnecting, players can go around the logging phase
 					if (tour["started"] == True):
-						await self.send(text_data=json.dumps({"data": None, "case": "tournament_started"}))
+						await log_back_player(tour, self.channel_name)
 					return
 				except ValueError as e:
 					if (e.args[0] == "Tournament does not exist."):
@@ -282,15 +297,21 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 			return
 
 		match message:
-			case {"set_name": name}:
+			# Setting a custom username for the tournament
+			case { "set_name": name }:
 				try:
 					await set_arena_name(self.tour_id, tour, self.channel_name, name)
 					await self.send(text_data=json.dumps({"data": None, "case": "set_name_ok"}))
 				except ValueError as e:
 					await self.send(text_data=json.dumps({"data": str(e.args[0]), "case": "set_name_error"}))
 
-			case {"start_game": _}:
-				tournament_manager.start_tournament_task(self.tour_id)
+			# Starting the tournament as Leader
+			case { "start_game": _ }:
+				tournament_manager.start_tournament_task(self.tour_id, self.channel_name)
+
+			# Reads event listeners for keyboard press in a match
+			case { "action": type }:
+				await handlePlayerInput(tour, self.channel_name, type)
 		return
 
 
@@ -302,7 +323,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 	# Handle the `update.new_leader` message from broadcast_players_info(), notifying the player that they are now the room's leader
 	async def update_new_leader(self, event):
 		await self.send(text_data=json.dumps({"data": None, "case": "you_are_leader"}))
-	
+
 	# Handle the `update.tournament_event` message from tournament_logic
 	async def update_tournament_event(self, event):
 		await self.send(text_data=json.dumps({"data": event["data"], "case": event["case"]}))

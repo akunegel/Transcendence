@@ -10,7 +10,7 @@ function NameForm({ wsRef, nameError }){
 		let newName = e.target.value;
 		if (newName.length > 11)
 			return ;
-		setName(() => newName);
+		setName(() => newName.trim());
 		return ;
 	}
 

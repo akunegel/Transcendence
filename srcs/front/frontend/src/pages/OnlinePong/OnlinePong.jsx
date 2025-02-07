@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
+import ImgFallback from '../../components/ImgFallback.jsx';
+import default_pic from '../../assets/images/default_profile_pic.png'
 import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
@@ -315,26 +317,18 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.top_container}>
-				{players && !players.one.image ? (
-					<div className={styles.player_info}>
-					<img 
-						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
-						alt="Profile Picture"
-					/>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-						{players.one.name || "waiting..."}
+				{/* Player1 info */}
+				<div className={styles.player_info}>
+					{players ? 
+						<ImgFallback src={players.one.img} alt="Profile Picture" fallback={default_pic}/>
+					:
+						<img src={default_pic} alt="Profile Picture"/>
+					}
+					<p className="m-0" style={{ textAlign: "left"}}>
+						{players ? players.one.name : "waiting..."}
 					</p>
-					</div>
-				) : (
-					<div className={styles.player_info}>
-					{players && players.one.img && (
-						<img src={players.one.img} alt="Profile Picture" />
-					)}
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-						{players && players.one.name || "waiting..."}
-					</p>
-					</div>
-				)}
+				</div>
+				{/* Middle Display - Current score or time left */}
 				<div className={styles.centered_container} style={{marginTop:"80px"}}>
 					{rules && rules.has_time_limit == true ?
 							<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
@@ -342,28 +336,17 @@ function OnlinePong() {
 							<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : "0"}{score.left}:{score.right > 9 ? "" : "0"}{score.right} </h2>
 						}
 				</div>
-
-				{players && !players.two.image ? (
-					<div className={styles.player_info}>
-					<p className="m-0" style={{ textAlign: "right", borderRight: "5px solid white" }}>
-					{players.two.name || "waiting..."}
+				{/* Player2 info */}
+				<div className={styles.player_info}>
+					<p className="m-0" style={{ textAlign: "right"}}>
+						{players ? players.two.name : "waiting..."}
 					</p>
-					<img 
-						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
-						alt="Profile Picture"
-					/>
-					</div>
-				) : (
-					<div className={styles.player_info}>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-					{players && players.two.name || "waiting..."}
-					</p>
-					{players && players.two.img && (
-						<img src={players.two.img} alt="Profile Picture" />
-					)}
-					</div>
-				)}
-
+					{players ? 
+						<ImgFallback src={players.two.img} alt="Profile Picture" fallback={default_pic}/>
+					:
+						<img src={default_pic} alt="Profile Picture"/>
+					}
+				</div>
 			</div>
 
 			<div className={styles.game_container}>

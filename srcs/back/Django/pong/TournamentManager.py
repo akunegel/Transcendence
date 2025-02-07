@@ -24,7 +24,7 @@ class TournamentManager:
 			},																	# -
 			"players": [],														# Storage for players' websocket id, username, displayname
 			"rounds_winner": [],												# Keeping track of each round's winner
-			"match": [],														# Storing all current matchs' information
+			"matchs": [],														# Storing all current matchs' information
 			"started": False,													# Has the tournament started ?
 			"winner": None,														# Tournament's winner
 		}
@@ -36,39 +36,48 @@ class TournamentManager:
 		return self.tournaments.get(str(tour_id))
 
 	def remove_tournament(self, tour_id):
-		tournament = self.tournaments.get(str(tour_id))
+		tour = self.tournaments[str(tour_id)]
 		# Does tournament exist
-		if (tournament is None):
+		if (tour is None):
 			return
-		if (tournament["task"]):
-			self.stop_tournament_task(tour_id)
+		self.stop_tournament_task(tour_id)
 		del self.tournaments[str(tour_id)]
 
-	def start_tournament_task(self, tour_id):
-		tournament = self.tournaments[str(tour_id)]
+	def start_tournament_task(self, tour_id, pcn):
+		tour = self.tournaments[str(tour_id)]
 		# Does tournament exist and does not have a tournament_task running ?
-		if (tournament is None or tournament["started"] == True):
+		if (tour is None or tour["started"] == True):
+			return
+		# Is it really leader ?
+		if (tour["players"][0]["pcn"] != pcn):
 			return
 		# Is tournament full ?
-		if (len(tournament["players"]) < tournament["rules"]["max_player"]):
+		if (len(tour["players"]) < tour["rules"]["max_player"]):
 			return
 		# Did every player choose an arena name ?
-		for player in tournament["players"]:
+		for player in tour["players"]:
 			if (player["arena_name"] == None):
 				return
 		# Starting the tournament
-		tournament["started"] = True
-		tournament["task"] = asyncio.create_task(tournament_logic(str(tour_id)))
+		tour["started"] = True
+		tour["task"] = asyncio.create_task(tournament_logic(str(tour_id), tour))
 
 	def stop_tournament_task(self, tour_id):
-		tournament = self.tournaments.get(str(tour_id))
+		tour = self.tournaments[str(tour_id)]
 		# Does tournament exist ?
-		if (tournament is None):
+		if (tour is None):
 			return
 		# Stopping the associated task if there is one
-		task = self.tournaments[str(tour_id)]["task"]
-		if task:
-			task.cancel()
+		if tour["task"]:
+			tour["task"].cancel()
+		# Stopping any match task still running
+		for match in tour["matchs"]:
+			if match["match_task"]:
+				match["match_task"].cancel()
+			if match["paddle_task"]:
+				match["paddle_task"].cancel()
+			if match["timer_task"]:
+				match["timer_task"].cancel()
 
 
 tournament_manager = TournamentManager()

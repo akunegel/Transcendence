@@ -2,8 +2,7 @@ from .bonusManager import bonusManager, handleBonusBoxCollision
 from .save_game import saveGameResults
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
-from .match_logic import match_logic
-from .match_logic import paddle_logic
+from .match_logic import match_logic, paddle_logic
 import asyncio
 import math
 import logging
@@ -29,46 +28,58 @@ async def share_event(tour_id, type, data, case):
 
 async def generate_match_rooms(tour_id, tour, players, amount):
 
-	p = 1
+	p = 0
 	for i in range(amount):
 		tour["matchs"].append({
 			"match_id": i,
 			"rules": tour["rules"],
 			"p1": players[p],
 			"p2": players[p + 1],
+			"pids": {"p1": players[p]["id"], "p2": players[p + 1]["id"]},
 			"started": False,
 			"winner": None,
 			"match_task": None,
 			"paddle_task": None,
+			"timer_task": None,
+			"timer_over" : False,
+			"l_paddle_up": False,
+			"l_paddle_down": False,
+			"r_paddle_up": False,
+			"r_paddle_down": False,
+			"var": {"time": 0.0,											# Initialize sendable game variables
+					"objx": 400, "objy": 250, 								# -
+					"l_score": 0, "r_score": 0,								# -
+					"l_paddle": 250, "r_paddle": 250,						# -
+					"l_paddle_size": 120, "r_paddle_size": 120,				# -
+					"available_bonus": "none"},								# -
+			"dyn": {"dir": 1, "vec": 0.005, "speed": 120,					# Initialize local game variables (dynamics)
+					"bonus": "none", "timer": 3, "old_speed": 120,			# -
+					"rebound": {"left": 0, "right": 0}},					# - Amount of rebounds made on paddles
 		})
 		p += 2
-	
+
 	for match in tour["matchs"]:
-		match["match_task"] = asyncio.create_task(match_logic(match))
+		match["match_task"] = asyncio.create_task(match_logic(tour_id, match))
 		match["paddle_task"] = asyncio.create_task(paddle_logic(match))
 
 
-async def tournament_logic(tour_id):
-	from pong.TournamentManager import tournament_manager  # Imported here to avoid circular imports
+async def tournament_logic(tour_id, tour):
 	from .consumers import broadcast_players_info
-	tour = tournament_manager.get_tournament(tour_id)
+
 	max_player = tour["rules"]["max_player"]
 	match_amount_divider = 2 # Depending on the round and max_player, this will determine how many rooms must be created
-	players_left = tour["players"].copy()
-
+	players_left = tour["players"].copy() # Keeping track all the players still in competition
 	random.shuffle(tour["players"]) # Randomize matchmaking
+
 	await share_event(tour_id, "update.tournament_event", None, "tournament_started")
 	await broadcast_players_info(tour_id, tour)
 
+	await generate_match_rooms(tour_id, tour, tour["players"], int(max_player / match_amount_divider))
+	match_amount_divider *= 2
 	while (tour["started"]):
-		await generate_match_rooms(tour_id, tour, players_left, max_player / match_amount_divider)
-		match_amount_divider *= 2
-		# await send_room_ids()
-		await share_event(tour_id, "update.tournament_event", None, "start_new_round")
+		await asyncio.sleep(10)
 		# while (all_match_finished == False):
 			# await asyncio.sleep(5)
 		# end_matchs_tasks()
-		# await send_match_winners()
-		await share_event(tour_id, "update.tournament_event", None, "go_to_graph")
 
 	return

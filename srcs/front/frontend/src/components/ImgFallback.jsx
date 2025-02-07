@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const ImgFallback = ({ src, alt, fallback, style }) => {
+const ImgFallback = ({ src, alt, fallback, style={} }) => {
 	const [imgSrc, setImgSrc] = useState(src);
 
 	return (

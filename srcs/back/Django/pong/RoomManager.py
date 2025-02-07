@@ -1,12 +1,9 @@
-from .paddle_logic import paddle_logic
-from .game_logic import game_logic
-from .timer_logic import timer_logic
+from .game_logic import game_logic, paddle_logic, timer_logic
 import asyncio
 import logging
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__RoomManagerLog__")
-
 
 class RoomManager:
 
