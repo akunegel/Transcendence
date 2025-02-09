@@ -8,7 +8,7 @@ class Player(models.Model):
     first_name = models.CharField(max_length=100, blank=True, default="")
     last_name = models.CharField(max_length=100, blank=True, default="")
     email = models.EmailField(blank=True, default="")
-    language = models.CharField(max_length=30, default="English")
+    language = models.CharField(max_length=30, default="NULL")
     two_factor = models.BooleanField(default=False)
     mfa_secret = models.CharField(max_length=32, blank=True, null=True)
     nb_games = models.IntegerField(default=0)
@@ -16,7 +16,7 @@ class Player(models.Model):
     loss = models.IntegerField(default=0)
     tr_wins = models.IntegerField(default=0)
     rb = models.IntegerField(default=0)
-
+    online = models.BooleanField(default=False)
 
 class FriendRequest(models.Model):
     STATUSES = [

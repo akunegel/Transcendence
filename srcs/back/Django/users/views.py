@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer
+from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer, UserLanguagePatchSerializer
 from .models import Player, FriendRequest, Friendship, BlockedUser
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -198,12 +198,13 @@ def getOtherPlayerProfile(request, username):
 @permission_classes([IsAuthenticated])
 def get_friends(request):
     try:
-        player = Player.objects.get(user=request.user)
-        friendships = Friendship.objects.filter(user=request.user)
+        friendships = Friendship.objects.filter(user=request.user)\
+            .select_related('friend__player')
         serializer = FriendshipSerializer(friendships, many=True)
         return Response(serializer.data)
-    except Player.DoesNotExist:
-        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        logger.error(f"Error fetching friends: {str(e)}")
+        return Response({"detail": "Error fetching friends"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -485,3 +486,20 @@ def get_blocked_users(request):
     blocked_users = BlockedUser.objects.filter(user=request.user)
     blocked_usernames = [block.blocked_user.username for block in blocked_users]
     return Response({'blocked_users': blocked_usernames})
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def updateUserLanguage(request):
+    #user = request.user
+    try:
+        player = Player.objects.get(user=request.user)
+    except Player.DoesNotExist:
+        return Response({"error": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UserLanguagePatchSerializer(instance=player, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    print(serializer.errors)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -22,9 +22,10 @@ export const AuthProvider = ({ children }) => {
 		navigate('/login')
 	}
 
+	
 	let updateToken = async () => {
 		if (!authTokens) return;
-
+		
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/token/refresh/`, {
 				method: 'POST',
@@ -34,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 				body: JSON.stringify({'refresh':authTokens.refresh})
 			})
 			let data = await response.json();
-
+			
 			if (response.status === 200) {
 				setAuthTokens(data);
 				setUser(jwtDecode(data.access))
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }) => {
 			logoutUser();
 		}
 	}
-
+	
 	let loginWith42 = async (code) => {
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/auth/42-login/`, {
@@ -57,9 +58,9 @@ export const AuthProvider = ({ children }) => {
 				},
 				body: JSON.stringify({ code })
 			});
-
+			
 			let data = await response.json();
-
+			
 			if (response.status === 200) {
 				setAuthTokens(data);
 				setUser(jwtDecode(data.access));
@@ -74,14 +75,14 @@ export const AuthProvider = ({ children }) => {
 			navigate('/login');
 		}
 	};
-
+	
 	useEffect(() => {
 		if (authTokens) {
 			updateToken();
 		}
 		setLoading(false);
 	}, [])
-
+	
 	useEffect(() => {
 		let counter = 1000 * 60 * 4
 		let interval = setInterval(() => {
@@ -91,7 +92,7 @@ export const AuthProvider = ({ children }) => {
 		}, counter)
 		return () => clearInterval(interval)
 	}, [authTokens])
-
+	
 	let contextData = {
 		user: user,
 		authTokens: authTokens,
@@ -101,6 +102,16 @@ export const AuthProvider = ({ children }) => {
 		loginWith42: loginWith42
 	}
 
+	useEffect(() => {
+		if (authTokens && user) {
+			const ws = new WebSocket(`wss://${window.location.host}/ws/online/${user.username}/`);
+	
+			return () => {
+				ws.close();
+			};
+		}
+	}, [authTokens, user]);
+	
 	return(
 		<AuthContext.Provider value={contextData}>
 			{loading ? null : children}
