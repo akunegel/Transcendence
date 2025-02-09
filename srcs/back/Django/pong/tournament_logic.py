@@ -3,6 +3,7 @@ from .save_game import saveGameResults
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
 from .match_logic import match_logic, paddle_logic, targeted_msg
+from .save_game import saveTournamentResults
 import asyncio
 import math
 import logging
@@ -11,6 +12,9 @@ import random
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__tournamentLogic__")
+
+async def saveTournamentsResults():
+	return
 
 async def share_event(tour_id, type, data, case):
 
@@ -29,8 +33,8 @@ async def share_event(tour_id, type, data, case):
 async def broadcast_tournament_ending(tour, winner_pcn):
 	for player in tour["players"]:
 		if (player["pcn"] != winner_pcn):
-			await targeted_msg(player["pcn"], "update.tournament_event", "Better luck next time...", "tournament_ended")
-	await targeted_msg(winner_pcn, "update.tournament_event", "You Win This Tournament !", "tournament_ended")
+			await targeted_msg(player["pcn"], "update.tournament_event", "[ Better Luck Next Time... ]", "tournament_ended")
+	await targeted_msg(winner_pcn, "update.tournament_event", "[ You Win This Tournament ! ]", "tournament_ended")
 	return
 
 async def generate_match_rooms(tour_id, tour, players, amount):
@@ -63,6 +67,7 @@ async def generate_match_rooms(tour_id, tour, players, amount):
 					"bonus": "none", "timer": 3, "old_speed": 120,			# -
 					"rebound": {"left": 0, "right": 0}},					# - Amount of rebounds made on paddles
 		})
+		logger.warning("___ created a match ___")
 		p += 2
 
 	for match in tour["matchs"]:
@@ -102,7 +107,7 @@ async def format_round_results(matchs):
 		p2 = match["p2"]
 		winner_id = p1["id"] if match["winner"] == p1["arena_name"] else p2["id"]
 		winners.append(winner_id)
-	return {"winners": winners}
+	return winners
 
 
 async def keep_round_winners(players_left, winners):
@@ -124,10 +129,10 @@ async def tournament_logic(tour_id, tour):
 	await share_event(tour_id, "update.tournament_event", None, "tournament_started")
 	await broadcast_players_info(tour_id, tour)
 
-	while (tour["started"]):
-		# Inform players that the next round is about to start 
+	while (tour["started"] == True):
+		# Inform players that the next round is about to start
 		await share_event(tour_id, "update.tournament_event", round_number, "round_starting")
-		await asyncio.sleep(10)
+		await asyncio.sleep(8)
 		# Depending on the round and max_player, the right amount of matchs will be generated and assigned
 		await generate_match_rooms(tour_id, tour, players_left, int(max_player / pow(2, round_number)))
 		# Checking if the round is over every 5 seconds
@@ -137,17 +142,19 @@ async def tournament_logic(tour_id, tour):
 		# Saving the results of this match, broadcasting them to the players
 		round_winners = await format_round_results(tour["matchs"])
 		results.append(round_winners)
+		tour["rounds_winners"] = results
 		# Stopping every tasks used in this round
 		await end_matchs_tasks(tour)
 		await share_event(tour_id, "update.tournament_event", results, "round_results")
 		# Keeping only the players specified in the winners array for the next round
 		await keep_round_winners(players_left, round_winners)
-		if (len(players_left) == 1):
+		if (len(players_left) <= 1):
 			break
+		await asyncio.sleep(2)
 
+	await sync_to_async(saveTournamentsResults)(players_left[0])
 	await broadcast_tournament_ending(tour, players_left[0]["pcn"])
-	await asyncio.sleep(15)
-	# saveTournamentsResults()
+	await asyncio.sleep(25)
 	await share_event(tour_id, "update.disconnect", None, None)
 
 	return

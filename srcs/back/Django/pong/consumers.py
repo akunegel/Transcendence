@@ -167,6 +167,10 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	# Checking if tournament is full
 	if (len(tour["players"]) >= tour["rules"]["max_player"]):
 		raise ValueError(f"Tournament is full")
+	# Checking if the player already registered to the tournament
+	for player in tour["players"]:
+		if (player["username"] == str(db_player.user)):
+			raise ValueError(f"Player already in tournament")
 	# Adding a new slot for the player in the tournament
 	tour["players"].append({
 		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
@@ -212,11 +216,15 @@ async def set_arena_name(tour_id, tour, player_channel_name, name):
 
 async def log_back_player(tour, pcn):
 	await targeted_msg(pcn, "update.tournament_event", None, "tournament_started")
+	await targeted_msg(pcn, "update.tournament_event", tour["rounds_winners"], "round_results")
 	# This brings back the player to it's match
 	for match in tour["matchs"]:
 		if (match["p1"]["pcn"] == pcn or match["p2"]["pcn"] == pcn):
 			await targeted_msg(pcn, "update.tournament_event", match["pids"], "match_start")
-			break
+			return
+	await targeted_msg(pcn, "update.tournament_event", None, "go_to_graph")
+	return
+	
 
 
 class TournamentConsumer(AsyncWebsocketConsumer):

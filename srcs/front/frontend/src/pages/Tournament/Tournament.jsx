@@ -22,9 +22,8 @@ function Tournament() {
 	const	[gameStarted, setGameStarted] = useState(false);
 	const	[isInMatch, setIsInMatch] = useState(false);
 	const	[matchOpponents, setMatchOpponents] = useState(false);
-	const	[graphTitle, setGraphTitle] = useState(false);
-	const	[round, setRound] = useState(0);
-	const	[roundResults, setRoundResults] = useState(0);
+	const	[graphTitle, setGraphTitle] = useState("[ Waiting for round to end... ]");
+	const	[roundResults, setRoundResults] = useState([]);
 	const	navigate = useNavigate();
 	const	location = useLocation();
 
@@ -62,12 +61,11 @@ function Tournament() {
 		}
 
 		wsRef.current.addEventListener("open", () => {
-			console.log("WebSocket connected!");
+			// console.log("WebSocket connected!");
 		});
 	
 		wsRef.current.addEventListener("message", (event) => {
 			const msg = JSON.parse(event.data);
-			console.log(msg);
 
 			switch (msg.case) {
 				case 'players_info': // Received updated player's object array (id, arena_name, img)
@@ -93,7 +91,7 @@ function Tournament() {
 					document.title = "Waiting...";
 					return ;
 				case 'round_starting': // The next round is starting in 10sec
-					setGraphTitle("[ Round " + msg.data + " about to start... ]")
+					setGraphTitle("[ Round " + msg.data + " is about to start... ]")
 					return ;
 				case 'match_start': // Players go play their next round
 					setMatchOpponents(msg.data);
@@ -104,6 +102,7 @@ function Tournament() {
 					setRoundResults(msg.data);
 					return ;
 				case 'tournament_ended':
+					setGraphTitle(msg.data);
 					return ;
 				default:
 					return ;
@@ -132,7 +131,7 @@ function Tournament() {
 				isInMatch ?
 					<PongMatch players={players} info={info} opponents={matchOpponents} wsRef={wsRef}/>
 				:
-					<GraphDisplay players={players} info={info} round={round} results={roundResults} title={graphTitle}/>
+					<GraphDisplay players={players} info={info} results={roundResults} title={graphTitle}/>
 			}
 		</div>
 	);

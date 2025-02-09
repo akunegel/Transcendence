@@ -6,6 +6,28 @@ import logging
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__Save_Game_Log__")
 
+def saveTournamentResults(player):
+	pName = player["username"]
+
+	try:
+		# Fetch the User object using the username
+		user = User.objects.get(username=pName)
+		# Fetch the Player object using the User object
+		db_player = Player.objects.get(user=user)
+		# Incrementing tournament won
+		db_player.tr_wins += 1
+		# Saving changes
+		db_player.save()
+
+		return
+	except User.DoesNotExist:
+		logger.error("SaveGame: User does not exist.")
+	except Player.DoesNotExist:
+		logger.error("SaveGame: Player does not exist.")
+	except Exception as e:
+		logger.error(f"An unexpected error occurred: {e}")
+	return
+
 
 def saveGameResults(room):
 	p1Name = room["players"]["one"]["name"]
@@ -34,7 +56,7 @@ def saveGameResults(room):
 		elif room["winner"] == "player2":
 			player2.wins += 1
 			player1.loss += 1
-
+		# Saving changes
 		player1.save()
 		player2.save()
 

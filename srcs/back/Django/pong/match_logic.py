@@ -252,7 +252,7 @@ async def match_logic(tour_id, tour, match):
 	await match_msg(match, "update.tournament_event", match["pids"], "match_start")
 	await asyncio.sleep(1) # Making sure the PongMatch display has time to initialize
 	await match_msg(match, "update.tournament_event", None, "begin_countdown")
-	time_before_hit = 3 # 3 seconds before game start
+	time_before_hit = 4 # 4 seconds before game start
 
 	while match["started"] == True:
 

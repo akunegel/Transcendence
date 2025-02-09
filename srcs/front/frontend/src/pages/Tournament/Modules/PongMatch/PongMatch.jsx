@@ -126,7 +126,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 					drawGame(canvasRef.current.getContext('2d'), 400, 250);
 					// Displaying winner's username
 					setTitleCss(styles.status_title_center);
-					setStatusTitle("- " + msg.data.winner + " is the winner ! -");
+					setStatusTitle("[ " + msg.data.winner + " is the winner ! ]");
 					break ;
 				default:
 					break ;

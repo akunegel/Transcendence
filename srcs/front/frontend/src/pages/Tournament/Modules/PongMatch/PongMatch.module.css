@@ -170,11 +170,11 @@
 }
 .status_title_center p {
 	position: relative;
-    top: -272.5px;
+    top: -280px;
 	font-size: 1.5em;
 	font-weight: bold;
 	color: whitesmoke;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 	background-color: black;
-	border: 5px solid black;
+	border: 10px solid black;
 }
