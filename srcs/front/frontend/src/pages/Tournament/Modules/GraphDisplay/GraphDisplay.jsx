@@ -84,7 +84,7 @@ function MakeRightListOf( players ) {
 }
 
 
-function GraphDisplay({ players, info, round }) {
+function GraphDisplay({ players, info, round, results, title }) {
 
 	if (players == null)
 		return ( <p>connecting...</p>);
@@ -96,13 +96,16 @@ function GraphDisplay({ players, info, round }) {
 	const rightList = MakeRightListOf(rightPlayers);
 
 	return (
-		<div className={styles.row_container}>
-			<div className={styles.box}>
-				{leftList}
-			</div>
-			<div className={styles.box} style={{width: '100px'}}/>
-			<div className={styles.box}>
-				{rightList}
+		<div className={styles.column_container}>
+			<h1>{title}</h1>
+			<div className={styles.row_container}>
+				<div className={styles.box}>
+					{leftList}
+				</div>
+				<div className={styles.box} style={{width: '100px'}}/>
+				<div className={styles.box}>
+					{rightList}
+				</div>
 			</div>
 		</div>
 	);

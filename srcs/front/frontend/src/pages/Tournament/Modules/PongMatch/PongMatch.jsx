@@ -10,23 +10,26 @@ function PongMatch({ players, info, opponents, wsRef }) {
 
 	const	canvasRef = useRef(null);
 	const	lastUpdateTimeRef = useRef(0);
-	const	[statusTitle, setStatusTitle] = useState("");
+	const	[statusTitle, setStatusTitle] = useState("- First to " + info.max_point + " wins -");
 	const	startTime = useRef(null);
 	const	[timer, setTimer] = useState({min: 0, sec: 0});
 	const	timerIsRunning = useRef(false);
 	const	[timerColor, setTimerColor] = useState("white");
 
-	const	gameStarted = useRef(false);
+	const	[titleCss, setTitleCss] = useState(styles.status_title_bottom);
 	const	messageTime = useRef(0);
 	const	timeBeforeHit = useRef(0);
-	const	LPaddle = useRef({ x: 50, y: 250, size: 60});
-	const	RPaddle = useRef({ x: 750, y: 250, size: 60});
+	const	LPaddle = useRef({ x: 50, y: 250, size: 120});
+	const	RPaddle = useRef({ x: 750, y: 250, size: 120});
 	const	pos = useRef({ x: 400, y: 250 });
 	const	obj = useRef({ x: 400, y: 250 });
 	const	availableBonus = useRef("none");
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[p1, setP1] = useState(null)
 	const	[p2, setP2] = useState(null)
+
+	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 
 	useEffect(() => {
 		// Displaying any change to the players array
@@ -53,7 +56,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 					let secSinceStart = Math.floor((new Date() - startTime.current) / 1000);
 					let { min, sec } = prevTime;
 
-					min = (rulesRef.current.max_time) - Math.floor(secSinceStart / 60);
+					min = (info.max_time) - Math.floor(secSinceStart / 60);
 					sec = 60 - (secSinceStart % 60);
 					if (sec == 60)
 						sec = 0;
@@ -86,51 +89,44 @@ function PongMatch({ players, info, opponents, wsRef }) {
 	
 		const handleMessage = (event) => {
 			const msg = JSON.parse(event.data);
-			console.log("SubModule received:", msg);
 
 			switch (msg.case) {
-				case 'match_start':
+				case 'begin_countdown':
 					// Game is about to start (3 seconds from now)
-					gameStarted.current = true;
+					setTitleCss(styles.status_title_center);
 					displayGameStartTimer()
 						.then(() =>{timerIsRunning.current = true;
-									setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
+									setStatusTitle("- First to " + info.max_point + " wins -");
 									startTime.current = new Date();
+									setTitleCss(styles.status_title_bottom);
 						});
 					break ;
-					
-				case 'global_update':
 				case 'ball_update' :
 					// Receiving the next position of the ball
 					messageTime.current = new Date();
 					pos.current.x = obj.current.x;
 					pos.current.y = obj.current.y;
-					obj.current.x = data.state.objx;
-					obj.current.y = data.state.objy;
-					LPaddle.current.size = data.state.l_paddle_size;
-					RPaddle.current.size = data.state.r_paddle_size;
-					LPaddle.current.y = data.state.l_paddle;
-					RPaddle.current.y = data.state.r_paddle;
-					availableBonus.current = data.state.available_bonus;
-					timeBeforeHit.current = data.state.time;
-					setScore({left: data.state.l_score, right: data.state.r_score});
+					obj.current.x = msg.data.objx;
+					obj.current.y = msg.data.objy;
+					LPaddle.current.size = msg.data.l_paddle_size;
+					RPaddle.current.size = msg.data.r_paddle_size;
+					availableBonus.current = msg.data.available_bonus;
+					timeBeforeHit.current = msg.data.time;
+					setScore({left: msg.data.l_score, right: msg.data.r_score});
 				case 'paddle_update' :
 					// Receiving the paddles' new position
-					LPaddle.current.y = data.state.l_paddle;
-					RPaddle.current.y = data.state.r_paddle;
+					LPaddle.current.y = msg.data.l_paddle;
+					RPaddle.current.y = msg.data.r_paddle;
 					break ;
 				case 'end_game':
 					// Receiving the winner of the game and stopping the animation display
-					gameStarted.current = false;
 					LPaddle.current.y, RPaddle.current.y = 250;
 					timeBeforeHit.current = 0
 					timerIsRunning.current = false;
 					drawGame(canvasRef.current.getContext('2d'), 400, 250);
 					// Displaying winner's username
-					if (data.state.winner)
-						setStatusTitle("- " + winner + " is the winner ! -");
-					else
-						setStatusTitle("- Game Ended In A Draw ! -");
+					setTitleCss(styles.status_title_center);
+					setStatusTitle("- " + msg.data.winner + " is the winner ! -");
 					break ;
 				default:
 					break ;
@@ -231,7 +227,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 		// Drawing non-static game elements
 		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y, LPaddle.current.size);
 		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, RPaddle.current.size);
-		if (rulesRef.current && rulesRef.current.add_bonus == true)
+		if (info.add_bonus == true)
 			drawBonusBox(ctx);
 		drawBall(ctx, ball_x, ball_y, "white");
 	}
@@ -242,7 +238,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 
 		const animate = (time) =>
 		{
-			if (gameStarted.current && time - lastUpdateTimeRef.current > 1000 / 61) {
+			if (time - lastUpdateTimeRef.current > 1000 / 61) {
 				// Calculating the distance from the current position to the target position
 				const dx = obj.current.x - pos.current.x;
 				const dy = obj.current.y - pos.current.y;
@@ -319,6 +315,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 				</div>
 			}
 
+			{/* Pong Match Display */}
 			<div className={styles.game_container}>
 
 				<div className={styles.points_container} style={{borderLeft: "5px solid white"}}>
@@ -335,6 +332,11 @@ function PongMatch({ players, info, opponents, wsRef }) {
 					{Array.from({ length: score.right}).map((_, index) => (<div className={styles.a_point} key={index}/>))}
 				</div>
 
+			</div>
+
+			{/* Status Title Display */}
+			<div className={titleCss}>
+				<p className="m-0">{statusTitle}</p>
 			</div>
 
 

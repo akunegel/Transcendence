@@ -35,12 +35,23 @@ class TournamentManager:
 	def get_tournament(self, tour_id):
 		return self.tournaments.get(str(tour_id))
 
-	def remove_tournament(self, tour_id):
+	def stop_tournament(self, tour_id):
 		tour = self.tournaments[str(tour_id)]
-		# Does tournament exist
+		# Does tournament exist ?
 		if (tour is None):
 			return
-		self.stop_tournament_task(tour_id)
+		# Stopping the associated task if there is one
+		if tour["task"]:
+			tour["task"].cancel()
+		# Stopping any match task still running
+		for match in tour["matchs"]:
+			if match["match_task"]:
+				match["match_task"].cancel()
+			if match["paddle_task"]:
+				match["paddle_task"].cancel()
+			if match["timer_task"]:
+				match["timer_task"].cancel()
+		# Deleting the tournament
 		del self.tournaments[str(tour_id)]
 
 	def start_tournament_task(self, tour_id, pcn):
@@ -61,23 +72,6 @@ class TournamentManager:
 		# Starting the tournament
 		tour["started"] = True
 		tour["task"] = asyncio.create_task(tournament_logic(str(tour_id), tour))
-
-	def stop_tournament_task(self, tour_id):
-		tour = self.tournaments[str(tour_id)]
-		# Does tournament exist ?
-		if (tour is None):
-			return
-		# Stopping the associated task if there is one
-		if tour["task"]:
-			tour["task"].cancel()
-		# Stopping any match task still running
-		for match in tour["matchs"]:
-			if match["match_task"]:
-				match["match_task"].cancel()
-			if match["paddle_task"]:
-				match["paddle_task"].cancel()
-			if match["timer_task"]:
-				match["timer_task"].cancel()
 
 
 tournament_manager = TournamentManager()

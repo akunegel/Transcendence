@@ -22,7 +22,9 @@ function Tournament() {
 	const	[gameStarted, setGameStarted] = useState(false);
 	const	[isInMatch, setIsInMatch] = useState(false);
 	const	[matchOpponents, setMatchOpponents] = useState(false);
+	const	[graphTitle, setGraphTitle] = useState(false);
 	const	[round, setRound] = useState(0);
+	const	[roundResults, setRoundResults] = useState(0);
 	const	navigate = useNavigate();
 	const	location = useLocation();
 
@@ -87,12 +89,21 @@ function Tournament() {
 					return ;
 				case 'go_to_graph': // Players return to the graph
 					setIsInMatch(false);
-					document.title = "Starting soon...";
+					setGraphTitle("[ Waiting for round to end... ]")
+					document.title = "Waiting...";
+					return ;
+				case 'round_starting': // The next round is starting in 10sec
+					setGraphTitle("[ Round " + msg.data + " about to start... ]")
 					return ;
 				case 'match_start': // Players go play their next round
 					setMatchOpponents(msg.data);
 					setIsInMatch(true);
 					document.title = "Pong !";
+					return ;
+				case 'round_results':
+					setRoundResults(msg.data);
+					return ;
+				case 'tournament_ended':
 					return ;
 				default:
 					return ;
@@ -121,7 +132,7 @@ function Tournament() {
 				isInMatch ?
 					<PongMatch players={players} info={info} opponents={matchOpponents} wsRef={wsRef}/>
 				:
-					<GraphDisplay players={players} info={info} round={round}/>
+					<GraphDisplay players={players} info={info} round={round} results={roundResults} title={graphTitle}/>
 			}
 		</div>
 	);

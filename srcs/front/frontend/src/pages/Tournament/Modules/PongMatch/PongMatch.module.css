@@ -78,6 +78,16 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	opacity: 0;
+	animation: fadeIn 1s ease-in forwards;
+}
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 .centered_container h2 {
 	font-size: 3.5em;
@@ -156,14 +166,15 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin-top: -272.5px;
 	height: 25px;
 }
 .status_title_center p {
-	font-size: 1em;
+	position: relative;
+    top: -272.5px;
+	font-size: 1.5em;
 	font-weight: bold;
 	color: whitesmoke;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
 	background-color: black;
-	border: 5px solid white;
+	border: 5px solid black;
 }

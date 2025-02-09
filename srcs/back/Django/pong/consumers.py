@@ -283,7 +283,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 					break
 				disconnected += 1
 			if (len(tour["players"]) == disconnected): # Removing the tournament if it is now empty
-				tournament_manager.remove_tournament(self.tour_id)
+				tournament_manager.stop_tournament(self.tour_id)
 			# Updating the others of the departure if the tournament still exists
 			if (tournament_manager.contains(self.tour_id)):
 				await broadcast_players_info(self.tour_id, tour)
