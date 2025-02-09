@@ -1,0 +1,81 @@
+.centered_container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.centered_container h1 {
+	color: white;
+	font-weight: bold;
+	font-size: 2em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+}
+.centered_container h2 {
+	color: white;
+	font-weight: bold;
+	font-size: 1.5em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+}
+
+.box {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.player_box {
+	display : flex;
+	flex-direction: column;
+	align-items: center;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.player_box img {
+	height: 150px;
+	width: 150px;
+	border: 5px solid #ffffff;
+	background-color: black;
+
+}
+.player_box p {
+	color: white;
+	font-size: 1em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	width: 150px;
+	text-align: center;
+	border: 5px solid white;
+	border-top: none;
+	background-color: black;
+
+}
+
+.start_button {
+	margin-top: 25px;
+}
+.start_button button {
+	color: white;
+	font-weight: bold;
+	font-size: 2em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+	background: none;
+	transition: font-size 0.3s ease;
+}
+.start_button button:hover {
+	transition: font-size 0.3s ease;
+	font-size: 2.5em;
+}
+.start_button button:active {
+	transition: none;
+	font-size: 2.4em;
+}
+.start_button p {
+	color: gray;
+	font-weight: bold;
+	font-size: 1em;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+	text-align: center;
+	background: none;
+}

@@ -93,10 +93,13 @@ const Header = () => {
 									<Link className="nav-link" to="/profile"><i className="bi bi-person me-1"></i> Profile</Link>
 								</li>
 								<li className="nav-item">
+									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
+								</li>
+								<li className="nav-item">
 									<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> Lobby</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
+									<Link className="nav-link" to="/tournament"><i className="bi bi-list-task me-1"></i> Tournament</Link>
 								</li>
 							</>
 						)}

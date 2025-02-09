@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
+import ImgFallback from '../../components/ImgFallback.jsx';
+import default_pic from '../../assets/images/default_profile_pic.png'
 import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
@@ -9,7 +11,7 @@ import styles from './OnlinePong.module.css';
 function OnlinePong() {
 
 	const	{ roomId } = useParams(); // Extract roomId from URL
-	const	{ authTokens, logoutUser } = useContext(AuthContext);
+	const	{ authTokens } = useContext(AuthContext);
 	
 	const	canvasRef = useRef(null);
 	const	lastUpdateTimeRef = useRef(0);
@@ -34,10 +36,19 @@ function OnlinePong() {
 	const	playersRef = useRef(null);
 	const	rulesRef = useRef(null);
 	
-	
 	const navigate = useNavigate();
-
+	const location = useLocation();
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+	
+	useEffect(() => {
+		return () => {
+			// Close WebSocket when the component unmounts or the URL changes
+			if (wsRef.current) {
+				wsRef.current.close();
+				wsRef.current = null;
+			}
+		};
+	}, [location.pathname]); // Runs when the URL path changes
 
 	const handleReturn = () => {
 		navigate("/lobby");
@@ -164,8 +175,14 @@ function OnlinePong() {
 
 		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
-			// console.log("WebSocket disconnected");
+			console.log("WebSocket disconnected");
 			navigate("/lobby");
+		};
+
+		return () => {
+			// Closing websocket on unmount
+			if (wsRef.current)
+				wsRef.current.close();
 		};
 	}, []);
 
@@ -300,26 +317,18 @@ function OnlinePong() {
 		<div className={styles.centered_container}>
 
 			<div className={styles.top_container}>
-				{players && !players.one.image ? (
-					<div className={styles.player_info}>
-					<img 
-						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
-						alt="Profile Picture"
-					/>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-						{players.one.name || "waiting..."}
+				{/* Player1 info */}
+				<div className={styles.player_info}>
+					{players ? 
+						<ImgFallback src={players.one.img} alt="Profile Picture" fallback={default_pic}/>
+					:
+						<img src={default_pic} alt="Profile Picture"/>
+					}
+					<p className="m-0" style={{ textAlign: "left"}}>
+						{players ? players.one.name : "waiting..."}
 					</p>
-					</div>
-				) : (
-					<div className={styles.player_info}>
-					{players && players.one.img && (
-						<img src={players.one.img} alt="Profile Picture" />
-					)}
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-						{players && players.one.name || "waiting..."}
-					</p>
-					</div>
-				)}
+				</div>
+				{/* Middle Display - Current score or time left */}
 				<div className={styles.centered_container} style={{marginTop:"80px"}}>
 					{rules && rules.has_time_limit == true ?
 							<h2 className="m-0" style={{borderTop: "5px solid white", color: timerColor}}>{timer.min > 9 ? "" : "0"}{timer.min}:{timer.sec > 9 ? "" : "0"}{timer.sec}</h2>
@@ -327,28 +336,17 @@ function OnlinePong() {
 							<h2 className="m-0" style={{borderTop: "5px solid white"}}> {score.left > 9 ? "" : "0"}{score.left}:{score.right > 9 ? "" : "0"}{score.right} </h2>
 						}
 				</div>
-
-				{players && !players.two.image ? (
-					<div className={styles.player_info}>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-					{players.two.name || "waiting..."}
+				{/* Player2 info */}
+				<div className={styles.player_info}>
+					<p className="m-0" style={{ textAlign: "right"}}>
+						{players ? players.two.name : "waiting..."}
 					</p>
-					<img 
-						src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEMFqVbU58_KWySAwslcEGQesFmuJ0vzvGkQ&s" 
-						alt="Profile Picture"
-					/>
-					</div>
-				) : (
-					<div className={styles.player_info}>
-					<p className="m-0" style={{ textAlign: "left", borderRight: "5px solid white" }}>
-					{players && players.two.name || "waiting..."}
-					</p>
-					{players && players.two.img && (
-						<img src={players.two.img} alt="Profile Picture" />
-					)}
-					</div>
-				)}
-
+					{players ? 
+						<ImgFallback src={players.two.img} alt="Profile Picture" fallback={default_pic}/>
+					:
+						<img src={default_pic} alt="Profile Picture"/>
+					}
+				</div>
 			</div>
 
 			<div className={styles.game_container}>
