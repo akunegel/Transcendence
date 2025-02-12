@@ -19,10 +19,7 @@ class RoomManager:
 			"rules":	{"add_bonus": False, "is_private": True,					# Initialize default game rules
 						"has_time_limit": False, "max_time": 10, "max_point": 10},	# -
 
-			"state": {"ids": [], "id1": None, "id2": None},							# Initialize state (websocket's id)
-
-			"players": {"one": {"name": None, "img": None,},						# Sendable player info for display
-						"two": {"name": None, "img": None,}},						# -
+			"players": [],															# Storage for players info
 
 			"var": {"game_started": False, "time": 0.0,								# Initialize sendable game variables
 					"objx": 400, "objy": 250, 										# -
@@ -49,19 +46,19 @@ class RoomManager:
 			self.stop_game_task(room_id)
 			del self.rooms[str(room_id)]
 
-	def player_disconnected(self, room_id, player_channel_name):
-		# Ending the game if it already started, or removing the room
+	def player_disconnected(self, room_id):
+		# Removing the room if there is no connected player left
 		room = self.rooms.get(str(room_id))
-		if room and player_channel_name in room["state"]["ids"]:
-			if (room["var"]["game_started"] == True):
-				room["var"]["game_started"] = False
-			else:
-				self.remove_room(room_id)
+		if (room is not None):
+			for player in room["players"]:
+				if (player["pcn"] is not None):
+					return
+			self.remove_room(room_id)
 
 	def start_game_task(self, room_id):
 		if str(room_id) in self.rooms:
 			room = self.rooms[str(room_id)]
-			if len(room["state"]["ids"]) == 2 and room["var"]["game_started"] == False:
+			if (len(room["players"]) >= 2 and room["var"]["game_started"] == False):
 				room["var"]["game_started"] = True
 				room["game_task"] = asyncio.create_task(game_logic(str(room_id)))
 				room["paddle_task"] = asyncio.create_task(paddle_logic(str(room_id)))
@@ -70,13 +67,14 @@ class RoomManager:
 
 	def stop_game_task(self, room_id):
 		if str(room_id) in self.rooms:
-			task = self.rooms[str(room_id)]["game_task"]
+			room = self.rooms[str(room_id)]
+			task = room["game_task"]
 			if task:
 				task.cancel()
-			task = self.rooms[str(room_id)]["paddle_task"]
+			task = room["paddle_task"]
 			if task:
 				task.cancel()
-			task = self.rooms[str(room_id)]["timer_task"]
+			task = room["timer_task"]
 			if task:
 				task.cancel()
 

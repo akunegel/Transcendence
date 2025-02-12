@@ -274,7 +274,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 						{p1.connected ? 
 							<ImgFallback	src={p1.img}
 											alt="Profil Picture"
-											fallback={p1.connected ? default_pic : connexion_lost}
+											fallback={default_pic}
 											style={{borderColor: p1.color}}/>
 						:
 							<img	src={connexion_lost}
@@ -303,7 +303,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 						{p2.connected ? 
 							<ImgFallback	src={p2.img}
 											alt="Profil Picture"
-											fallback={p2.connected ? default_pic : connexion_lost}
+											fallback={default_pic}
 											style={{borderColor: p2.color}}/>
 						:
 							<img	src={connexion_lost}

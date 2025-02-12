@@ -30,9 +30,12 @@ def saveTournamentResults(player):
 
 
 def saveGameResults(room):
-	p1Name = room["players"]["one"]["name"]
-	p2Name = room["players"]["two"]["name"]
+	p1Name = room["players"][0]["username"]
+	p2Name = room["players"][1]["username"]
 
+	# When playing against oneself, results are not saved
+	if p1Name == p2Name:
+		return
 	try:
 		# Fetch the User object using the username
 		user1 = User.objects.get(username=p1Name)
@@ -48,12 +51,10 @@ def saveGameResults(room):
 		player1.rb += room["dyn"]["rebound"]["left"]
 		player2.rb += room["dyn"]["rebound"]["right"]
 		# Incrementing wins or loss for both players
-		if p1Name == p2Name:
-			return # When playing against oneself, results are not saved
-		if room["winner"] == "player1":
+		if room["winner"] == room["players"][0]["username"]:
 			player1.wins += 1
 			player2.loss += 1
-		elif room["winner"] == "player2":
+		elif room["winner"] == room["players"][1]["username"]:
 			player2.wins += 1
 			player1.loss += 1
 		# Saving changes

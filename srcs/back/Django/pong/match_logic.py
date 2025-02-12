@@ -61,6 +61,21 @@ async def handlePlayerInput(tour, channel_name, type):
 
 
 ########################################################
+#	Timer Logic - For Tournament Logic
+########################################################
+
+async def timer_logic(match):
+	# Waiting for match to start
+	await asyncio.sleep(5)
+	# Starting the timer for n minutes
+	await asyncio.sleep(match["rules"]["max_time"] * 60)
+	# Setting the timer as over, first player with a higher score than the other wins
+	match["timer_over"] = True
+	return
+
+
+
+########################################################
 #	Paddle Logic - For Tournament Logic
 ########################################################
 
