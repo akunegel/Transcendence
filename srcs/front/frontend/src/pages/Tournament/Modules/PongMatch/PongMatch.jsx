@@ -27,6 +27,9 @@ function PongMatch({ players, info, opponents, wsRef }) {
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[p1, setP1] = useState(null)
 	const	[p2, setP2] = useState(null)
+	let		p1color = 'white'
+	let		p2color = 'white'
+	let		ballColor = 'white'
 
 	const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -35,14 +38,18 @@ function PongMatch({ players, info, opponents, wsRef }) {
 		// Displaying any change to the players array
 		setP1(() => {
 			for (let i = 0; i < players.length; i++) {
-				if (players[i].id == opponents.p1)
+				if (players[i].id == opponents.p1) {
+					p1color = players[i].color
 					return (players[i]);
+				}
 			}
 		});
 		setP2(() => {
 			for (let i = 0; i < players.length; i++) {
-				if (players[i].id == opponents.p2)
+				if (players[i].id == opponents.p2) {
+					p2color = players[i].color
 					return (players[i]);
+				}
 			}
 		});
 	}, [players]);
@@ -190,11 +197,11 @@ function PongMatch({ players, info, opponents, wsRef }) {
 	};
 
 
-	const drawPaddle = (ctx, x, y, size) => {
+	const drawPaddle = (ctx, x, y, size, color) => {
 		// Drawing a paddle centered at the given position
 		ctx.beginPath();
 		ctx.rect(x, y - (size / 2), 10, size);
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = color;
 		ctx.fill();
 	}
 
@@ -225,11 +232,15 @@ function PongMatch({ players, info, opponents, wsRef }) {
 		ctx.fill();
 
 		// Drawing non-static game elements
-		drawPaddle(ctx, LPaddle.current.x - 10, LPaddle.current.y, LPaddle.current.size);
-		drawPaddle(ctx, RPaddle.current.x, RPaddle.current.y, RPaddle.current.size);
+		drawPaddle(ctx, LPaddle.current.x - 15, LPaddle.current.y, LPaddle.current.size, p1color);
+		drawPaddle(ctx, RPaddle.current.x + 5, RPaddle.current.y, RPaddle.current.size, p2color);
 		if (info.add_bonus == true)
 			drawBonusBox(ctx);
-		drawBall(ctx, ball_x, ball_y, "white");
+		if (pos.current.x == 750 && obj.current.x < 750)
+			ballColor = p2color
+		else if (pos.current.x == 50 && obj.current.x > 50)
+			ballColor = p1color
+		drawBall(ctx, ball_x, ball_y, ballColor);
 	}
 
 	useEffect(() => {

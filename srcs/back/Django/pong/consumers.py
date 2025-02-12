@@ -173,10 +173,22 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 #               TOURNAMENT CONSUMER
 # ***************************************************
 
+def is_color_taken(players, color):
+	for player in players:
+		if (player['color'] == color):
+			return True
+	return False
 
-def random_rgb():
-	r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
-	return f"#{r:02X}{g:02X}{b:02X}"
+def assign_color(tour):
+	i = random.randint(0, 7)
+	colors = ['tomato', 'steelblue', 'gold', 'mediumpurple', 'forestgreen', 'darkorange', 'deeppink', 'turquoise']
+	color = None
+	while color is None:
+		if (is_color_taken(tour["players"], colors[i]) is True):
+			i = 0 if i + 1 > 7 else i + 1
+		else:
+			color = colors[i]
+	return color
 
 async def broadcast_players_info(tour_id, tour):
 
@@ -226,7 +238,7 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	# Adding a new slot for the player in the tournament
 	tour["players"].append({
 		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
-		"color": random_rgb(), # Assigning a random color for frontend display 
+		"color": assign_color(tour), # Assigning a random color for frontend display 
 		"pcn": player_channel_name, # Storing the consumer's channel_name
 		"username": str(db_player.user), # Storing the username from db
 		"img": str(db_player.profile_picture), # Storing the profil picture from db
