@@ -46,8 +46,8 @@ def createCustomGame(request):
 def quickJoinGame(request):
 	rooms = room_manager.rooms
 	for i in rooms:
-		if rooms[i]["rules"]["is_private"] == False:
-			if rooms[i]["state"]["id2"] == None:
+		if (rooms[i]["rules"]["is_private"] == False):
+			if (len(rooms[i]["players"]) < 2):
 				return JsonResponse({"room_id": rooms[i]["id"]}, status=200)
 	return JsonResponse({"room_id": "None"}, status=200)
 

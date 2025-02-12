@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
 const ImgFallback = ({ src, alt, fallback, style={} }) => {
-	const [imgSrc, setImgSrc] = useState(src);
+
+	const [imgSrc, setImgSrc] = useState(src ? src : fallback);
 
 	return (
 		<img

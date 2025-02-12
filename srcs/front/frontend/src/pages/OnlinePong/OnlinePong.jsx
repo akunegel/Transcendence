@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import AuthContext from "../../context/AuthContext.jsx";
 import ImgFallback from '../../components/ImgFallback.jsx';
 import default_pic from '../../assets/images/default_profile_pic.png'
+import disconnected from '../../assets/images/connexion_lost.png'
 import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
@@ -25,15 +26,15 @@ function OnlinePong() {
 	const	gameStarted = useRef(false);
 	const	messageTime = useRef(0);
 	const	timeBeforeHit = useRef(0);
-	const	LPaddle = useRef({ x: 50, y: 250, size: 60});
-	const	RPaddle = useRef({ x: 750, y: 250, size: 60});
+	const	LPaddle = useRef({ x: 50, y: 250, size: 120});
+	const	RPaddle = useRef({ x: 750, y: 250, size: 120});
 	const	pos = useRef({ x: 400, y: 250 });
 	const	obj = useRef({ x: 400, y: 250 });
 	const	availableBonus = useRef("none");
 	const	[score, setScore] = useState({left: 0, right: 0});
 	const	[rules, setRules] = useState(null);
-	const	[players, setPlayers] = useState(null);
-	const	playersRef = useRef(null);
+	const	[p1, setP1] = useState(null);
+	const	[p2, setP2] = useState(null);
 	const	rulesRef = useRef(null);
 	
 	const navigate = useNavigate();
@@ -121,61 +122,62 @@ function OnlinePong() {
 		
 		// Parsing received game status updates from the room
 		wsRef.current.onmessage = (event) => {
-			const data = JSON.parse(event.data);
+			const msg = JSON.parse(event.data);
 
-			// Game is about to start (3 seconds from now)
-			if (data.case == "start_game") {
-				gameStarted.current = true;
-				setPlayers(data.state);
-				playersRef.current = data.state;
-				displayGameStartTimer()
+			switch (msg.case) {
+
+				case 'players_info':
+					setP1(msg.data[0])
+					if (msg.data.length > 1)
+						setP2(msg.data[1])
+					break ;
+				case 'begin_countdown':
+					// Game is about to start (3 seconds from now)
+					displayGameStartTimer()
 					.then(() =>{timerIsRunning.current = true;
-								setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
-								startTime.current = new Date();
+						startTime.current = new Date();
 					});
-			}
-
-			// Receiving the next position of the ball
-			if (data.case == "ball_update" || data.case == "global_update") {
-				messageTime.current = new Date();
-				pos.current.x = obj.current.x;
-				pos.current.y = obj.current.y;
-				obj.current.x = data.state.objx;
-				obj.current.y = data.state.objy;
-				LPaddle.current.size = data.state.l_paddle_size;
-				RPaddle.current.size = data.state.r_paddle_size;
-				LPaddle.current.y = data.state.l_paddle;
-				RPaddle.current.y = data.state.r_paddle;
-				availableBonus.current = data.state.available_bonus;
-				timeBeforeHit.current = data.state.time;
-				setScore({left: data.state.l_score, right: data.state.r_score});
-			}
-			// Receiving the paddles' new position
-			if (data.case == "paddle_update" || data.case == "global_update") {
-				LPaddle.current.y = data.state.l_paddle;
-				RPaddle.current.y = data.state.r_paddle;
-			}
-			// Receiving the winner of the game and stopping the animation display
-			if (data.case == "end_game") {
-				gameStarted.current = false;
-				LPaddle.current.y, RPaddle.current.y = 250;
-				timeBeforeHit.current = 0
-				// Displaying winner's username
-				if (data.state.winner == "player1")
-					setStatusTitle("- " + playersRef.current.one.name + " is the winner ! -");
-				else if (data.state.winner == "player2")
-					setStatusTitle("- " + playersRef.current.two.name + " is the winner ! -");
-				else if (data.state.winner == "draw")
-					setStatusTitle("- Game Ended In A Draw ! -");
-
-				timerIsRunning.current = false;
-				drawGame(canvasRef.current.getContext('2d'), 400, 250);
+					break ;
+				case 'start_game':
+					gameStarted.current = true;
+					setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
+					break ;
+				case 'ball_update':
+					// Receiving the next position of the ball
+					messageTime.current = new Date();
+					pos.current.x = obj.current.x;
+					pos.current.y = obj.current.y;
+					obj.current.x = msg.data.objx;
+					obj.current.y = msg.data.objy;
+					LPaddle.current.size = msg.data.l_paddle_size;
+					RPaddle.current.size = msg.data.r_paddle_size;
+					availableBonus.current = msg.data.available_bonus;
+					timeBeforeHit.current = msg.data.time;
+					setScore({left: msg.data.l_score, right: msg.data.r_score});
+				case 'paddle_update':
+					// Receiving the paddles' new position
+					LPaddle.current.y = msg.data.l_paddle;
+					RPaddle.current.y = msg.data.r_paddle;
+					break ;
+				case 'end_game':
+					// Receiving the winner of the game and stopping the animation display
+					gameStarted.current = false;
+					LPaddle.current.y, RPaddle.current.y = 250;
+					timeBeforeHit.current = 0
+					// Displaying winner's username
+					if (msg.data.winner == null)
+						setStatusTitle("- Game Ended In A Draw ! -");
+					else
+						setStatusTitle("- " + msg.data.winner + " is the winner ! -");
+					timerIsRunning.current = false;
+					drawGame(canvasRef.current.getContext('2d'), 400, 250);
+					break ;
 			}
 		};
 
 		// Returning to the lobby if the game has ended, player lost connexion or couldn't connect
 		wsRef.current.onclose = () => {
-			console.log("WebSocket disconnected");
+			// console.log("WebSocket disconnected");
 			navigate("/lobby");
 		};
 
@@ -319,13 +321,16 @@ function OnlinePong() {
 			<div className={styles.top_container}>
 				{/* Player1 info */}
 				<div className={styles.player_info}>
-					{players ? 
-						<ImgFallback src={players.one.img} alt="Profile Picture" fallback={default_pic}/>
+					{p1 ?
+						p1.connected ? 
+							<ImgFallback src={p1.img} alt="Profile Picture" fallback={default_pic}/>
+						:
+							<img src={disconnected} alt="Player Disconnected"/>	
 					:
-						<img src={default_pic} alt="Profile Picture"/>
+						<img src={default_pic} alt="Waiting for player"/>	
 					}
 					<p className="m-0" style={{ textAlign: "left"}}>
-						{players ? players.one.name : "waiting..."}
+						{p1 ? p1.username : "waiting..."}
 					</p>
 				</div>
 				{/* Middle Display - Current score or time left */}
@@ -339,12 +344,15 @@ function OnlinePong() {
 				{/* Player2 info */}
 				<div className={styles.player_info}>
 					<p className="m-0" style={{ textAlign: "right"}}>
-						{players ? players.two.name : "waiting..."}
+						{p2 ? p2.username : "waiting..."}
 					</p>
-					{players ? 
-						<ImgFallback src={players.two.img} alt="Profile Picture" fallback={default_pic}/>
+					{p2 ?
+						p2.connected ? 
+							<ImgFallback src={p2.img} alt="Profile Picture" fallback={default_pic}/>
+						:
+							<img src={disconnected} alt="Player Disconnected"/>
 					:
-						<img src={default_pic} alt="Profile Picture"/>
+						<img src={default_pic} alt="Waiting for player"/>
 					}
 				</div>
 			</div>

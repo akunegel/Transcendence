@@ -2,7 +2,7 @@ from .bonusManager import bonusManager, handleBonusBoxCollision
 from .save_game import saveGameResults
 from channels.layers import get_channel_layer
 from asgiref.sync import sync_to_async
-from .match_logic import match_logic, paddle_logic, targeted_msg
+from .match_logic import match_logic, paddle_logic, timer_logic, targeted_msg
 from .save_game import saveTournamentResults
 import asyncio
 import math
@@ -67,12 +67,13 @@ async def generate_match_rooms(tour_id, tour, players, amount):
 					"bonus": "none", "timer": 3, "old_speed": 120,			# -
 					"rebound": {"left": 0, "right": 0}},					# - Amount of rebounds made on paddles
 		})
-		logger.warning("___ created a match ___")
 		p += 2
 
 	for match in tour["matchs"]:
 		match["match_task"] = asyncio.create_task(match_logic(tour_id, tour, match))
 		match["paddle_task"] = asyncio.create_task(paddle_logic(match))
+		if (tour["rules"]["has_time_limit"] == True):
+			match["timer_task"] = asyncio.create_task(timer_logic(match))
 
 
 async def are_all_match_finished(tour):

@@ -20,7 +20,7 @@ async def timer_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	room = room_manager.get_room(room_id)
 	max_time = room["rules"]["max_time"]
-	await asyncio.sleep(3) # 5 seconds before game start
+	await asyncio.sleep(3) # 3 seconds before game start
 
 	# Waiting for the set duration of the game
 	await asyncio.sleep(max_time * 60)
@@ -33,15 +33,15 @@ async def timer_logic(room_id):
 #	Paddle Logic For Two Player Pong
 #######################################################
 
-async def update_game(channel_layer, room_id, var):
+async def update_game(channel_layer, room_id, data, case):
 
 	if channel_layer:
 		await channel_layer.group_send(
 			room_id,  # Group name (room_id)
 			{
 				"type": "update.game_state",  # Custom message type
-				"case": "paddle_update",
-				"state": var,  # Data to send
+				"case": case,
+				"data": data,  # Data to send
 			}
 		)
 
@@ -79,7 +79,7 @@ async def paddle_logic(room_id):
 
 		# if any change was made, send an update to both players
 		if (l_movement != 0 or r_movement != 0):
-			await update_game(channel_layer, room_id, var)
+			await update_game(channel_layer, room_id, var, "paddle_update")
 
 		# refresh max 61 times per seconds
 		await asyncio.sleep(1 / 61)
@@ -99,21 +99,6 @@ async def disconnectPlayers(channel_layer, room_id):
 				"type": "update.disconnect",  # Sending disconnect message to room's users
 			}
 		)
-
-async def updateGame(channel_layer, room_id, var, time_before_hit, case):
-
-	var["time"] = time_before_hit
-
-	if channel_layer:
-		await channel_layer.group_send(
-			room_id,  # Group name (room_id)
-			{
-				"type": "update.game_state",  # Custom message type
-				"case": case,
-				"state": var,  # Data to send
-			}
-		)
-
 
 async def getNewVector(side, y , var):
 	paddle_y = var["r_paddle"] if side == 1 else var["l_paddle"]
@@ -225,34 +210,34 @@ async def playAgain(channel_layer, room_id, room, x):
 	var["r_paddle"] = 250
 	var["r_paddle_size"] = 120
 	var["available_bonus"] = "none"
-	await updateGame(channel_layer, room_id, var, 0.0, "global_update")
+	var["time"] = 0
+	await update_game(channel_layer, room_id, var, "ball_update")
 
 
 async def isGameOver(channel_layer, room, room_id):
+	players = room["players"]
 	max_point = room["rules"]["max_point"]
 	l_score = room["var"]["l_score"]
 	r_score = room["var"]["r_score"]
-	winner = "draw"
+	winner = None
 
 	# If the time limit has been reached
 	if (room["timer_is_over"] == True):
 		if (l_score > r_score):
-			winner = "player1"
+			winner = players[0]["username"]
 		elif (r_score > l_score):
-			winner = "player2"
-		await updateGame(channel_layer, room_id, {"winner": winner}, 0.0, "end_game")
-		room["winner"] = winner
-		return True
+			winner = players[1]["username"]
 
 	# If the point objective has been reached
 	if (l_score >= max_point):
-		winner = "player1"
+		winner = winner = players[0]["username"]
 	elif (r_score >= max_point):
-		winner = "player2"
+		winner = winner = players[1]["username"]
 	else:
 		return False
+
 	room["winner"] = winner
-	await updateGame(channel_layer, room_id, {"winner": winner, "game_started": False}, 0.0, "end_game")
+	await update_game(channel_layer, room_id, {"winner": winner}, "end_game")
 	return True
 
 
@@ -260,10 +245,12 @@ async def game_logic(room_id):
 	from pong.RoomManager import room_manager  # Imported here to avoid circular imports
 	channel_layer = get_channel_layer()  # Get the channel layer
 	room = room_manager.get_room(room_id) # getting the associated room
-	time_before_hit = 3 # 3 seconds before game start
+	time_before_hit = 0
 	room["var"]["game_started"] = True
 
-	await updateGame(channel_layer, room_id, room["players"], 0, "start_game")
+	await update_game(channel_layer, room_id, None, "begin_countdown")
+	await asyncio.sleep(3) # 3 seconds countdown before the game starts
+	await update_game(channel_layer, room_id, None, "start_game")
 
 	while room and room["var"]["game_started"]:
 
@@ -271,7 +258,8 @@ async def game_logic(room_id):
 		pos = {"x": var["objx"], "y": var["objy"]} # old objective becomes current position
 		obj = {"x": 400, "y": 250}
 
-		await updateGame(channel_layer, room_id, var, time_before_hit, "ball_update")
+		var["time"] = time_before_hit
+		await update_game(channel_layer, room_id, var, "ball_update")
 		await asyncio.sleep(time_before_hit) # waiting until the ball gets to it's objective
 
 		if (pos["x"] == 791.1 or pos["x"] == 9):
@@ -288,6 +276,6 @@ async def game_logic(room_id):
 		var["objy"] = obj["y"]
 
 	await sync_to_async(saveGameResults)(room)
-	await asyncio.sleep(5)
+	await asyncio.sleep(10)
 	await disconnectPlayers(channel_layer, room_id)
 	room_manager.remove_room(room_id)

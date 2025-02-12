@@ -19,27 +19,65 @@ logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__PongGameLog__")
 
 
+
+def check_for_reconnexion(game, player_channel_name, auth_token):
+	# Retrieving the Player associated with the token from the database
+	decoded_token = AccessToken(auth_token)
+	username = decoded_token['username']
+	db_user = User.objects.get(username=username)
+	db_player = Player.objects.get(user=db_user)
+	for player in game["players"]:
+		if (player["username"] == str(db_player.user) and player["pcn"] == None):
+			# Update the reconnecting player with it's new channel name
+			player["pcn"] = player_channel_name
+			return
+	# Player was not in the tournament
+	raise ValueError(f"Game is full")
+
 # ***************************************************
 #               PONG GAME CONSUMER
 # ***************************************************
 
+async def update_room_players(room, room_id):
+
+	channel_layer = get_channel_layer()
+	players = room["players"]
+	data = []
+	# Pruning the 'players' array into a new one, with only useful information 
+	for player in players:
+		data.append({
+			"username": player["username"],
+			"img": player["img"],
+			"connected": True if player["pcn"] else False,
+		})
+	# Broadcasting to every players in the tournament
+	if channel_layer:
+		await channel_layer.group_send(
+			room_id,  # Group name (room_id)
+			{
+				"type": "update.players_info",
+				"case": "players_info",
+				"data": data,  # Sending the pruned players array
+			}
+		)
+	return
 
 def register_to_room(room, player_channel_name, auth_token):
 	# Retrieving the Player associated with the token from the database
 	decoded_token = AccessToken(auth_token)
 	username = decoded_token['username']
-	user = User.objects.get(username=username)
-	player = Player.objects.get(user=user)
+	db_user = User.objects.get(username=username)
+	db_player = Player.objects.get(user=db_user)
 	# Adding user to the room, storing it's channel id, username and profil_picture
-	room["state"]["ids"].append(player_channel_name)
-	if room["state"]["id1"] == None:
-		room["state"]["id1"] = player_channel_name
-		room["players"]["one"]["name"] = str(player.user)
-		room["players"]["one"]["img"] = str(player.profile_picture)
-	elif room["state"]["id2"] == None:
-		room["state"]["id2"] = player_channel_name
-		room["players"]["two"]["name"] = str(player.user)
-		room["players"]["two"]["img"] = str(player.profile_picture)
+	if (len(room["players"]) >= 2):
+		raise ValueError(f"Room is full")
+	# Adding a new slot for the player in the room
+	room["players"].append({
+		"pcn": player_channel_name, # Storing the consumer's channel_name
+		"username": str(db_player.user), # Storing the username from db
+		"img": str(db_player.profile_picture), # Storing the profil picture from db
+	})
+
 
 class PongGameConsumer(AsyncWebsocketConsumer):
 
@@ -58,27 +96,27 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 				try:
 					room = room_manager.get_room(self.room_id)
 					# Checking if the room exists and is not full yet
-					if not room or len(room["state"]["ids"]) >= 2:
-						raise ValueError(f"Cannot connect to room {self.room_id}.")
+					if not room:
+						raise ValueError(f"Room {self.room_id} doesn't exist. (might be initializing)")
 					# Registering the player in the room
-					await sync_to_async(register_to_room)(room, self.channel_name, auth_token)
+					if (len(room["players"]) >= 2):
+						# If reconnecting, players go around the countdown phase
+						await sync_to_async(check_for_reconnexion)(room, self.channel_name, auth_token)
+						await targeted_msg(self.channel_name, "update.game_state", None, 'start_game')
+					else:
+						await sync_to_async(register_to_room)(room, self.channel_name, auth_token)
 					await self.channel_layer.group_add(self.room_id, self.channel_name)
 					await self.accept()
+					# Showing other players that you are now connected
+					await update_room_players(room, self.room_id)
 					# Checking with room_manager if the game can start
 					room_manager.start_game_task(self.room_id)
 					return  # Successfully accepted the connection, exiting the function
 				except ValueError as e:
+					logger.warning(e)
 					await asyncio.sleep(0.2)  # Wait before retrying
 		# If room is not found or no token was sent, reject the connection
 		await self.close()
-
-
-	async def disconnect(self, close_code=1001):
-		room_manager.player_disconnected(self.room_id, self.channel_name)
-		await self.channel_layer.group_discard(self.room_id, self.channel_name)
-		await self.close(close_code)
-		pass
-
 
 	async def receive(self, text_data):
 		# Handle incoming messages (paddle movement)
@@ -86,13 +124,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 		room = room_manager.get_room(self.room_id)
 		if room is None:
 			return
-		state = room["state"]
 		var = room["var"]
 		dyn = room["dyn"]
 
 		if "action" in message and var["game_started"] == True:
-			paddle = "l_paddle" if self.channel_name == state["id1"] else "r_paddle" # which side's paddle we are operating on
-
+			paddle = "l_paddle" if self.channel_name == room["players"][0]["pcn"] else "r_paddle" # which side's paddle we are operating on
 			if message["action"] == "arrow_up_pressed": # player is now pressing up
 				dyn[paddle]["going_up"] = True
 			elif message["action"] == "arrow_up_unpressed": # player stopped pressing up
@@ -103,6 +139,18 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 			elif message["action"] == "arrow_down_unpressed":  # player stopped pressing down
 				dyn[paddle]["going_down"] = False
 
+	async def disconnect(self, close_code=1001):
+		room = room_manager.get_room(self.room_id)
+		if (room is not None):
+			for player in room["players"]:
+				if (player["pcn"] == self.channel_name):
+					player["pcn"] = None
+					break
+			await update_room_players(room, self.room_id)
+			room_manager.player_disconnected(self.room_id)
+		await self.channel_layer.group_discard(self.room_id, self.channel_name)
+		await self.close(close_code)
+		pass
 
 	async def update_disconnect(self, event):
 		# Handle the `update.disconnect` message from game_logic, closing the WebSocket
@@ -110,21 +158,37 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
 	async def update_game_state(self, event):
 		# Handle the `update.game_state` message from game_logic
-		state = event["state"]
+		data = event["data"]
 		case = event["case"]
-		await self.send(text_data=json.dumps({"state": state, "case": case}))
-
-
+		await self.send(text_data=json.dumps({"data": data, "case": case}))
+	
+	async def update_players_info(self, event):
+		data = event["data"]
+		case = event["case"]
+		await self.send(text_data=json.dumps({"data": data, "case": case}))
+		
 
 
 # ***************************************************
 #               TOURNAMENT CONSUMER
 # ***************************************************
 
+def is_color_taken(players, color):
+	for player in players:
+		if (player['color'] == color):
+			return True
+	return False
 
-def random_rgb():
-	r, g, b = random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)
-	return f"#{r:02X}{g:02X}{b:02X}"
+def assign_color(tour):
+	i = random.randint(0, 7)
+	colors = ['tomato', 'steelblue', 'gold', 'mediumpurple', 'forestgreen', 'darkorange', 'deeppink', 'turquoise']
+	color = None
+	while color is None:
+		if (is_color_taken(tour["players"], colors[i]) is True):
+			i = 0 if i + 1 > 7 else i + 1
+		else:
+			color = colors[i]
+	return color
 
 async def broadcast_players_info(tour_id, tour):
 
@@ -174,26 +238,12 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	# Adding a new slot for the player in the tournament
 	tour["players"].append({
 		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
-		"color": random_rgb(), # Assigning a random color for frontend display 
+		"color": assign_color(tour), # Assigning a random color for frontend display 
 		"pcn": player_channel_name, # Storing the consumer's channel_name
 		"username": str(db_player.user), # Storing the username from db
 		"img": str(db_player.profile_picture), # Storing the profil picture from db
 		"arena_name": None, # This will be the display name for the tournament
 	})
-
-def check_for_reconnexion(tour, player_channel_name, auth_token):
-	# Retrieving the Player associated with the token from the database
-	decoded_token = AccessToken(auth_token)
-	username = decoded_token['username']
-	db_user = User.objects.get(username=username)
-	db_player = Player.objects.get(user=db_user)
-	for player in tour["players"]:
-		if (player["username"] == str(db_player.user) and player["pcn"] == None):
-			# Update the reconnecting player with it's new channel name
-			player["pcn"] = player_channel_name
-			return
-	# Player was not in the tournament
-	raise ValueError(f"Tournament is full")
 
 async def set_arena_name(tour_id, tour, player_channel_name, name):
 	name = name.strip()

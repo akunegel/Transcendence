@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import MessageList from './MessageList';
 import logo from "../../assets/images/logo_chat_box.png";
 import styles from "./Chat.module.css";
@@ -7,12 +7,23 @@ import AuthContext from '../../context/AuthContext';
 
 function CustomGameForm({ invitedUser = null, onClose = () => {}, ws = null }) {
     const navigate = useNavigate();
+	const location = useLocation();
     const { user, authTokens } = useContext(AuthContext);
     const [addBonus, setAddBonus] = useState(false);
     const [isPrivate, setIsPrivate] = useState(true);
     const [hasTimeLimit, setHasTimeLimit] = useState(false);
     const [maxTime, setMaxTime] = useState(5);
     const [maxPoint, setMaxPoint] = useState(5);
+
+	useEffect(() => {
+		return () => {
+			// Close WebSocket when the component unmounts or the URL changes
+			if (wsRef.current) {
+				wsRef.current.close();
+				wsRef.current = null;
+			}
+		};
+	}, [location.pathname]); // Runs when the URL path changes
 
     const handleSubmit = async (f) => {
         f.preventDefault();
