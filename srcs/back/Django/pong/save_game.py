@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from users.serializers import PlayerSerializer
-from users.models import Player
+from users.models import Player, GameResult
 import logging
 
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
@@ -54,12 +54,35 @@ def saveGameResults(room):
 		if room["winner"] == room["players"][0]["username"]:
 			player1.wins += 1
 			player2.loss += 1
+			GameResult.objects.create(
+				player = player1,
+				opponent = player2,
+				win = True,
+			)
+
+			GameResult.objects.create(
+				player = player2,
+				opponent = player1,
+				win = False,
+			)
 		elif room["winner"] == room["players"][1]["username"]:
 			player2.wins += 1
 			player1.loss += 1
+			GameResult.objects.create(
+				player = player2,
+				opponent = player1,
+				win = True,
+			)
+
+			GameResult.objects.create(
+				player = player1,
+				opponent = player2,
+				win = False,
+			)
 		# Saving changes
 		player1.save()
 		player2.save()
+
 
 		return
 	except User.DoesNotExist:

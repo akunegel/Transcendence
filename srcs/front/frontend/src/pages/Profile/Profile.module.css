@@ -76,6 +76,11 @@
 	word-wrap: break-word;
 	max-width: 100%;
 }
+
+.userinfo_container h3 {
+	color: whitesmoke;
+	font-size: 2em;
+}
   
 .userinfo_container img {
 	border-radius: 30px;
@@ -185,4 +190,68 @@
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif !important;
 	box-sizing: border-box;
 	color: black;
+}
+
+
+.userhistory_container {
+    margin-top: 0;
+    margin-bottom: 2%;
+    border: 10px solid white;
+    width: 100%;
+    max-width: 430px;
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    max-height: 720px;
+    overflow-y: auto;
+}
+
+.userhistory_container h3 {
+    color: whitesmoke;
+    font-size: 1.5em;
+    font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid white;
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+.game_history_item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px;
+    border-bottom: 2px solid white;
+    color: whitesmoke;
+    font-size: 1.2em;
+    font-family: monospace, Verdana, Geneva, Tahoma, sans-serif, sans-serif;
+}
+
+.game_history_item:last-child {
+    border-bottom: none;
+}
+
+.game_history_item span {
+    text-align: center;
+}
+
+.userhistory_container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.userhistory_container::-webkit-scrollbar-track {
+    background: black;
+    border-radius: 10px;
+}
+
+.userhistory_container::-webkit-scrollbar-thumb {
+    background: rgb(75, 0, 130);
+    border-radius: 10px;
+}
+
+.userhistory_container::-webkit-scrollbar-thumb:hover {
+    background: rgb(255, 102, 102);
 }
