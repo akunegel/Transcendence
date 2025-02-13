@@ -57,3 +57,23 @@ class BlockedUser(models.Model):
 
     def __str__(self):
         return f"{self.user.username} blocked {self.blocked_user.username}"
+    
+class GameResult(models.Model):
+    player = models.ForeignKey(
+        Player,
+        on_delete=models.CASCADE,
+        related_name="game_results" # Access via: player.game_results.all()
+    )
+    
+    opponent = models.ForeignKey(
+        Player,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    
+    date = models.DateTimeField(auto_now_add=True)
+    win = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.player} vs {self.opponent} ({self.date})"

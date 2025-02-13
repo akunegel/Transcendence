@@ -156,11 +156,30 @@ const Profile = () => {
 						<button onClick={handleEditProfile}>Edit profile</button>
 					</div>
 					<div className={styles.userinfo_container}>
+						<h3>Stats</h3>
 						<p><strong>Number of games:</strong> {profile.nb_games}</p>
 						<p><strong>Wins:</strong> {profile.wins}</p>
 						<p><strong>Lost:</strong> {profile.loss}</p>
 						<p><strong>Tournament wins:</strong> {profile.tr_wins}</p>
 						<p><strong>Number of rebounds per game:</strong> {profile.rb}</p>
+					</div>
+					<div className={styles.userhistory_container}>
+						<h3>Game History</h3>
+						{profile.game_results && profile.game_results.length > 0 ? (
+							profile.game_results.map((game, index) => (
+								<div key={index} className={styles.game_history_item}>
+									<span>{new Date(game.date).toLocaleDateString()}</span>
+									<span>vs {game.opponent_username || 'Guest'}</span>
+									<span style={{ color: game.win ? 'green' : 'red' }}>
+										{game.win ? 'WON' : 'LOST'}
+									</span>
+								</div>
+							))
+						) : (
+							<p style={{ color: 'whitesmoke', fontFamily: 'monospace', textAlign: 'center' }}>
+								No games played yet
+							</p>
+						)}
 					</div>
 				</div>
 				<button onClick={handleReturn}>RETURN</button>

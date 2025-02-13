@@ -1,20 +1,31 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Player, FriendRequest, Friendship
+from .models import Player, FriendRequest, Friendship, GameResult
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username']
 
+class GameResultSerializer(serializers.ModelSerializer):
+    opponent_username = serializers.CharField(source='opponent.user.username', read_only=True, allow_null=True)
+
+    class Meta:
+        model = GameResult
+        fields = ['date', 'win', 'opponent_username']
+
 class PlayerSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
+    game_results = GameResultSerializer(many=True, read_only=True)
 
     class Meta:
         model = Player
-        fields = ['user_id', 'username', 'profile_picture', 'first_name', 'last_name', 'email', 'two_factor', 'nb_games', 'wins', 'loss', 'tr_wins', 'rb']
-        
+        fields = ['user_id', 'username', 'profile_picture', 'first_name', 
+                 'last_name', 'email', 'two_factor', 'nb_games', 'wins', 
+                 'loss', 'tr_wins', 'rb', 'game_results']
+
+
 class GameRegister(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     user_id = serializers.IntegerField(source='user.id', read_only=True)
