@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
 	}, [])
 	
 	useEffect(() => {
-		let counter = 1000 * 60 * 4
+		let counter = 1000 * 60 * 15
 		let interval = setInterval(() => {
 			if (authTokens) {
 				updateToken()
@@ -101,16 +101,6 @@ export const AuthProvider = ({ children }) => {
 		logoutUser: logoutUser,
 		loginWith42: loginWith42
 	}
-
-	useEffect(() => {
-		if (authTokens && user) {
-			const ws = new WebSocket(`wss://${window.location.host}/ws/online/${user.username}/`);
-	
-			return () => {
-				ws.close();
-			};
-		}
-	}, [authTokens, user]);
 	
 	return(
 		<AuthContext.Provider value={contextData}>
