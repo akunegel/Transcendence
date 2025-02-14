@@ -180,17 +180,11 @@ function Chat() {
             const socket = new WebSocket(`wss://${window.location.host}/ws/chat/`);
             setWs(socket);
 
-            socket.onopen = () => {
-                console.log("WebSocket connection established");
-            };
             socket.onmessage = (event) => {
                 const newMessage = JSON.parse(event.data);
                 if (!newMessage.target_user || newMessage.target_user === user.username) {
                     setMessagesList((prevMessagesList) => [...prevMessagesList, newMessage]);
                 }
-            };
-            socket.onclose = () => {
-                console.log("WebSocket connection closed");
             };
             socket.onerror = (error) => {
                 console.error("WebSocket error", error);

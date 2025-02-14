@@ -1,4 +1,4 @@
-import os
+import base64, qrcode, pyotp, requests, os
 from dotenv import load_dotenv
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -9,23 +9,15 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer, UserLanguagePatchSerializer
 from .models import Player, FriendRequest, Friendship, BlockedUser
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from django.db.models import Q
-import requests
+from django.shortcuts import get_object_or_404
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.conf import settings
-import pyotp
-import qrcode
-import base64
-import logging
 from io import BytesIO
-from django.contrib.auth import authenticate
 
 load_dotenv()
-
-logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
-logger = logging.getLogger("__UserViews__")
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -203,7 +195,6 @@ def get_friends(request):
         serializer = FriendshipSerializer(friendships, many=True)
         return Response(serializer.data)
     except Exception as e:
-        logger.error(f"Error fetching friends: {str(e)}")
         return Response({"detail": "Error fetching friends"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
