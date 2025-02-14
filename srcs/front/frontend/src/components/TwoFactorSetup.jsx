@@ -57,12 +57,6 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
 
   const content = (
     <div>
-      {error && (
-        <div className={`${styles.verification_message} ${styles.error}`}>
-          {error}
-        </div>
-      )}
-
       {step === 'initial' && (
         <div className={styles.qr_code_container}>
           <p className={styles.verification_message}>
@@ -81,7 +75,7 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
         <div className={styles.qr_code_container}>
           <p className={styles.verification_message}>1. Scan this QR code with your authenticator app:</p>
           <img src={qrCode} alt="2FA QR Code" className={styles.qr_code}/>
-          <p className={styles.verification_message}>
+          <p className={styles.secret}>
             Can't scan? Use this code: {secret}
           </p>
           <p className={styles.verification_message}>2. Enter the verification code from your app:</p>
@@ -113,6 +107,11 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
           >
             Close
           </button>
+        </div>
+      )}
+      {error && (
+        <div className={styles.error}>
+          {error}
         </div>
       )}
     </div>

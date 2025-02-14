@@ -170,11 +170,6 @@ CHANNEL_LAYERS = {
 	},
 }
 
-# CSRF_TRUSTED_ORIGINS = [
-# 	'http://c1r1p1:5173',
-# 	'https://localhost:9443',
-# ]
-
 CORS_ALLOWED_ORIGINS = [
     "https://localhost:9443",
 ]

@@ -255,3 +255,19 @@
 .userhistory_container::-webkit-scrollbar-thumb:hover {
     background: rgb(255, 102, 102);
 }
+
+.error{
+	font-size: 16;
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif !important;
+	color : red !important;
+	text-align: center;
+}
+
+.verification_message {
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif !important;
+}
+
+.secret {
+	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif !important;
+	font-size: 0.8em;
+}
