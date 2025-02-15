@@ -66,7 +66,7 @@ const MessageList = ({
             });
             onInviteUser(username);
         } else {
-            console.log(`${option} selected for ${username}`);
+            // console.log(`${option} selected for ${username}`);
         }
     };
 

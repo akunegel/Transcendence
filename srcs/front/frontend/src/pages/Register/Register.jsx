@@ -50,11 +50,8 @@ const Register = () => {
 
             const data = await response.json()
 
-            if (response.ok) {
+            if (response.ok)
                 navigate('/login')
-            } else {
-                alert(JSON.stringify(data))
-            }
         } catch (error) {
             setDisplayError("Username is already taken or/and can't end with 42")
         }

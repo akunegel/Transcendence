@@ -21,6 +21,9 @@ function Pong({ param }) {
 	const	speed = useRef(2);
 	const	score = useRef({left: 0, right: 0});
 	const	bonus = useRef({available: "none", bonus: "none", timer: 3, oldSpeed: 2});
+
+	const	gameViewAI = useRef({obj:obj.current, pos:pos.current, RPaddle:RPaddle.current, dir:1});
+	const	lastViewRefresh = useRef(new Date());
 	
 	const	canvasRef = useRef(null);
 	const	gameLoop = useRef(false);
@@ -123,8 +126,23 @@ function Pong({ param }) {
 			if (keys.current.rd)
 				LPaddle.current.y += (LPaddle.current.y >= (500 - (LPaddle.current.size / 2)) ? 0 : 5);
 
-			// Gets the movement determined by the AI
-			RPaddle.current.y += AI_paddleMovement(param.difficulty, obj.current, pos.current, RPaddle.current, dir.current);
+			// Gets the paddle movement determined by the AI
+			if (param.difficulty == 2) {
+				// This AI (normal difficulty) depends on gameViewAi, which is a view of the
+				// game refreshed every seconds.
+				let now = new Date();
+				// Did a second pass since last view refresh ?
+				if ((now - lastViewRefresh.current) / 1000 > 1) {
+					lastViewRefresh.current = now;
+					gameViewAI.current.pos = pos.current;
+					gameViewAI.current.obj = obj.current;
+					gameViewAI.current.RPaddle = RPaddle.current;
+					gameViewAI.current.dir = dir.current;
+				}
+				RPaddle.current.y += AI_paddleMovement(param.difficulty, gameViewAI.current.obj, gameViewAI.current.pos, gameViewAI.current.RPaddle, gameViewAI.current.dir);
+			}
+			else
+				RPaddle.current.y += AI_paddleMovement(param.difficulty, obj.current, pos.current, RPaddle.current, dir.current);
 		}
 		else // E and D keys are bound to left paddle, arrow keys to the right.
 		{
@@ -181,6 +199,13 @@ function Pong({ param }) {
 		obj.current = ({ x: 400, y: 250 });
 		LPaddle.current = ({ x: 50, y: 250, size: 120});
 		RPaddle.current = ({ x: 750, y: 250, size: 120});
+		// Reseting the AI's game view
+		if (param.difficulty == 2) {
+			gameViewAI.current.pos = pos.current;
+			gameViewAI.current.obj = obj.current;
+			gameViewAI.current.RPaddle = RPaddle.current;
+			gameViewAI.current.dir = dir.current;
+		}
 		vec.current = 0.005;
 
 		if (param.addBonus == true)
