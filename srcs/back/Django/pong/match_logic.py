@@ -1,5 +1,7 @@
 from channels.layers import get_channel_layer
 from .bonusManager import bonusManager, handleBonusBoxCollision
+from .save_game import saveGameResults
+from asgiref.sync import sync_to_async
 import math
 import asyncio
 import logging
@@ -261,7 +263,7 @@ async def isGameOver(match):
 	return True
 
 
-async def match_logic(tour_id, tour, match):
+async def match_logic(match):
 
 	# Send the opponent's ids in this match to both players
 	await match_msg(match, "update.tournament_event", match["pids"], "match_start")
@@ -294,7 +296,6 @@ async def match_logic(tour_id, tour, match):
 
 
 	await asyncio.sleep(5)
-	# await broadcast_match_winners(tour_id, match)
 	await match_msg(match, "update.tournament_event", None, "go_to_graph")
 	match["started"] = False
 	return

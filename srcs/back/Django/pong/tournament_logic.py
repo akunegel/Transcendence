@@ -13,8 +13,6 @@ import random
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("__tournamentLogic__")
 
-async def saveTournamentsResults():
-	return
 
 async def share_event(tour_id, type, data, case):
 
@@ -31,10 +29,14 @@ async def share_event(tour_id, type, data, case):
 		)
 
 async def broadcast_tournament_ending(tour, winner_pcn):
+
+	loser_msg = "[ Better Luck Next Time... ]"
+	winner_msg = "[ You Win This Tournament ! ]"
+
 	for player in tour["players"]:
 		if (player["pcn"] != winner_pcn):
-			await targeted_msg(player["pcn"], "update.tournament_event", "[ Better Luck Next Time... ]", "tournament_ended")
-	await targeted_msg(winner_pcn, "update.tournament_event", "[ You Win This Tournament ! ]", "tournament_ended")
+			await targeted_msg(player["pcn"], "update.tournament_event", loser_msg, "tournament_ended")
+	await targeted_msg(winner_pcn, "update.tournament_event", winner_msg, "tournament_ended")
 	return
 
 async def generate_match_rooms(tour_id, tour, players, amount):
@@ -70,7 +72,7 @@ async def generate_match_rooms(tour_id, tour, players, amount):
 		p += 2
 
 	for match in tour["matchs"]:
-		match["match_task"] = asyncio.create_task(match_logic(tour_id, tour, match))
+		match["match_task"] = asyncio.create_task(match_logic(match))
 		match["paddle_task"] = asyncio.create_task(paddle_logic(match))
 		if (tour["rules"]["has_time_limit"] == True):
 			match["timer_task"] = asyncio.create_task(timer_logic(match))
@@ -85,17 +87,22 @@ async def are_all_match_finished(tour):
 
 
 async def end_matchs_tasks(tour):
+
 	# Stops and resets every tasks used in the round
 	for match in tour["matchs"]:
 		if (match["match_task"]):
 			match["match_task"].cancel()
+			await asyncio.sleep(0)
 			match["match_task"] = None
 		if (match["paddle_task"]):
 			match["paddle_task"].cancel()
+			await asyncio.sleep(0)
 			match["paddle_task"] = None
 		if (match["timer_task"]):
 			match["timer_task"].cancel()
+			await asyncio.sleep(0)
 			match["timer_task"] = None
+		await sync_to_async(saveGameResults)(match, match["p1"], match["p2"])
 	# Deletes every matchs stored in the array
 	tour["matchs"].clear()
 
@@ -153,7 +160,7 @@ async def tournament_logic(tour_id, tour):
 			break
 		await asyncio.sleep(2)
 
-	await sync_to_async(saveTournamentsResults)(players_left[0])
+	await sync_to_async(saveTournamentResults)(players_left[0])
 	await broadcast_tournament_ending(tour, players_left[0]["pcn"])
 	await asyncio.sleep(25)
 	await share_event(tour_id, "update.disconnect", None, None)

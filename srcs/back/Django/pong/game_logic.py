@@ -275,7 +275,7 @@ async def game_logic(room_id):
 		var["objx"] = obj["x"]
 		var["objy"] = obj["y"]
 
-	await sync_to_async(saveGameResults)(room)
+	await sync_to_async(saveGameResults)(room, room["players"][0], room["players"][1])
 	await asyncio.sleep(10)
 	await disconnectPlayers(channel_layer, room_id)
 	room_manager.remove_room(room_id)

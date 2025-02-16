@@ -11,6 +11,12 @@ import logging
 logging.basicConfig(level=logging.WARNING)  # Définir le niveau des logs
 logger = logging.getLogger("createCustomGame")     # Créer un logger avec un nom unique
 
+
+
+#################################################
+# Two Player Related Requests
+#################################################
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 # Creating a new custom room as requested by user
@@ -62,7 +68,9 @@ def retrieveRoomInfo(request, room_id=""):
 
 
 
-
+#################################################
+# Tournament Related Requests
+#################################################
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -79,6 +87,11 @@ def createTournament(request):
 		max_time = data.get("maxTime")
 		max_point = data.get("maxPoint")
 		max_player = data.get("maxPlayer")
+
+		if (max_time > 5 or max_time < 1):
+			max_time = 5
+		if (max_point > 5 or max_point < 1):
+			max_point = 5
 
 		# Storing them in the tournament manager
 		tournament_manager.get_tournament(tour_id)["rules"] = {

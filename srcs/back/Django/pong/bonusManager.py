@@ -192,19 +192,19 @@ async def handleBonusBoxCollision(room, pos, obj):
 	if ((obj["x"] > pos["x"] and pos["x"] > 430) or (obj["x"] < pos["x"] and pos["x"] < 370)):
 		return
 
-	left = await doSegmentsIntersect(pos, obj, tlc, blc) # will left side be hit ?
+	left = await doSegmentsIntersect(pos, obj, tlc, blc) # will the left side be hit ?
 	hitPointL = None if not left else await whereWillItHit(pos, tlc, blc, vec, dir, "vertical")
 	distL = None if not left else await getDistanceTo(pos, hitPointL)
 
-	right = await doSegmentsIntersect(pos, obj, trc, brc) # will right side be hit ?
+	right = await doSegmentsIntersect(pos, obj, trc, brc) # will the right side be hit ?
 	hitPointR = None if not right else await whereWillItHit(pos, trc, brc, vec, dir, "vertical")
 	distR = None if not right else await getDistanceTo(pos, hitPointR)
 
-	top = await doSegmentsIntersect(pos, obj, tlc, trc) # will top side be hit ?
+	top = await doSegmentsIntersect(pos, obj, tlc, trc) # will the top side be hit ?
 	hitPointT = None if not top else await whereWillItHit(pos, tlc, trc, vec, dir, "horizontal")
 	distT = None if not top else await getDistanceTo(pos, hitPointT)
 
-	bottom = await doSegmentsIntersect(pos, obj, blc, brc) # will bottom side be hit ?
+	bottom = await doSegmentsIntersect(pos, obj, blc, brc) # will the bottom side be hit ?
 	hitPointB = None if not bottom else await whereWillItHit(pos, blc, brc, vec, dir, "horizontal")
 	distB = None if not bottom else await getDistanceTo(pos, hitPointB)
 
