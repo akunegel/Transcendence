@@ -123,9 +123,6 @@ class FriendshipSerializer(serializers.ModelSerializer):
 class TwoFactorSetupSerializer(serializers.Serializer):
     verification_code = serializers.CharField(max_length=6, min_length=6)
 
-class TwoFactorVerifySerializer(serializers.Serializer):
-    verification_code = serializers.CharField(max_length=6, min_length=6)
-
 class UserLanguagePatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
@@ -141,3 +138,4 @@ class UserLanguagePatchSerializer(serializers.ModelSerializer):
         instance.language = validated_data.get('language', instance.language)
         instance.save()
         return instance
+

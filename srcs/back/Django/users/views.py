@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, TwoFactorVerifySerializer, UserLanguagePatchSerializer
+from .serializers import PlayerUpdateSerializer, PlayerSerializer, LanguageSerializer, PlayerRegistrationSerializer, FriendRequestSerializer, FriendshipSerializer, TwoFactorSetupSerializer, UserLanguagePatchSerializer
 from .models import Player, FriendRequest, Friendship, BlockedUser
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -47,9 +47,10 @@ class MyTokenObtainPairView(TokenObtainPairView):
                     'requires_2fa': True,
                     'detail': 'Please provide 2FA code'
                 }, status=status.HTTP_200_OK)
-                
         except (User.DoesNotExist, Player.DoesNotExist):
-            pass
+            return Response({
+                "detail": "No player profile associated with this user."
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         return super().post(request, *args, **kwargs)
 
@@ -146,6 +147,16 @@ def getPlayerProfile(request):
         player = Player.objects.get(user=request.user)
         serializer = PlayerSerializer(player)
         return Response(serializer.data)
+    except Player.DoesNotExist:
+        return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteAccount(request):
+    try:
+        player = Player.objects.get(user=request.user)
+        player.delete()
+        return Response({"detail": "Player account deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
     except Player.DoesNotExist:
         return Response({"detail": "Player profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -481,7 +492,6 @@ def get_blocked_users(request):
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def updateUserLanguage(request):
-    #user = request.user
     try:
         player = Player.objects.get(user=request.user)
     except Player.DoesNotExist:
@@ -494,3 +504,4 @@ def updateUserLanguage(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     print(serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

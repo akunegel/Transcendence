@@ -48,6 +48,26 @@ function Settings() {
 		navigate("/home");
 	}
 
+	let deleteAccount = async () => {
+		try {
+		  let response = await fetch(`${import.meta.env.VITE_API_URL}/users/delete-account/`, {
+			method: 'DELETE',
+			headers: {
+			  'Content-Type': 'application/json',
+			  'Authorization': 'Bearer ' + String(authTokens.access)
+			}
+		  });
+		  
+		  if (response.ok) {
+			logoutUser();
+		  } else {
+			logoutUser();
+		  }
+		} catch (error) {
+		  logoutUser();
+		}
+	  }
+
 	return (
 		<>
 			<div className={styles.centered_container}>
@@ -63,6 +83,7 @@ function Settings() {
 						<option value="Français">Français</option>
 						<option value="Español">Español</option>
 					</select>
+					<button onClick={deleteAccount}>DELETE ACCOUNT</button>
 				</div>
 			</div>
 
