@@ -22,10 +22,15 @@ class OnlineStatusConsumer(AsyncWebsocketConsumer):
             await self.close()
         except (User.DoesNotExist, Player.DoesNotExist):
             await self.close()
+        except Player.DoesNotExist:
+            pass
 
     async def disconnect(self, close_code):
         if hasattr(self, 'player'):
-            await self.set_online_status(False)
+            try:
+                await self.set_online_status(False)
+            except Player.DoesNotExist:
+                pass
         await self.close()
 
     async def receive(self, text_data):

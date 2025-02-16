@@ -25,4 +25,5 @@ urlpatterns = [
     path('block-user/', views.block_user, name='block-user'),
     path('blocked-users/', views.get_blocked_users, name='blocked-users'),
 	path('language/', views.updateUserLanguage, name='update_user_language'),
+    path('delete-account/', views.deleteAccount, name='delete-account')
 ]
