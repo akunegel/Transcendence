@@ -161,7 +161,7 @@ const Profile = () => {
 						<p><strong>Wins:</strong> {profile.wins}</p>
 						<p><strong>Lost:</strong> {profile.loss}</p>
 						<p><strong>Tournament wins:</strong> {profile.tr_wins}</p>
-						<p><strong>Number of rebounds per game:</strong> {profile.rb}</p>
+						<p><strong>Average rebounds per game:</strong> {profile.nb_games > 0 ? (profile.rb / profile.nb_games) : 0}</p>
 					</div>
 					<div className={styles.userhistory_container}>
 						<h3>Game History</h3>

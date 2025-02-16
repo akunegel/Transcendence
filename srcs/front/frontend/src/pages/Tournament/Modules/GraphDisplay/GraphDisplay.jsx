@@ -22,13 +22,13 @@ function BigPlayerCard({ player }) {
 			<div className={styles.big_player_box}>
 				{player.connected ? 
 						<ImgFallback	src={player.img}
-						alt="Profil Picture"
-						fallback={player.connected ? default_pic : connexion_lost}
-						style={{borderColor: player.color}}/>
+										alt="Profil Picture"
+										fallback={default_pic}
+										style={{borderColor: player.color}}/>
 					:
 						<img	src={connexion_lost}
-						alt="Connexion Lost"
-						style={{borderColor: player.color}}/>
+								alt="Connexion Lost"
+								style={{borderColor: player.color}}/>
 				}
 				<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
 			</div>
@@ -47,13 +47,13 @@ function PlayerLostCard({ player }) {
 				<div className={styles.player_box}>
 					{player.connected ? 
 						<ImgFallback	src={player.img}
-						alt="Profil Picture"
-						fallback={player.connected ? default_pic : connexion_lost}
-						style={{borderColor: player.color}}/>
+										alt="Profil Picture"
+										fallback={default_pic}
+										style={{borderColor: player.color}}/>
 						:
 						<img	src={connexion_lost}
-						alt="Connexion Lost"
-						style={{borderColor: player.color}}/>
+								alt="Connexion Lost"
+								style={{borderColor: player.color}}/>
 					}
 					<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
 				</div>
@@ -68,7 +68,7 @@ function PlayerCard({ player }) {
 			{player.connected ? 
 				<ImgFallback	src={player.img}
 								alt="Profil Picture"
-								fallback={player.connected ? default_pic : connexion_lost}
+								fallback={default_pic}
 								style={{borderColor: player.color}}/>
 			:
 				<img	src={connexion_lost}
