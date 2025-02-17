@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './Pong.module.css';
 import {AI_paddleMovement} from "./OpponentAi.js"
 import {bonusManager, drawBonus} from './BonusManager.js';
+import { useTranslation } from "react-i18next";
 
 function Pong({ param }) {
 
+	const	{ t } = useTranslation();
 	const	[displayScore, setDisplayScore] = useState({left: 0, right: 0});
 	const	[timer, setTimer] = useState({min: param.maxTime, sec: 0});
 	const	timerIsRunning = useRef(false);
 	const	[timerColor, setTimerColor] = useState("white");
-	const	[statusTitle, setStatusTitle] = useState("- Game starting in 3 -");
+	const	[statusTitle, setStatusTitle] = useState("- " + t("Game starting in") + " 3 -");
 
 	const	keys = useRef({ lu: false, ld: false, ru: false, rd: false});
 	const	LPaddle = useRef({ x: 50, y: 250, size: 120});
@@ -166,18 +168,18 @@ function Pong({ param }) {
 		
 		// Checking if one of the players hit the target score
 		if (score.current.left >= param.maxPoint)
-			setStatusTitle(param.againstAI ? "- You Win This Game ! -" : "- Left Player Wins ! -");
+			setStatusTitle(param.againstAI ? "- " + t("You Win This Game !") + " -" : "- "+ t("Left Player Wins !") + " -");
 		else if (score.current.right >= param.maxPoint)
-			setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Wins ! -");
+			setStatusTitle("- " + (param.againstAI ? t("AI Wins !") : t("Right Player Wins !")) + " -");
 		else if (param.hasTimeLimit == true && timerIsRunning.current == false)
 		{
 			// If a time limit has been set and is over, display the winner
 			if (score.current.left > score.current.right)
-				setStatusTitle(param.againstAI ? "- You Win This Game ! -" : "- Left Player Wins ! -");
+				setStatusTitle(param.againstAI ? "- " + t("You Win This Game !") + " -" : "- " + t("Left Player Wins !") + " -");
 			else if (score.current.right > score.current.left)
-				setStatusTitle("- " + (param.againstAI ? "AI" : "Right") + " Player Wins ! -");
+				setStatusTitle("- " + (param.againstAI ? t("AI Wins !") : t("Right Player Wins !")) + " -");
 			else
-				setStatusTitle("- Game Ended In A Draw ! -");
+				setStatusTitle("- " + t("Game Ended In A Draw !") + " -");
 		}
 		else
 			return (false);
@@ -221,10 +223,10 @@ function Pong({ param }) {
 		
 		// 3 seconds delay before game starts
 		for(let i = 3; i != 0; i--){
-			setStatusTitle("- Game starting in " + i + " -");
+			setStatusTitle("- " + t("Game starting in") + " " + i + " -");
 			await sleep(1000);
 		}
-		setStatusTitle("- First to " + param.maxPoint + " wins -")
+		setStatusTitle("- " + t("First to") + " " + param.maxPoint + " " + t("wins") + " -")
 		// Starting timer if a time limit is set
 		if (param.hasTimeLimit == true)
 			timerIsRunning.current = true;

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode';
 import styles from "./Login.module.css";
 import logo from "../../assets/images/logo_login.png"
+import { useTranslation } from "react-i18next";
 
 const Login = () => {
     const { setAuthTokens, setUser } = useContext(AuthContext);
@@ -11,6 +12,7 @@ const Login = () => {
     const [requires2FA, setRequires2FA] = useState(false);
     const [tempCredentials, setTempCredentials] = useState(null);
     const [verificationCode, setVerificationCode] = useState("");
+	const { t } = useTranslation();
     const navigate = useNavigate();
 
     const loginUser = async (e) => {
@@ -42,11 +44,10 @@ const Login = () => {
                     navigate('/');
                 }
             } else {
-                setDisplayError(data.detail || "Login failed. Please check your credentials.");
+                setDisplayError(t(data.detail) || t("Login failed. Please check your credentials."));
             }
         } catch (error) {
-            setDisplayError("An error occurred. Please try again.");
-            console.error("Login error:", error);
+            setDisplayError(t("An error occurred. Please try again."));
         }
     }
 
@@ -75,7 +76,7 @@ const Login = () => {
                 localStorage.setItem('authTokens', JSON.stringify(data));
                 navigate('/');
             } else {
-                setDisplayError(data.detail || "Invalid verification code");
+                setDisplayError(t(data.detail) || t("Invalid verification code"));
             }
         } catch (error) {
             setDisplayError("An error occurred. Please try again.");
@@ -91,15 +92,15 @@ const Login = () => {
                     <input 
                         type="text" 
                         name="username" 
-                        placeholder="Enter Username"
+                        placeholder={t("Enter Username")}
                     />
                     <input 
                         type="password" 
                         name="password" 
-                        placeholder="Enter Password"
+                        placeholder={t("Enter Password")}
                     />
                     {displayError && <p className={styles.error_message}>{displayError}</p>}
-                    <input type="submit" value="Login"/>
+                    <input type="submit" value={t("Login")}/>
                 </form>
             ) : (
                 <form onSubmit={verify2FA} className={styles.form_container}>
@@ -107,7 +108,7 @@ const Login = () => {
                         type="text" 
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
-                        placeholder="Enter 6-digit code"
+                        placeholder={t("Enter 6-digit code")}
                         maxLength={6}
                     />
                     {displayError && <p className={styles.error_message}>{displayError}</p>}
@@ -120,7 +121,7 @@ const Login = () => {
                         }}
                         className={styles.back_button}
                     >
-                        Back to Login
+                        {t("Back to Login")}
                     </button>
                 </form>
             )}

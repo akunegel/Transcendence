@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import styles from './Friends.module.css';
 import logo from "../../assets/images/logo_friends.png"
+import { useTranslation } from "react-i18next";
 
 const Friends = () => {
 	const { authTokens, logoutUser } = useContext(AuthContext);
@@ -12,6 +13,7 @@ const Friends = () => {
 	const [error, setError] = useState(null);
 	const [addFriendError, setAddFriendError] = useState('');
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		const fetchFriendsAndRequests = async () => {
@@ -75,7 +77,7 @@ const Friends = () => {
 			setSearchUsername('');
 		} catch (error) {
 			console.error('Error sending friend request:', error);
-			setAddFriendError(error.message);
+			setAddFriendError(t(error.message));
 		}
 	};
 
@@ -178,7 +180,7 @@ const Friends = () => {
 			)}
 
 			<div className={styles.userinfo_container}>
-				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Friend Requests</h2>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>{t("Friend Requests")}</h2>
 				{friendRequests.map(request => (
 					<div key={request.id} className={styles.friend_item}>
 						<button className={styles.friends} onClick={() => viewProfile(request.sender_username)}>{request.sender_username}</button>
@@ -187,13 +189,13 @@ const Friends = () => {
 								className={styles.accept_button}
 								onClick={() => acceptFriendRequest(request.id)}
 							>
-								Accept
+								{t("Accept")}
 							</button>
 							<button
 								className={`${styles.remove_button} ml-2`}
 								onClick={() => refuseFriendRequest(request.id)}
 							>
-								Refuse
+								{t("Refuse")}
 							</button>
 						</div>
 					</div>
@@ -201,11 +203,11 @@ const Friends = () => {
 			</div>
 
 			<div className={styles.userinfo_container}>
-				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>Add Friend</h2>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>{t("Add Friend")}</h2>
 				<div className={styles.add_friend_input}>
 					<input
 						type="text"
-						placeholder="Enter username"
+						placeholder={t("Enter Username")}
 						value={searchUsername}
 						onChange={(e) => setSearchUsername(e.target.value)}
 					/>
@@ -213,7 +215,7 @@ const Friends = () => {
 						className={styles.send_request_button}
 						onClick={sendFriendRequest}
 					>
-						Send Request
+						{t("Send Request")}
 					</button>
 				</div>
 				{addFriendError && (
@@ -222,9 +224,9 @@ const Friends = () => {
 			</div>
 
 			<div className={styles.userinfo_container}>
-				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>My Friends</h2>
+				<h2 style={{color: 'whitesmoke', marginBottom: '20px'}}>{t("My Friends")}</h2>
 				{friends.length === 0 ? (
-					<p style={{color: 'whitesmoke'}}>You have no friends yet</p>
+					<p style={{color: 'whitesmoke'}}>{t("You have no friends yet")}</p>
 				) : (
 					friends.map(friend => (
 						<div key={friend.friend_id} className={styles.friend_item}>
@@ -237,7 +239,7 @@ const Friends = () => {
 									className={`${styles.remove_button} ml-2`}
 									onClick={() => removeFriend(friend.friend_id)}
 								>
-									Remove
+									{t("Remove")}
 								</button>
 							</div>
 						</div>

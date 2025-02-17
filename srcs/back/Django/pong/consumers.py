@@ -232,9 +232,9 @@ def register_to_tournament(tour, player_channel_name, auth_token):
 	if (len(tour["players"]) >= tour["rules"]["max_player"]):
 		raise ValueError(f"Tournament is full")
 	# Checking if the player already registered to the tournament
-	for player in tour["players"]:
-		if (player["username"] == str(db_player.user)):
-			raise ValueError(f"Player already in tournament")
+	# for player in tour["players"]:
+	# 	if (player["username"] == str(db_player.user)):
+	# 		raise ValueError(f"Player already in tournament")
 	# Adding a new slot for the player in the tournament
 	tour["players"].append({
 		"id": 0, # Default is 0 then a unique id is given in broadcast_player_info
@@ -249,11 +249,11 @@ async def set_arena_name(tour_id, tour, player_channel_name, name):
 	name = name.strip()
 	# Check if the player somehow manages to send a name too long or empty
 	if (len(name) < 1 or len(name) > 11):
-		raise ValueError(f"Name is empty")
+		raise ValueError(f"Name length is not valid")
 	# Check if the name is already in use in this tournament
 	for player in tour["players"]:
 		if (player["pcn"] != player_channel_name and player["arena_name"] == name):
-			raise ValueError(f"Name already taken")
+			raise ValueError(f"Name is already taken")
 		elif (player["pcn"] == player_channel_name and player["arena_name"] != None):
 			raise ValueError (f"Name already set")
 	# Confirm the username and broadcast it to every users

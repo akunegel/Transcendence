@@ -10,33 +10,36 @@ import { useTranslation } from 'react-i18next'
 
 const Header = () => {
 	const { authTokens, logoutUser } = useContext(AuthContext);
-	const { i18n } = useTranslation();
-	const [userLanguage, setLanguage] = useState({
-		language: ''
-	});
+	const { t, i18n } = useTranslation();
+	const [userLanguage, setLanguage] = useState(null);
+	const languageMap = {
+		English: 'en',
+		Français: 'fr',
+		Español: 'es',
+	};
 
 	const handleConnect = () => {
-		const clientId = 'u-s4t2ud-7d9b3db113309f1f8f8e8d51caa7921dbf75d8c0089d720e05afe67fd37d19dc';
-		const redirectUri = 'https://localhost:9443/42connect';
+		const clientId = `${import.meta.env.VITE_42_KEY}`;
+		const redirectUri = `https://localhost:9443/42connect`;
 		const url = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
 
 		window.location.href = url; // Redirect to 42 OAuth URL
 	};
 
 	useEffect(() => {
-        if (authTokens) {
-            getPlayerLanguage()
-        }
-    }, [authTokens])
-
-	//function handleLanguageChange(event){
-	//	setLanguage({ language: event });
-	//}
+		if (authTokens) {
+			getPlayerLanguage()
+		}
+	}, [authTokens])
 
 	const handleLanguageChange = async (language) => {
+		
+		if (userLanguage == language)
+			return;
+
 		try {
-			setLanguage({ language });
-			i18n.changeLanguage(language); // Set language globally in i18next
+			setLanguage(language);
+			i18n.changeLanguage(languageMap[language]); // Set language globally in i18next
 
 			await fetch(`${import.meta.env.VITE_API_URL}/users/language/`, {
 				method: 'PATCH',
@@ -52,6 +55,7 @@ const Header = () => {
 	};
 
 	let getPlayerLanguage = async () => {
+
 		try {
 			let response = await fetch(`${import.meta.env.VITE_API_URL}/users/settings/`, {
 				method: 'GET',
@@ -65,8 +69,8 @@ const Header = () => {
 
 			if (response.status === 200) {
 				const language = data.language;
-                setLanguage({ language });
-                i18n.changeLanguage(language);
+				setLanguage(language);
+				i18n.changeLanguage(languageMap[language]);
 			} else if (response.status === 401) {
 				logoutUser()
 			}
@@ -87,19 +91,19 @@ const Header = () => {
 						{authTokens && (
 							<>
 								<li className="nav-item">
-									<Link className="nav-link" to="/home"><i className="bi bi-house me-1"></i> Home</Link>
+									<Link className="nav-link" to="/home"><i className="bi bi-house me-1"></i> {t("Home")}</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/profile"><i className="bi bi-person me-1"></i> Profile</Link>
+									<Link className="nav-link" to="/profile"><i className="bi bi-person me-1"></i> {t("Profile")}</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> Local</Link>
+									<Link className="nav-link" to="/local"><i className="bi bi-geo-alt me-1"></i> {t("Local")}</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> Lobby</Link>
+									<Link className="nav-link" to="/lobby"><i className="bi bi-list-task me-1"></i> {t("Lobby")}</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/tournament"><i className="bi bi-list-task me-1"></i> Tournament</Link>
+									<Link className="nav-link" to="/tournament"><i className="bi bi-list-task me-1"></i> {t("Tournament")}</Link>
 								</li>
 							</>
 						)}
@@ -108,40 +112,40 @@ const Header = () => {
 						{authTokens ? (
 							<>
 								<Dropdown>
-                                    <Dropdown.Toggle variant="dark" id="dropdown-basic">
-                                        {userLanguage.language || 'Loading...'}
-                                    </Dropdown.Toggle>
+									<Dropdown.Toggle variant="dark" id="dropdown-basic">
+										{userLanguage ? userLanguage : 'Loading...'}
+									</Dropdown.Toggle>
 
-                                    <Dropdown.Menu>
-                                        <Dropdown.Item onClick={() => handleLanguageChange('English')}>
-                                            English
-                                        </Dropdown.Item>
-                                        <Dropdown.Item onClick={() => handleLanguageChange('Français')}>
-                                            Français
-                                        </Dropdown.Item>
-                                        <Dropdown.Item onClick={() => handleLanguageChange('Español')}>
-                                            Español
-                                        </Dropdown.Item>
-                                    </Dropdown.Menu>
-                                </Dropdown>
+									<Dropdown.Menu>
+										<Dropdown.Item onClick={() => handleLanguageChange('English')}>
+											English
+										</Dropdown.Item>
+										<Dropdown.Item onClick={() => handleLanguageChange('Français')}>
+											Français
+										</Dropdown.Item>
+										<Dropdown.Item onClick={() => handleLanguageChange('Español')}>
+											Español
+										</Dropdown.Item>
+									</Dropdown.Menu>
+								</Dropdown>
 								<li className="nav-item">
 									<Link className="nav-link" to="/friends">
-										<i className="bi bi-people me-1"></i> Friends
+										<i className="bi bi-people me-1"></i> {t("Friends")}
 									</Link>
 								</li>
 								<li className="nav-item">
 									<button onClick={logoutUser} className="btn btn-link nav-link">
-										<i className="bi bi-box-arrow-right me-1"></i> Logout
+										<i className="bi bi-box-arrow-right me-1"></i> {t("Logout")}
 									</button>
 								</li>
 							</>
 						) : (
 							<>
 								<li className="nav-item">
-									<Link className="nav-link" to="/register"><i className="bi bi-pencil me-1"></i> Register</Link>
+									<Link className="nav-link" to="/register"><i className="bi bi-pencil me-1"></i> {t("Register")}</Link>
 								</li>
 								<li className="nav-item">
-									<Link className="nav-link" to="/login"><i className="bi bi-box-arrow-in-right me-1"></i> Login</Link>
+									<Link className="nav-link" to="/login"><i className="bi bi-box-arrow-in-right me-1"></i> {t("Login")}</Link>
 								</li>
 								<li className="nav-item">
 									<button className="nav-link" onClick={handleConnect}><img src={logo} alt="42" width="25" height="25" border="none"></img></button>

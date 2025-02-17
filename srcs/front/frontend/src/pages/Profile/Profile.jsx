@@ -6,6 +6,7 @@ import AuthContext from "../../context/AuthContext.jsx";
 import styles from "./Profile.module.css";
 import logo from "../../assets/images/logo_profil.png"
 import TwoFactorSetup from '../../components/TwoFactorSetup';
+import { useTranslation } from "react-i18next";
 
 const Profile = () => {
 	const [profile, setProfile] = useState(null);
@@ -14,6 +15,7 @@ const Profile = () => {
 	const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 	const { authTokens, logoutUser } = useContext(AuthContext);
 	const navigate = useNavigate();
+	const { t, i18n } = useTranslation();
 
 	const handleReturn = () => {
 		navigate("/home");
@@ -130,7 +132,7 @@ const Profile = () => {
 	}
 
 	if (!profile) {
-		return <div>Loading...</div>
+		return <div>{t("Loading")}...</div>
 	}
 
 	return (
@@ -148,84 +150,84 @@ const Profile = () => {
 										alt="Default Profile"
 										fallback={default_pic}
 						/>
-						<p><strong>Username:</strong> {profile.username}</p>
-						<p><strong>First Name:</strong> {profile.first_name}</p>
-						<p><strong>Last Name:</strong> {profile.last_name}</p>
-						<p><strong>Email:</strong> {profile.email}</p>
-						<p><strong>Two-Factor Authentication:</strong> {profile.two_factor ? 'Enabled' : 'Disabled'}</p>
-						<button onClick={handleEditProfile}>Edit profile</button>
+						<p><strong>{t("Username")}:</strong> {profile.username}</p>
+						<p><strong>{t("First Name")}:</strong> {profile.first_name}</p>
+						<p><strong>{t("Last Name")}:</strong> {profile.last_name}</p>
+						<p><strong>{t("Email")}:</strong> {profile.email}</p>
+						<p><strong>{t("Two-Factor Authentication")}:</strong> {profile.two_factor ? t('Enabled') : t('Disabled')}</p>
+						<button onClick={handleEditProfile}>{t("Edit profile")}</button>
 					</div>
 					<div className={styles.userinfo_container}>
-						<h3>Stats</h3>
-						<p><strong>Number of games:</strong> {profile.nb_games}</p>
-						<p><strong>Wins:</strong> {profile.wins}</p>
-						<p><strong>Lost:</strong> {profile.loss}</p>
-						<p><strong>Tournament wins:</strong> {profile.tr_wins}</p>
-						<p><strong>Average rebounds per game:</strong> {profile.nb_games > 0 ? (profile.rb / profile.nb_games) : 0}</p>
+						<h3>{t("Stats")}</h3>
+						<p><strong>{t("Number of games")}:</strong> {profile.nb_games}</p>
+						<p><strong>{t("Wins")}:</strong> {profile.wins}</p>
+						<p><strong>{t("Lost")}:</strong> {profile.loss}</p>
+						<p><strong>{t("Tournament wins")}:</strong> {profile.tr_wins}</p>
+						<p><strong>{t("Average rebounds per game")}:</strong> {profile.nb_games > 0 ? (profile.rb / profile.nb_games) : 0}</p>
 					</div>
 					<div className={styles.userhistory_container}>
-						<h3>Game History</h3>
+						<h3>{t("Game History")}</h3>
 						{profile.game_results && profile.game_results.length > 0 ? (
 							profile.game_results.map((game, index) => (
 								<div key={index} className={styles.game_history_item}>
 									<span>{new Date(game.date).toLocaleDateString()}</span>
-									<span>vs {game.opponent_username || 'Guest'}</span>
+									<span>vs {game.opponent_username || t('Guest')}</span>
 									<span style={{ color: game.win ? 'green' : 'red' }}>
-										{game.win ? 'WON' : 'LOST'}
+										{game.win ? t('WON') : t('LOST')}
 									</span>
 								</div>
 							))
 						) : (
 							<p style={{ color: 'whitesmoke', fontFamily: 'monospace', textAlign: 'center' }}>
-								No games played yet
+								{t("No games played yet")}
 							</p>
 						)}
 					</div>
 				</div>
-				<button onClick={handleReturn}>RETURN</button>
+				<button onClick={handleReturn}>{t("RETURN")}</button>
 				</>
 			) : (
 				<div className={styles.edit_profile_modal}>
 					<div className={styles.edit_profile_content}>
-						<h2 className={styles.edit_profile_title}>Edit Profile</h2>
+						<h2 className={styles.edit_profile_title}>{t("Edit Profile")}</h2>
 						<div className={styles.form_group}>
-							<label>First Name</label>
+							<label>{t("First Name")}</label>
 							<input 
 								type="text" 
 								name="first_name" 
 								value={editedProfile.first_name} 
 								onChange={handleInputChange} 
-								placeholder="Optional"
+								placeholder={t("Optional")}
 							/>
 						</div>
 						<div className={styles.form_group}>
-							<label>Last Name</label>
+							<label>{t("Last Name")}</label>
 							<input 
 								type="text" 
 								name="last_name" 
 								value={editedProfile.last_name} 
 								onChange={handleInputChange} 
-								placeholder="Optional"
+								placeholder={t("Optional")}
 							/>
 						</div>
 						<div className={styles.form_group}>
-							<label>Email</label>
+							<label>{t("Email")}</label>
 							<input 
 								type="email" 
 								name="email" 
 								value={editedProfile.email} 
 								onChange={handleInputChange} 
-								placeholder="Optional"
+								placeholder={t("Optional")}
 							/>
 						</div>
 						<div className={styles.form_group}>
-							<label>Profile Picture URL</label>
+							<label>{t("Profile Picture URL")}</label>
 							<input 
 								type="text" 
 								name="profile_picture" 
 								value={editedProfile.profile_picture} 
 								onChange={handleInputChange} 
-								placeholder="Optional"
+								placeholder={t("Optional")}
 							/>
 						</div>
 						<div className={styles.form_group}>
@@ -236,11 +238,11 @@ const Profile = () => {
 								checked={editedProfile.two_factor || profile.two_factor}
 								onChange={handleInputChange}
 								/>
-								Enable Two-Factor Authentication
+								{t("Enable Two-Factor Authentication")}
 							</label>
 						</div>
 						<button className={styles.edit_profile_content} onClick={handleSaveProfile}>
-						Save
+						{t("Save")}
 						</button>
 					</div>
 				</div>

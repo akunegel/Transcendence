@@ -7,9 +7,11 @@ import CutePong from "../MicroPong/MicroPong.jsx"
 import Chat from "../Chat/Chat.jsx"
 import {useContext} from "react";
 import AuthContext from "../../context/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 
 function Home() {
 	let { logoutUser } = useContext(AuthContext);
+	const { t } = useTranslation();
 
 	const navigate = useNavigate();
 	
@@ -45,14 +47,14 @@ function Home() {
 
 				<div className={styles.centered_container}>
 					<CutePong/>
-					<button onClick={() => handleLocal()}>PLAY LOCAL</button>
+					<button onClick={() => handleLocal()}>{t("PLAY LOCAL")}</button>
 				</div>
 
 				<div className={styles.centered_container}>
-					<button onClick={() => handleOnline()}>PLAY ONLINE</button>
-					<button onClick={() => handleProfil()}>PROFILE</button>
-					<button onClick={() => handleSettings()}>SETTINGS</button>
-					<button onClick={() => handleLogout()}>LOGOUT</button>
+					<button onClick={() => handleOnline()}>{t("PLAY ONLINE")}</button>
+					<button onClick={() => handleProfil()}>{t("PROFILE")}</button>
+					<button onClick={() => handleSettings()}>{t("SETTINGS")}</button>
+					<button onClick={() => handleLogout()}>{t("LOGOUT")}</button>
 					<br/>
 				</div>
 				

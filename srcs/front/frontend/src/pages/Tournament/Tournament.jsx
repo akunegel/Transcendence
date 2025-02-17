@@ -7,10 +7,12 @@ import PlayersList from './Modules/PlayersList/PlayersList.jsx';
 import GraphDisplay from './Modules/GraphDisplay/GraphDisplay.jsx';
 import PongMatch from './Modules/PongMatch/PongMatch.jsx';
 import styles from './Tournament.module.css';
+import { useTranslation } from "react-i18next";
 
 
 function Tournament() {
-
+	
+	const	{ t } = useTranslation();
 	const	{ authTokens } = useContext(AuthContext);
 	const	{ tourId } = useParams(); // Extract tourId from URL
 	const	wsRef = useRef(null);
@@ -53,7 +55,7 @@ function Tournament() {
 	// Setting the tab's title on mount, retrieving room's specific info, getting user info, starting websocket connexion
 	useEffect(() => {
 
-		document.title = "Connecting...";
+		document.title = t("Connecting...");
 		// Starting the connexion to the tournament's channel layer
 		if (!wsRef.current) {
 			const ws = new WebSocket(`wss://${import.meta.env.VITE_IP}:9443/ws/tournament/?tourId=${tourId}&token=${authTokens.access}`);
@@ -73,7 +75,7 @@ function Tournament() {
 					return ;
 				case 'set_name_ok': // Entered name was confirmed
 					setLogged(true);
-					document.title = "Waiting...";
+					document.title = t("Waiting...");
 					return ;
 				case 'set_name_error': // Entered name was invalid
 					setNameError(msg.data);
@@ -83,15 +85,15 @@ function Tournament() {
 					return ;
 				case 'tournament_started': // The tournament started
 					setGameStarted(true);
-					document.title = "Get ready...";
+					document.title = t("Get ready...");
 					return ;
 				case 'go_to_graph': // Players return to the graph
 					setIsInMatch(false);
-					setGraphTitle("[ Waiting for round to end... ]")
-					document.title = "Waiting...";
+					setGraphTitle(t("[ Waiting for round to end... ]"))
+					document.title = t("Waiting...");
 					return ;
 				case 'round_starting': // The next round is starting in 10sec
-					setGraphTitle("[ Round " + msg.data + " is about to start... ]")
+					setGraphTitle("[ " + t("Round") + " " + msg.data + " " + t("is about to start...") + " ]")
 					return ;
 				case 'match_start': // Players go play their next round
 					setMatchOpponents(msg.data);
@@ -102,7 +104,7 @@ function Tournament() {
 					setRoundResults(msg.data);
 					return ;
 				case 'tournament_ended':
-					setGraphTitle(msg.data);
+					setGraphTitle(t(msg.data));
 					return ;
 				default:
 					return ;

@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import AuthContext from "../../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom"
 import styles from "./TournamentForm.module.css"
+import { useTranslation } from "react-i18next";
 
 
 function TournamentForm() {
@@ -15,6 +16,7 @@ function TournamentForm() {
 	const [maxTime, setMaxTime] = useState(5);
 	const [maxPoint, setMaxPoint] = useState(5);
 	const [maxPlayer, setMaxPlayer] = useState(4);
+	const { t, i18n } = useTranslation();
 
 
 	const handleSubmit = async (f) => {
@@ -76,34 +78,34 @@ function TournamentForm() {
 
 	return (
 		<>
-			{noTournamentFound && <p className="m-0" style={{color:'white', fontWeight:'bold'}}>{"[ No tournament found ]"}</p>}
+			{noTournamentFound && <p className="m-0" style={{color:'white', fontWeight:'bold'}}>{t("[ No tournament found ]")}</p>}
 			<div className={styles.gameform_container}>
 
 				{/* Turn bonuses on/off */}
 				<div className={styles.gameform_checkbox_container}>
 					<input id="BonusCheckbox" type="checkbox" value={addBonus} onChange={() => setAddBonus(addBonus ? false : true)}/>
 					<label htmlFor="BonusCheckbox"></label>
-					<p className="m-0">Bonuses: {addBonus ? "On" : "Off"}</p>
+					<p className="m-0">{t("Bonuses")}: {addBonus ? t("On") : t("Off")}</p>
 				</div>
 				<div className={styles.info_message}>
-					<p className="m-0">{addBonus ? "bonuses will spawn randomly" : " "}</p>
+					<p className="m-0">{addBonus ? t("bonuses will spawn randomly") : " "}</p>
 				</div>
 
 				{/* Turn tournament status private/public */}
 				<div className={styles.gameform_checkbox_container}>
 					<input id="PrivateCheckbox" type="checkbox" value={isPrivate} onChange={() => setIsPrivate(isPrivate ? false : true)}/>
 					<label htmlFor="PrivateCheckbox"></label>
-					<p className="m-0">Tournament is: {isPrivate ? "Private" : "Public"}</p>
+					<p className="m-0">{t("Tournament is")}: {isPrivate ? t("Private") : t("Public")}</p>
 				</div>
 				<div className={styles.info_message}>
-					<p className="m-0">{isPrivate ? " " : "random users will be able to join"}</p>
+					<p className="m-0">{isPrivate ? " " : t("random users will be able to join")}</p>
 				</div>
 
 				{/* Turn time limit on/off */}
 				<div className={styles.gameform_checkbox_container}>
 					<input id="timeLimitCheckBox" type="checkbox" value={hasTimeLimit} onChange={() => setHasTimeLimit(hasTimeLimit ? false : true)}/>
 					<label htmlFor="timeLimitCheckBox"></label>
-					<p className="m-0">Time limit: {hasTimeLimit ? "" : "disabled"}</p>
+					<p className="m-0">{t("Time limit")}: {hasTimeLimit ? "" : t("disabled")}</p>
 					{/* Set time limit */}
 					{hasTimeLimit &&
 						<div className={styles.gameform_number_container}>
@@ -116,7 +118,7 @@ function TournamentForm() {
 				
 				{/* Set point limit */}
 				<div className={styles.gameform_number_container} style={{margin: '16px', marginLeft: '23px', justifyContent: 'left'}}>
-					<p className="m-0">Point limit: </p>
+					<p className="m-0">{t("Point limit")}: </p>
 					<button onClick={() => setMaxPoint(maxPoint >= 5 ? 5 : maxPoint + 1)}>+</button>
 					<p className="m-0">{maxPoint}</p>
 					<button onClick={() => setMaxPoint(maxPoint <= 1 ? 1 : maxPoint - 1)}>-</button>
@@ -124,17 +126,17 @@ function TournamentForm() {
 
 				{/* Set player limit */}
 				<div className={styles.gameform_number_container} style={{margin: '16px', marginTop: '0px', marginLeft: '23px', justifyContent: 'left'}}>
-					<p className="m-0">Max players: </p>
+					<p className="m-0">{t("Max players")}: </p>
 					<button onClick={() => setMaxPlayer(8)}>+</button>
 					<p className="m-0">{maxPlayer}</p>
 					<button onClick={() => setMaxPlayer(4)}>-</button>
 				</div>
 
 				<div className={styles.start_button}>
-					<button onClick={(f) => handleSubmit(f)}>START TOURNAMENT</button>
+					<button onClick={(f) => handleSubmit(f)}>{t("START TOURNAMENT")}</button>
 				</div>
 				<div className={styles.start_button}>
-					<button onClick={(f) => handleQuickJoin(f)}>QUICK JOIN</button>
+					<button onClick={(f) => handleQuickJoin(f)}>{t("QUICK JOIN")}</button>
 				</div>
 
 			</div>

@@ -4,8 +4,11 @@ import TournamentForm from '../../components/TournamentForm/TournamentForm.jsx';
 import logo from "../../assets/images/logo_tournament.png"
 import logo2 from "../../assets/images/logo_tournament2.png"
 import styles from "./Tournament.module.css"
+import { useTranslation } from "react-i18next";
 
 function TournamentLobby() {
+	
+	const	{ t } = useTranslation();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -26,7 +29,7 @@ function TournamentLobby() {
 				<img src={logo2}/>
 				<TournamentForm/>
 				<div className={styles.centered_container}>
-					<button onClick={() => handleReturn()}>RETURN</button>
+					<button onClick={() => handleReturn()}>{t("RETURN")}</button>
 					<br/>
 				</div>
 			</div>

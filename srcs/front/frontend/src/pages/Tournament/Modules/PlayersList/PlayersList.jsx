@@ -2,9 +2,10 @@ import styles from './PlayersList.module.css'
 import { useEffect, useState } from 'react'
 import default_pic from '../../../../assets/images/default_profile_pic.png'
 import ImgFallback from '../../../../components/ImgFallback';
+import { useTranslation } from "react-i18next";
 
 function PlayersList({ isLeader, wsRef, players, info }) {
-
+	const	{ t } = useTranslation();
 	const [allLogged, setAllLogged] = useState(false);
 
 	useEffect(() => {
@@ -30,9 +31,9 @@ function PlayersList({ isLeader, wsRef, players, info }) {
 							alt="Profil Picture"
 							fallback={default_pic}
 							style={{borderColor: player.color}}/>
-			<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
+			<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : t("connecting...")}</p>
 			{player.id == 1 &&
-				<p className='m-0' style={{borderColor: player.color}}>leader</p>
+				<p className='m-0' style={{borderColor: player.color}}>{t("leader")}</p>
 			}
 		</div>
 	);
@@ -41,16 +42,16 @@ function PlayersList({ isLeader, wsRef, players, info }) {
 		if (!allLogged || !isLeader)
 			return ;
 		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN)
-			wsRef.current.send(JSON.stringify({ start_game: 'start' }));
+			wsRef.current.send(JSON.stringify({ start_game: t('start') }));
 		return ;
 	}
 
 	return (
 		<div className={styles.centered_container}>
 			{players.length == info.max_player && allLogged ? 
-				<h1>{isLeader ? '[ You can start the tournament ]' : '[ Waiting for leader to start ]'}</h1>
+				<h1>{isLeader ? t('[ You can start the tournament ]') : t('[ Waiting for leader to start ]')}</h1>
 			:
-				<h1>{'Waiting for others to connect...'}</h1>
+				<h1>{t('Waiting for others to connect...')}</h1>
 			}
 			<h2>{players.length}/{info.max_player}</h2>
 			<div className={styles.box}>
@@ -59,7 +60,7 @@ function PlayersList({ isLeader, wsRef, players, info }) {
 			{isLeader &&
 				<div className={styles.start_button}>
 					{allLogged ?
-						<button onClick={() => startGame()}>START</button>
+						<button onClick={() => startGame()}>{t("START")}</button>
 						:
 						<p>...</p>
 					}
