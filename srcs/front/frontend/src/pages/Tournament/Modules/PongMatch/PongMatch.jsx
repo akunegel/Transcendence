@@ -4,13 +4,15 @@ import ImgFallback from '../../../../components/ImgFallback.jsx';
 import default_pic from '../../../../assets/images/default_profile_pic.png'
 import connexion_lost from '../../../../assets/images/connexion_lost.png'
 import styles from './PongMatch.module.css';
+import { useTranslation } from "react-i18next";
 
 
 function PongMatch({ players, info, opponents, wsRef }) {
-
+	
+	const	{ t } = useTranslation();
 	const	canvasRef = useRef(null);
 	const	lastUpdateTimeRef = useRef(0);
-	const	[statusTitle, setStatusTitle] = useState("- First to " + info.max_point + " wins -");
+	const	[statusTitle, setStatusTitle] = useState("- " + t("First to") + " " + info.max_point + " " + t("wins") + " -");
 	const	startTime = useRef(null);
 	const	[timer, setTimer] = useState({min: 0, sec: 0});
 	const	timerIsRunning = useRef(false);
@@ -82,7 +84,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 
 	const displayGameStartTimer = async () => {
 		for(let i = 3; i != 0; i--){
-			setStatusTitle("- Game starting in " + i + " -");
+			setStatusTitle("- " + t("Game starting in") + " " + i + " -");
 			document.title = i;
 			await sleep(1000);
 		}
@@ -103,7 +105,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 					setTitleCss(styles.status_title_center);
 					displayGameStartTimer()
 						.then(() =>{timerIsRunning.current = true;
-									setStatusTitle("- First to " + info.max_point + " wins -");
+									setStatusTitle("- " + t("First to") + " " + info.max_point + " " + t("wins") + " -");
 									startTime.current = new Date();
 									setTitleCss(styles.status_title_bottom);
 						});
@@ -133,7 +135,7 @@ function PongMatch({ players, info, opponents, wsRef }) {
 					drawGame(canvasRef.current.getContext('2d'), 400, 250);
 					// Displaying winner's username
 					setTitleCss(styles.status_title_center);
-					setStatusTitle("[ " + msg.data.winner + " is the winner ! ]");
+					setStatusTitle("[ " + msg.data.winner + " " + t("is the winner !") + " ]");
 					break ;
 				default:
 					break ;

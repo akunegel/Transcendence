@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import styles from './NameForm.module.css'
+import { useTranslation } from "react-i18next";
 
 function NameForm({ wsRef, nameError }){
 
 	const [name, setName] = useState("");
 	const inputRef = useRef(null);
+	const { t } = useTranslation();
 
 	const handleNameChange = (e) => {
 		let newName = e.target.value;
@@ -29,7 +31,7 @@ function NameForm({ wsRef, nameError }){
 
 	return (
 		<div className={styles.box}>
-			<p>{wsRef.current && wsRef.current.readyState === WebSocket.OPEN ? "Enter Your Arena Name :" : "Connecting..."}</p>
+			<p>{wsRef.current && wsRef.current.readyState === WebSocket.OPEN ? t("Enter Your Arena Name") : t("connecting...")} :</p>
 			<input	type="text"
 					placeholder='...'
 					ref={inputRef}
@@ -39,13 +41,13 @@ function NameForm({ wsRef, nameError }){
 			/>
 			{nameError != false &&
 				<div className={styles.info_message}>
-					<p className="m-0">{nameError}</p>
+					<p className="m-0">{t(nameError)}</p>
 				</div>
 			}
 			{name == "" ?
-				<button style={{color:'#a0a0a0', cursor:'default'}}>CONFIRM</button>
+				<button style={{color:'#a0a0a0', cursor:'default'}}>{t("CONFIRM")}</button>
 			:
-				<button onClick={() => sendName()}>CONFIRM</button>
+				<button onClick={() => sendName()}>{t("CONFIRM")}</button>
 			}
 		</div>
 	)

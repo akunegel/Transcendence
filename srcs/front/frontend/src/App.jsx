@@ -20,7 +20,6 @@ import Connect42 from "./components/api42.jsx";
 import OtherProfile from './pages/OtherProfile/OtherProfile.jsx';
 
 
-
 function App() {
 
 	return (

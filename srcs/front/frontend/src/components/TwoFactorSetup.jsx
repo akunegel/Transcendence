@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import styles from "../pages/Profile/Profile.module.css";
+import { useTranslation } from "react-i18next";
 
 const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
   const [step, setStep] = useState('initial');
@@ -7,6 +8,7 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
   const [secret, setSecret] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [error, setError] = useState('');
+  const { t, i18n } = useTranslation();
 
   const getQRCode = async () => {
     try {
@@ -23,10 +25,10 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
         setSecret(data.secret);
         setStep('verify');
       } else {
-        setError(data.detail || 'Failed to get QR code');
+        setError(data.detail || t('Failed to get QR code'));
       }
     } catch (error) {
-      setError('Failed to communicate with server');
+      setError(t('Failed to communicate with server'));
     }
   };
 
@@ -48,10 +50,10 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
           onSuccess();
         }
       } else {
-        setError(data.detail || 'Invalid verification code');
+        setError(data.detail || t('Invalid verification code'));
       }
     } catch (error) {
-      setError('Failed to verify code');
+      setError(t('Failed to verify code'));
     }
   };
 
@@ -60,7 +62,7 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
       {step === 'initial' && (
         <div className={styles.qr_code_container}>
           <p className={styles.verification_message}>
-            To enable 2FA, you'll need an authenticator app like Google Authenticator or Authy (for 42 accounts, 2FA can't be activated here but can by going on the intra to settings -> privacy).
+            {t("To enable 2FA, you'll need an authenticator app like Google Authenticator or Authy (for 42 accounts, 2FA can't be activated here but can by going on the intra to settings -> privacy")}).
           </p>
           <button
             onClick={getQRCode}
@@ -73,12 +75,12 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
 
       {step === 'verify' && (
         <div className={styles.qr_code_container}>
-          <p className={styles.verification_message}>1. Scan this QR code with your authenticator app:</p>
+          <p className={styles.verification_message}>1. {t("Scan this QR code with your authenticator app")}:</p>
           <img src={qrCode} alt="2FA QR Code" className={styles.qr_code}/>
           <p className={styles.secret}>
-            Can't scan? Use this code: {secret}
+            {t("Can't scan? Use this code")}: {secret}
           </p>
-          <p className={styles.verification_message}>2. Enter the verification code from your app:</p>
+          <p className={styles.verification_message}>2. {t("Enter the verification code from your app")}:</p>
           <input
             type="text"
             value={verificationCode}
@@ -91,7 +93,7 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
             onClick={verifySetup}
             className={styles.verification_button}
           >
-            Verify and Enable 2FA
+            {t("Verify and Enable 2FA")}
           </button>
         </div>
       )}
@@ -99,13 +101,13 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
       {step === 'success' && (
         <div className={styles.qr_code_container}>
           <p className={`${styles.verification_message} ${styles.success}`}>
-            ✓ Two-factor authentication has been successfully enabled!
+            ✓ {t("Two-factor authentication has been successfully enabled!")}
           </p>
           <button
             onClick={onClose}
             className={styles.verification_button}
           >
-            Close
+            {t("Close")}
           </button>
         </div>
       )}
@@ -130,7 +132,7 @@ const TwoFactorSetup = ({ onClose, onSuccess, authTokens, noModal }) => {
         >
           &times;
         </button>
-        <h2 className={styles.edit_profile_title}>Two-Factor Authentication Setup</h2>
+        <h2 className={styles.edit_profile_title}>{t("Two-Factor Authentication Setup")}</h2>
         {content}
       </div>
     </div>

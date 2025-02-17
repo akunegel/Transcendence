@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from "./Register.module.css"
 import logo from "../../assets/images/logo_register.png"
+import { useTranslation } from "react-i18next";
 
 const Register = () => {
     const navigate = useNavigate()
     const [displayError, setDisplayError] = useState("");
+	const	{ t } = useTranslation();
 
     const [formData, setFormData] = useState({
         username: '',
@@ -24,12 +26,12 @@ const Register = () => {
         e.preventDefault()
 
         if (formData.password !== formData.passwordVerif) {
-            setDisplayError("Passwords do not match!")
+            setDisplayError(t("Passwords do not match!"))
             return
         }
 
         if (formData.username.length > 17) {
-            setDisplayError("Username must be 17 characters or less. (\"-_Dark_Sasubaka_-\") might be available")
+            setDisplayError(t("Username must be 17 characters or less. (-_Dark_Sasubaka_- might be available)"))
             return
         }
 
@@ -53,7 +55,7 @@ const Register = () => {
             if (response.ok)
                 navigate('/login')
         } catch (error) {
-            setDisplayError("Username is already taken or/and can't end with 42")
+            setDisplayError(t("Username is already taken or/and can't end with 42"))
         }
     }
 
@@ -64,7 +66,7 @@ const Register = () => {
                 <input
                     type="text"
                     name="username"
-                    placeholder="Enter Username"
+                    placeholder={t("Enter Username")}
                     value={formData.username}
                     onChange={handleChange}
                     required
@@ -72,7 +74,7 @@ const Register = () => {
                 <input
                     type="password"
                     name="password"
-                    placeholder="Enter Password"
+                    placeholder={t("Enter Password")}
                     value={formData.password}
                     onChange={handleChange}
                     required
@@ -80,13 +82,13 @@ const Register = () => {
                 <input
                     type="password"
                     name="passwordVerif"
-                    placeholder="Confirm Password"
+                    placeholder={t("Confirm Password")}
                     value={formData.passwordVerif}
                     onChange={handleChange}
                     required
                 />
                 {displayError && <p className={styles.error_message}>{displayError}</p>}
-                <input type="submit" value="Register"/>
+                <input type="submit" value={t("Register")}/>
             </form>
         </div>
     )

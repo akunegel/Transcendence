@@ -145,7 +145,7 @@
 	border-top: none;
 }
 .exit_button button {
-	width: 50px;
+	width: auto;
 	font-size: 1em;
 	font-family: monospace, Verdana, Geneva, Tahoma, sans-serif;
 	background-color: black;

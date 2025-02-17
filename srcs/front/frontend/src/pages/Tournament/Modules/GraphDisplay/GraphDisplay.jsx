@@ -4,6 +4,7 @@ import red_cross from '../../../../assets/images/red_cross.png'
 import crown from '../../../../assets/images/crown.png'
 import ImgFallback from '../../../../components/ImgFallback';
 import styles from './GraphDisplay.module.css'
+import { useTranslation } from "react-i18next";
 
 function HorizontalLine({color}) {
 	return (
@@ -15,6 +16,7 @@ function HorizontalLine({color}) {
 }
 
 function BigPlayerCard({ player }) {
+	const	{ t } = useTranslation();
 
 	return (
 		<div className={styles.big_player_container}>
@@ -30,14 +32,15 @@ function BigPlayerCard({ player }) {
 								alt="Connexion Lost"
 								style={{borderColor: player.color}}/>
 				}
-				<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
+				<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : t("connecting...")}</p>
 			</div>
-			<p className='m-0' style={{borderColor: player.color}}>{"[ WINNER ]"}</p>
+			<p className='m-0' style={{borderColor: player.color}}>{t("[ WINNER ]")}</p>
 		</div>
 	);
 }
 
 function PlayerLostCard({ player }) {
+	const	{ t } = useTranslation();
 
 	return (
 		<>
@@ -55,13 +58,14 @@ function PlayerLostCard({ player }) {
 								alt="Connexion Lost"
 								style={{borderColor: player.color}}/>
 					}
-					<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
+					<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : t("connecting...")}</p>
 				</div>
 		</>
 	);
 }
 
 function PlayerCard({ player }) {
+	const	{ t } = useTranslation();
 
 	return (
 		<div className={styles.player_box}>
@@ -75,7 +79,7 @@ function PlayerCard({ player }) {
 						alt="Connexion Lost"
 						style={{borderColor: player.color}}/>
 			}
-			<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : "connecting..."}</p>
+			<p className='m-0' style={{borderColor: player.color}}>{player.arena_name ? player.arena_name : t("connecting...")}</p>
 		</div>
 	);
 }
@@ -154,9 +158,10 @@ function MakeRightListOf(players, res, round, prevLength) {
 
 
 function GraphDisplay({ players, info, results, title }) {
+	const	{ t } = useTranslation();
 
 	if (players == null)
-		return ( <p>connecting...</p>);
+		return ( <p>{t("connecting...")}</p>);
 
 	const mid = Math.ceil(players.length / 2); // Get the middle index
 	const leftPlayers = players.slice(0, mid);

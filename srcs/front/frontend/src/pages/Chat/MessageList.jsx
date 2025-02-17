@@ -2,6 +2,7 @@ import React, {useEffect, useRef, useState, useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Chat.module.css';
 import AuthContext from "../../context/AuthContext.jsx";
+import { useTranslation } from "react-i18next";
 
 const MessageList = ({ 
     messagesList, 
@@ -14,6 +15,7 @@ const MessageList = ({
     const [visibleMenu, setVisibleMenu] = useState({}); 
     const navigate = useNavigate();
     const { user, authTokens } = useContext(AuthContext);
+	const { t } = useTranslation();
 
     const handleUsernameClick = (username, index) => {
         setVisibleMenu((prev) => ({
@@ -85,7 +87,7 @@ const MessageList = ({
                 
                 return isValidMessage ? (
                     <div key={index} className={styles.message_row}>
-                        {!msg.message.startsWith("Click here to join") && (
+                        {!msg.message.startsWith("Click here to play against") && (
                             <button
                                 className={styles.username_button}
                                 onClick={() => handleUsernameClick(msg.username, index)}
@@ -93,19 +95,19 @@ const MessageList = ({
                                 {msg.username}
                             </button>
                         )}
-                        {!msg.message.startsWith("Click here to join") && (
+                        {!msg.message.startsWith("Click here to play against") && (
                             <span className={styles.message_separator}>: </span>
                         )}
                         {visibleMenu[index] === msg.username && msg.username !== user.username && (
                             <div className={styles.menu}>
                                 <button onClick={() => handleOptionClick('Block', msg.username)}>
-                                    Block
+                                    {t("Block")}
                                 </button>
                                 <button onClick={() => handleOptionClick('Invite', msg.username)}>
-                                    Invite
+                                    {t("Invite")}
                                 </button>
                                 <button onClick={() => handleOptionClick('View Profile', msg.username)}>
-                                    View Profile
+                                    {t("View Profile")}
                                 </button>
                             </div>
                         )}

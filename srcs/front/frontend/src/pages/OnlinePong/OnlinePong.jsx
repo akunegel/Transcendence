@@ -7,10 +7,12 @@ import disconnected from '../../assets/images/connexion_lost.png'
 import { getRoomInfo } from '../../components/requestList.jsx';
 import { drawBonus } from '../Pong/BonusManager.js';
 import styles from './OnlinePong.module.css';
+import { useTranslation } from "react-i18next";
 
 
 function OnlinePong() {
-
+	
+	const	{ t } = useTranslation();
 	const	{ roomId } = useParams(); // Extract roomId from URL
 	const	{ authTokens } = useContext(AuthContext);
 	
@@ -85,7 +87,7 @@ function OnlinePong() {
 
 	const displayGameStartTimer = async () => {
 		for(let i = 3; i != 0; i--){
-			setStatusTitle("- Game starting in " + i + " -");
+			setStatusTitle("- " + t("Game starting in") + " " + i + " -");
 			document.title = i;
 			await sleep(1000);
 		}
@@ -96,7 +98,7 @@ function OnlinePong() {
 	// Setting the tab's title on mount, retrieving room's specific info, getting user info, starting websocket connexion
 	useEffect(() => {
 
-		document.title = "Waiting";
+		document.title = t("Waiting");
 
 		// Getting the room's gamerules (point limit, add bonuses, max time, etc...) for display
 		const fetchRoomInfo = async () => {
@@ -106,9 +108,9 @@ function OnlinePong() {
 		fetchRoomInfo()
 			.then((data) => {rulesRef.current = data;
 							setRules(data);
-							setStatusTitle("- First to " + data.max_point + " wins -");
+							setStatusTitle("- " + t("First to") + " " + data.max_point + " "+ t("wins") + " -");
 							setTimer({min: data.max_time, sec: 0});})
-			.catch((err) => console.error("Failed to fetch room info:", err));
+			.catch(() => {});
 
 		// Starting the connexion to the room's channel layer
 		if (!wsRef.current) {
@@ -140,7 +142,7 @@ function OnlinePong() {
 					break ;
 				case 'start_game':
 					gameStarted.current = true;
-					setStatusTitle("- First to " + rulesRef.current.max_point + " wins -");
+					setStatusTitle("- "+ t("First to") + " " + rulesRef.current.max_point + " " + t("wins") + " -");
 					break ;
 				case 'ball_update':
 					// Receiving the next position of the ball
@@ -166,9 +168,9 @@ function OnlinePong() {
 					timeBeforeHit.current = 0
 					// Displaying winner's username
 					if (msg.data.winner == null)
-						setStatusTitle("- Game Ended In A Draw ! -");
+						setStatusTitle("- " + t("Game Ended In A Draw !") + " -");
 					else
-						setStatusTitle("- " + msg.data.winner + " is the winner ! -");
+						setStatusTitle("- " + msg.data.winner + " " + t("is the winner !") + " -");
 					timerIsRunning.current = false;
 					drawGame(canvasRef.current.getContext('2d'), 400, 250);
 					break ;
@@ -330,7 +332,7 @@ function OnlinePong() {
 						<img src={default_pic} alt="Waiting for player"/>	
 					}
 					<p className="m-0" style={{ textAlign: "left"}}>
-						{p1 ? p1.username : "waiting..."}
+						{p1 ? p1.username : t("waiting...")}
 					</p>
 				</div>
 				{/* Middle Display - Current score or time left */}
@@ -344,7 +346,7 @@ function OnlinePong() {
 				{/* Player2 info */}
 				<div className={styles.player_info}>
 					<p className="m-0" style={{ textAlign: "right"}}>
-						{p2 ? p2.username : "waiting..."}
+						{p2 ? p2.username : t("waiting...")}
 					</p>
 					{p2 ?
 						p2.connected ? 

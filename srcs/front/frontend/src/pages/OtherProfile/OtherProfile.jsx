@@ -5,12 +5,15 @@ import default_pic from '../../assets/images/default_profile_pic.png'
 import AuthContext from "../../context/AuthContext.jsx";
 import styles from "../Profile/Profile.module.css";
 import logo from "../../assets/images/logo_profil.png";
+import { useTranslation } from "react-i18next";
 
 const OtherProfile = () => {
 	const [profile, setProfile] = useState(null);
 	const { username } = useParams();
 	const { authTokens } = useContext(AuthContext);
 	const navigate = useNavigate();
+	const { t } = useTranslation();
+
 
 	const handleReturn = () => {
 		navigate(-1);
@@ -60,20 +63,20 @@ const OtherProfile = () => {
 									alt="Profile Picture"
 									fallback={default_pic}
 					/>
-					<p><strong>Username:</strong> {profile.username}</p>
-					<p><strong>First Name:</strong> {profile.first_name}</p>
-					<p><strong>Last Name:</strong> {profile.last_name}</p>
-					<p><strong>Email:</strong> {profile.email}</p>
+					<p><strong>{t("Username")}:</strong> {profile.username}</p>
+					<p><strong>{t("First Name")}:</strong> {profile.first_name}</p>
+					<p><strong>{t("Last Name")}:</strong> {profile.last_name}</p>
+					<p><strong>{t("Email")}:</strong> {profile.email}</p>
 				</div>
 				<div className={styles.userinfo_container}>
-					<p><strong>Number of games:</strong> {profile.nb_games}</p>
-					<p><strong>Wins:</strong> {profile.wins}</p>
-					<p><strong>Lost:</strong> {profile.loss}</p>
-					<p><strong>Tournament wins:</strong> {profile.tr_wins}</p>
-					<p><strong>Number of rebounds per game:</strong> {profile.rb}</p>
+					<p><strong>{t("Number of games")}:</strong> {profile.nb_games}</p>
+					<p><strong>{t("Wins")}:</strong> {profile.wins}</p>
+					<p><strong>{t("Lost")}:</strong> {profile.loss}</p>
+					<p><strong>{t("Tournament wins")}:</strong> {profile.tr_wins}</p>
+					<p><strong>{t("Average rebounds per game")}:</strong> {profile.nb_games > 0 ? profile.rb / profile.nb_games : 0}</p>
 				</div>
 			</div>
-			<button onClick={handleReturn}>RETURN</button>
+			<button onClick={handleReturn}>{t("RETURN")}</button>
 		</div>
 	);
 };

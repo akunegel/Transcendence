@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 import CustomGameForm from "../../components/CustomGameForm/CustomGameForm.jsx"
 import logo from "../../assets/images/logo_lobby.png"
 import styles from "./Lobby.module.css"
+import { useTranslation } from "react-i18next";
 
 
 function Lobby(){
@@ -11,6 +12,7 @@ function Lobby(){
 	const { authTokens } = useContext(AuthContext);
 	const [openCustom, setOpenCustom] = useState(false);
 	const [noRoomFound, setNoRoomFound] = useState(false);
+	const { t } = useTranslation();
 
 
 	useEffect(() => {
@@ -62,11 +64,11 @@ function Lobby(){
 
 			<div className={styles.main_container}>
 				<div className={styles.centered_container}>
-					{noRoomFound && <p>No room found...</p>}
-					<button onClick={() => handleQuick()}>QUICK JOIN</button>
-					<button onClick={() => setOpenCustom(openCustom ? false : true)}>CUSTOM GAME</button>
-					<button onClick={() => handleTournament()}>TOURNAMENT</button>
-					<button onClick={() => handleReturn()}>RETURN</button>
+					{noRoomFound && <p>{t("No room found")}...</p>}
+					<button onClick={() => handleQuick()}>{t("QUICK JOIN")}</button>
+					<button onClick={() => setOpenCustom(openCustom ? false : true)}>{t("CUSTOM GAME")}</button>
+					<button onClick={() => handleTournament()}>{t("TOURNAMENT")}</button>
+					<button onClick={() => handleReturn()}>{t("RETURN")}</button>
 					<br/>
 				</div>
 
