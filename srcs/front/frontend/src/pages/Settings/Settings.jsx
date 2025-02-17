@@ -113,7 +113,7 @@ function Settings() {
 						<option value="Français">Français</option>
 						<option value="Español">Español</option>
 					</select>
-					<button onClick={deleteAccount}>DELETE ACCOUNT</button>
+					<button onClick={deleteAccount}>{t("DELETE ACCOUNT")}</button>
 				</div>
 			</div>
 
